@@ -4,4 +4,4 @@
 ##### Credits - Devito x Nole
 ##### Images - Soon
 
-<img src="[img]https://i.imgur.com/eRzi2Jg.png">
+<img src="https://i.imgur.com/eRzi2Jg.png">
