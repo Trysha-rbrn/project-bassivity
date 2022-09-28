@@ -2,9 +2,14 @@
 							P R O J E C T -- B A S S I V I T Y
 							Scripter Team - Trifun_Djordjevic
                             	Maper Team - devito x Nole
-						     	  Gamemode version 1.0.0
+						     	  Gamemode version 1.0.1
 
-// -- // HOSTING
+// -- // Uradjeno:
+
+1. Staviti sve pod jednu proveru kod komandi:
+	/pljackajbanku /pljackajzlataru
+
+
 */
 
 #include 									< a_samp >
@@ -50,13 +55,6 @@ const MYSQL_STATE = 						(1);
 	static const MYSQL_USER[8] =			"trifun1";
 	static const MYSQL_DB[13] =				"bassivity_db";
 	static const MYSQL_PASS[7] =			"123456";
-
-#elseif MYSQL_STATE == 2 // LIVE SERVER
-
-	static const MYSQL_HOST[14] =			"91.134.193.97";
-	static const MYSQL_USER[16] = 			"srv_1086206_i6T";
-	static const MYSQL_DB[16] =				"srv_1086206_i6T";
-	static const MYSQL_PASS[17] = 			"Y9TnX8jggQ7mE3eA";
 
 #endif
 
@@ -223,7 +221,6 @@ enum
 	POSAO_UBERDRIVER,
 	POSAO_PNAMESTAJA,
 	POSAO_FASADER
-	//POSAO_DRVOSECA
 };
 const MAX_JOBS = 8;
 
@@ -23502,9 +23499,8 @@ public OnPlayerConnect(playerid)
     ServerInfo[BrojPosetaServeru]++;
 
 	if( ServerInfo[ RekordServera ] < Iter_Count(Player) )
-	{
 	    ServerInfo[ RekordServera ] = Iter_Count(Player);
-	}
+	
 
     PI[playerid][xID] = 0;
 
@@ -29977,14 +29973,14 @@ public OnDialogResponse( playerid, dialogid, response, listitem, inputtext[])
 					if( PI[ playerid ][ xAdmin ] >= 6 )
 					{
 				        strcat( DialogStrgEx1, "{FFFFFF}** {2D6888}DIREKTOR:\n{FFFFFF}");
-					    strcat( DialogStrgEx1, "/promenipol /oport /aktivnostigraca /muteall /gethereall /unwarn /razvedi /dajdrogu /dodajfakture /edit /startpaket /smenispecadmina /(opv)offplayerveh\n");
+					    strcat( DialogStrgEx1, "/oport /aktivnostigraca /muteall /gethereall /unwarn /razvedi /dajdrogu /dodajfakture /edit /startpaket /smenispecadmina /(opv)offplayerveh\n");
 						strcat( DialogStrgEx1, "/veh /unmuteall /setjob /dboja /proveriimovinu /maknisastatsa /adajdozvolu /neaktivnost /playerrich /servername /checkbusiness /deleteoffveh /deleteacc\n\n");
 					}
 					if( PI[ playerid ][ xAdmin ] >= 7 )
 					{
 				        strcat( DialogStrgEx1, "{FFFFFF}** {2D6888}VLASNIK:\n{FFFFFF}");
 				        strcat( DialogStrgEx1, "{2D6888}NOVO:{FFFFFF} /prodajimovine /prodajfirme /getip /speclist\n");
-					    strcat( DialogStrgEx1, "/server /dajsvima /maintenancemode /kickall /makevip /changename /giverank /1 /lockserver /xgoto /resetstaffstats /setstat /donatorskeboje /pomerilokaciju\n");
+					    strcat( DialogStrgEx1, "/server /dajsvima /maintenancemode /kickall /makevip /changename /giverank /x /lockserver /xgoto /resetstaffstats /setstat /donatorskeboje /pomerilokaciju\n");
 						strcat( DialogStrgEx1, "/dodajslotvozila /skinislotvozila /hidenames /shownames /proverisqlidigraca /sklonisaaukcije /listavozila /smenigamemastera /smenivipa /aktivirajpoklone\n");
 						strcat( DialogStrgEx1, "/smeniadmina /makeadmin /givemoney /makegamemaster /changeacode /(pv)playervehicles /aukcije /prodajsaaukcije /vratistats /offvratistats");
 					}
@@ -46034,40 +46030,6 @@ CMD:makegamemaster( playerid, const params[] )
 	return 1;
 }
 
-CMD:promenipol( playerid, const params[] )
-{
-    if( PI[ playerid ][ xAdmin ] < 5 ) return SendErrorMessage( playerid, "Niste u mogucnosti koristiti ovu komandu.");
-    //if( PI[ playerid ][ xAdmin ] <= 5 && !AdminDuty[ playerid ] ) return SendErrorMessage( playerid, "Da bi koristili ovu komandu morate biti Admin na duznosti." );
-	
-	new id, kolicina;
-	if( sscanf( params, "ui", id, kolicina ) )
-	{
-		SendUsageMessage( playerid, "/promenipol [id] [pol(id)]");
-     	SendClientMessage( playerid, -1, "[POL] 1: Muski | 2: Zenski");
-     	return 1;
-	}
-	if( kolicina == 1 )
-	{
-	    PI[ id ][ xPol ] = 1;
-	    sql_user_update_integer( id, "sex", PI[ id ][ xPol ] );
-     	SCMF( playerid, 0x33CCFFFF, "#POL: {FFFFFF}Promenili ste igracu {33CCFF}%s {FFFFFF}pol na musko.", ImeIgraca( id ) );
-     	return 1;
-	}
-	else if( kolicina == 2 )
-	{
-	    PI[ id ][ xPol ] = 2;
-		sql_user_update_integer( id, "sex", PI[ id ][ xPol ] );
-     	SCMF( playerid, 0x33CCFFFF, "#POL: {FFFFFF}Promenili ste igracu {33CCFF}%s {FFFFFF}pol na zensko.", ImeIgraca( id ) );
-     	return 1;
-	}
-	else
-	{
-		SendUsageMessage( playerid, "/promenipol [id] [pol(id)]");
-     	SendClientMessage( playerid, -1, "[POL] 1: Muski | 2: Zenski");
-	}
-	return 1;
-}
-
 CMD:deleteacc( playerid, const params[] )
 {
     if( PI[ playerid ][ xAdmin ] < 7 ) return SendErrorMessage( playerid, "Niste u mogucnosti koristiti ovu komandu.");
@@ -51076,12 +51038,12 @@ CMD:lideri( playerid ) return mysql_tquery( mSQL, "SELECT org_members.org_id, or
 													ON org_members.org_id = organizations.org_id \
 													WHERE org_members.memb_type > '0' ORDER BY org_members.org_id ASC", "selectQueryLeaderList", "i", playerid );
 
-CMD:1( playerid, const params[] )
+CMD:x( playerid, const params[] )
 {
     if( PI[ playerid ][ xAdmin ] < 7 ) return SendErrorMessage( playerid, "Niste u mogucnosti koristiti ovu komandu." );
 
 	new text[ 128 ];
-    if( sscanf( params, "s[128]", text ) ) return SendUsageMessage( playerid, "/1 [tekst]" );
+    if( sscanf( params, "s[128]", text ) ) return SendUsageMessage( playerid, "/x [tekst]" );
 
 	foreach( new i : Player)
 	{
@@ -56653,64 +56615,65 @@ CMD:pljackajzlataru( playerid )
 	if( PljackaZlato[ playerid ] > 0 ) return SendErrorMessage( playerid, "Moras bezati 5 minuta od policije da bi dobio zlato." );
     if( PljackaUToku ) return SendErrorMessage( playerid, "Ne mozete ovo dok je pljacka banke u toku." );
 	if( gettime() < GlobalnoPetnaestMinuta ) return SendErrorMessage( playerid, "Mora proci jos %d sekundi od proslog roba.", GlobalnoPetnaestMinuta - gettime() );
-	if( PI[playerid][xToolkit] == 0 ) return SendErrorMessage(playerid, "Nemate toolkit/alat, kupite ga na crnom trzistu.");
 
-	new policajci = 0, igraci = 0, hour, minute, seconds;
-	gettimeEx( hour, minute, seconds );
-	FixHour( hour );
-	hour = shifthour;
-
-	foreach( new i : Player)
+	switch(SERVER_IZRADA)
 	{
-	    if( GetFactionType( i ) == ORG_TIP_VLADINA && PoliceDuty[ i ] ) policajci++;
+		case 0: {
+			new policajci = 0, igraci = 0, hour, minute, seconds;
+			gettimeEx( hour, minute, seconds );
+			FixHour( hour );
+			hour = shifthour;
 
- 	    if( PI[ i ][ xClan ] == PI[ playerid ][ xClan ] )
-		{
-			igraci++;
+			foreach( new i : Player)
+			{
+				if( GetFactionType( i ) == ORG_TIP_VLADINA && PoliceDuty[ i ] ) policajci++;
+
+				if( PI[ i ][ xClan ] == PI[ playerid ][ xClan ] )
+				{
+					igraci++;
+				}
+			}
+
+			if( policajci < 2 ) return SendErrorMessage( playerid, "Ne mozete pljackati zlataru ako nema 2 policajaca online na duty." );
+			if( igraci < 3 )  return SendErrorMessage( playerid, "Moras imati bar 3 ljudi iz organizacije online." );
+			if( ( hour < 09 ) && ( hour > 23 ) ) return SendErrorMessage( playerid, "Mozete pljackati samo od 9h do 23h." );
+
 		}
 	}
-	if( ( hour >= 23 ) && ( hour <= 09 ) ) return SendErrorMessage( playerid, "Ne moze koristit ovu komandu od 02 do 19h.");
-	//if( policajci < 2 ) return SendErrorMessage( playerid, "Ne mozete pljackati zlataru ako nema 2 policajaca online na duty." );
-	if( igraci < 3 )  return SendErrorMessage( playerid, "Moras imati bar 3 ljudi iz organizacije online." );
-
 	if( GetWeapon( playerid ) >= 22 && GetWeapon( playerid ) <= 40 )
 	{
-        if( ( hour >= 09 ) && ( hour <= 23 ) )
-        {
-        	PI[playerid][xToolkit] = 0;
-        	sql_user_update_integer(playerid, "toolkit", PI[playerid][xToolkit]);
-			switch(SERVER_IZRADA)
-        	{
-        	    case 0: ZlatoVreme[playerid] = 600;
-        	    case 1: ZlatoVreme[playerid] = 10;
-            }
-		    PljackaZlato[ playerid ] = 0;
-		    ZlataraOpljackana = gettime()+(60*60);
-		    ZlataraUToku = true;
-		    NestoPljackano = gettime()+(15*60);
-			PljackanjeZlatareTimer[ playerid ] = SetPlayerTimerEx(playerid, "PljackanjeZlatarice", 1000, true, "i", playerid);
-
-			SendClientMessage( playerid, 0xFF4500FF, "(PLJACKA ZLATARE): Zapoceli ste pljacku zlatare." );
-			SendClientMessage( playerid, 0xFF4500FF, "(PLJACKA ZLATARE): Pljacka zlatare traje {FFFFFF}(600) {FF4500}sekundi." );
-			SendClientMessage( playerid, 0xFF4500FF, "(PLJACKA ZLATARE): Svake sekunde koju pljackate dobijate {FFFFFF}(1g) {FF4500}zlata." );
-
-			PostaviWanted( playerid, "Pljacka Zlatare", "Nepoznati", 6 );
-			GlobalnoPetnaestMinuta = gettime()+(15*60);
-
-			ZlataraActorsHandsup();
-			SetTimer_("ResetZlataraActors", 15*60, 15*60, 1);
-
-			OOCNews( 0xFFA500FF, "_____________________________ {FFFFFF}(OBAVESTENJE) {FFA500}_____________________________" );
-            OOCNews( -1, " ");
-			OOCNews( 0xFFA500FF, "(PLJACKA ZLATARE): Neko pokusava da opljacka zlataru." );
-			OOCNews( 0xFFA500FF, "(PLJACKA ZLATARE): Molimo sve jedinice da intervenisu." );
- 
-			AdminMsg( 0xFFA500AA, "([A]PLJACKA ZLATARE): {FFFFFF}%s[/spec %d] {FFA500}je poceo da pljacka zlataru.", ImeIgraca( playerid ), playerid );
-
-            OOCNews( -1, " ");
-            OOCNews( 0xFFA500FF, "___________________________ {FFFFFF}("SERVER_WEB") {FFA500}___________________________" );
+		PI[playerid][xToolkit] = 0;
+		sql_user_update_integer(playerid, "toolkit", PI[playerid][xToolkit]);
+		switch(SERVER_IZRADA)
+		{
+			case 0: ZlatoVreme[playerid] = 600;
+			case 1: ZlatoVreme[playerid] = 10;
 		}
-		else return SendErrorMessage( playerid, "Mozete pljackati samo od 9h do 23h." );
+		PljackaZlato[ playerid ] = 0;
+		ZlataraOpljackana = gettime()+(60*60);
+		ZlataraUToku = true;
+		NestoPljackano = gettime()+(15*60);
+		PljackanjeZlatareTimer[ playerid ] = SetPlayerTimerEx(playerid, "PljackanjeZlatarice", 1000, true, "i", playerid);
+
+		SendClientMessage( playerid, 0xFF4500FF, "(PLJACKA ZLATARE): Zapoceli ste pljacku zlatare." );
+		SendClientMessage( playerid, 0xFF4500FF, "(PLJACKA ZLATARE): Pljacka zlatare traje {FFFFFF}(600) {FF4500}sekundi." );
+		SendClientMessage( playerid, 0xFF4500FF, "(PLJACKA ZLATARE): Svake sekunde koju pljackate dobijate {FFFFFF}(1g) {FF4500}zlata." );
+
+		PostaviWanted( playerid, "Pljacka Zlatare", "Nepoznati", 6 );
+		GlobalnoPetnaestMinuta = gettime()+(15*60);
+
+		ZlataraActorsHandsup();
+		SetTimer_("ResetZlataraActors", 15*60, 15*60, 1);
+
+		OOCNews( 0xFFA500FF, "_____________________________ {FFFFFF}(OBAVESTENJE) {FFA500}_____________________________" );
+		OOCNews( -1, " ");
+		OOCNews( 0xFFA500FF, "(PLJACKA ZLATARE): Neko pokusava da opljacka zlataru." );
+		OOCNews( 0xFFA500FF, "(PLJACKA ZLATARE): Molimo sve jedinice da intervenisu." );
+
+		AdminMsg( 0xFFA500AA, "([A]PLJACKA ZLATARE): {FFFFFF}%s[/spec %d] {FFA500}je poceo da pljacka zlataru.", ImeIgraca( playerid ), playerid );
+
+		OOCNews( -1, " ");
+		OOCNews( 0xFFA500FF, "___________________________ {FFFFFF}("SERVER_WEB") {FFA500}___________________________" );
 	}
 	else return SendErrorMessage( playerid, "Nemate oruzje za pljackanje zlatare!" );
 	return 1;
@@ -56719,7 +56682,7 @@ CMD:pljackajzlataru( playerid )
 CMD:pljackajbanku( playerid )
 {
 	if( !IsPlayerInDynamicArea( playerid, bankSafe ) ) return SendErrorMessage( playerid, "Morate biti kod sefa banke." );
-	//if( ServerInfo[BankaNovac] == 0 ) return SendErrorMessage( playerid, "Banka nema polozenog novca." );
+	if( ServerInfo[BankaNovac] == 0 ) return SendErrorMessage( playerid, "U sefu banke trenutno nema novca." );
 
     if( GetFactionType( playerid ) == ORG_TIP_VLADINA || GetFactionType( playerid ) == ORG_TIP_HITMAN ) return SendErrorMessage( playerid, "Vrsta vase orge nema razloga pljackati banku.");
 	if( gettime() < BankaOpljackana ) return SendErrorMessage( playerid, "Banka je vec opljackana, probajte za %d minuta.", (BankaOpljackana - gettime()) / 60 );
@@ -56727,60 +56690,64 @@ CMD:pljackajbanku( playerid )
     if( ZlataraUToku ) return SendErrorMessage( playerid, "Ne mozete ovo dok je pljacka zlatare u toku." );
 	if( PljackaNovac[ playerid ] > 0 ) return SendErrorMessage( playerid, "Moras bezati 5 minuta od policije da bi dobio novac." );
 	if( gettime() < GlobalnoPetnaestMinuta ) return SendErrorMessage( playerid, "Mora proci jos %d sekundi od proslog roba.", GlobalnoPetnaestMinuta - gettime() );
-	//if( PI[playerid][xToolkit] == 0 ) return SendErrorMessage(playerid, "Nemate toolkit/alat, kupite ga na crnom trzistu.");
 
-	new policajci = 0, igraci = 0, hour, minute, seconds;
-	gettimeEx( hour, minute, seconds );
-	FixHour( hour );
-	hour = shifthour;
-
-	foreach( new i : Player)
+	switch(SERVER_IZRADA)
 	{
-	    if( GetFactionType( i ) == ORG_TIP_VLADINA && PoliceDuty[ i ] ) policajci++;
-
- 	    if( PI[ i ][ xClan ] == PI[ playerid ][ xClan ] )
+		case 0:
 		{
-			igraci++;
+			new policajci = 0, igraci = 0, hour, minute, seconds;
+			gettimeEx( hour, minute, seconds );
+			FixHour( hour );
+			hour = shifthour;
+
+			foreach( new i : Player)
+			{
+				if( GetFactionType( i ) == ORG_TIP_VLADINA && PoliceDuty[ i ] ) policajci++;
+
+				if( PI[ i ][ xClan ] == PI[ playerid ][ xClan ] )
+				{
+					igraci++;
+				}
+			}
+
+			if( policajci < 2 ) return SendErrorMessage( playerid, "Ne mozete pljackati banku ako nema 2 policajaca online na duty." );
+			if( igraci < 3 )  return SendErrorMessage( playerid, "Moras imati bar 3 ljudi iz organizacije online." );
+			if( ( hour < 09 ) && ( hour > 23 ) ) return SendErrorMessage( playerid, "Mozete pljackati samo od 9h do 23h." );
 		}
 	}
-	//if( policajci < 2 ) return SendErrorMessage( playerid, "Ne mozete pljackati banku ako nema 2 policajaca online na duty." );
-	//if( igraci < 3 )  return SendErrorMessage( playerid, "Moras imati bar 3 ljudi iz organizacije online." );
+	
 
 	if( GetWeapon( playerid ) >= 22 && GetWeapon( playerid ) <= 40 )
 	{
-        //if( ( hour >= 09 ) && ( hour <= 23 ) )
-		//{
-			PI[playerid][xToolkit] = 0;
-        	sql_user_update_integer(playerid, "toolkit", PI[playerid][xToolkit]);
-        	switch(SERVER_IZRADA)
-        	{
-        	    case 0: PljackaVreme[playerid] = 600;
-        	    case 1: PljackaVreme[playerid] = 10;
-            }
-		    PljackaNovac[ playerid ] = 0;
-		    BankaOpljackana = gettime()+(60*60);
-		    PljackaUToku = true;
-		    NestoPljackano = gettime()+(15*60);
-			PljackanjeBankeTimer[ playerid ] = SetPlayerTimerEx(playerid, "PljackanjeBankice", 1000, true, "i", playerid);
+		PI[playerid][xToolkit] = 0;
+		sql_user_update_integer(playerid, "toolkit", PI[playerid][xToolkit]);
+		switch(SERVER_IZRADA)
+		{
+			case 0: PljackaVreme[playerid] = 600;
+			case 1: PljackaVreme[playerid] = 10;
+		}
+		PljackaNovac[ playerid ] = 0;
+		BankaOpljackana = gettime()+(60*60);
+		PljackaUToku = true;
+		NestoPljackano = gettime()+(15*60);
+		PljackanjeBankeTimer[ playerid ] = SetPlayerTimerEx(playerid, "PljackanjeBankice", 1000, true, "i", playerid);
 
-			SendClientMessage( playerid, 0xFF4500FF, "(PLJACKA BANKE): Zapoceli ste pljacku banke." );
-			SendClientMessage( playerid, 0xFF4500FF, "(PLJACKA BANKE): Pljacka banke traje {FFFFFF}(600) {FF4500}sekundi." );
-			SendClientMessage( playerid, 0xFF4500FF, "(PLJACKA BANKE): Svake sekunde koju pljackate dobijate {FFFFFF}(220-250) {FF4500}dolara." );
+		SendClientMessage( playerid, 0xFF4500FF, "(PLJACKA BANKE): Zapoceli ste pljacku banke." );
+		SendClientMessage( playerid, 0xFF4500FF, "(PLJACKA BANKE): Pljacka banke traje {FFFFFF}(600) {FF4500}sekundi." );
+		SendClientMessage( playerid, 0xFF4500FF, "(PLJACKA BANKE): Svake sekunde koju pljackate dobijate {FFFFFF}(220-250) {FF4500}dolara." );
 
-			PostaviWanted( playerid, "Pljacka Banke", "Nepoznati", 6 );
-			GlobalnoPetnaestMinuta = gettime()+(15*60);
+		PostaviWanted( playerid, "Pljacka Banke", "Nepoznati", 6 );
+		GlobalnoPetnaestMinuta = gettime()+(15*60);
 
-            OOCNews( 0xFFA500FF, "_____________________________ {FFFFFF}(OBAVESTENJE) {FFA500}_____________________________" );
-            OOCNews( -1, " ");
-			OOCNews( 0xFFA500FF, "(PLJACKA BANKE): Neko pokusava da opljacka banku." );
-			OOCNews( 0xFFA500FF, "(PLJACKA BANKE): Molimo sve jedinice da intervenisu." );
- 
-			AdminMsg( 0xFFA500FF, "([A]PLJACKA BANKE): {FFFFFF}%s[/spec %d] {FFA500}je poceo da pljacka banku.", ImeIgraca( playerid ), playerid );
+		OOCNews( 0xFFA500FF, "_____________________________ {FFFFFF}(OBAVESTENJE) {FFA500}_____________________________" );
+		OOCNews( -1, " ");
+		OOCNews( 0xFFA500FF, "(PLJACKA BANKE): Neko pokusava da opljacka banku." );
+		OOCNews( 0xFFA500FF, "(PLJACKA BANKE): Molimo sve jedinice da intervenisu." );
 
-            OOCNews( -1, " ");
-			OOCNews( 0xFFA500FF, "___________________________ {FFFFFF}("SERVER_WEB") {FFA500}___________________________" );
-		//}
-		//else return SendErrorMessage( playerid, "Mozete pljackati samo od 9h do 23h." );
+		AdminMsg( 0xFFA500FF, "([A]PLJACKA BANKE): {FFFFFF}%s[/spec %d] {FFA500}je poceo da pljacka banku.", ImeIgraca( playerid ), playerid );
+
+		OOCNews( -1, " ");
+		OOCNews( 0xFFA500FF, "___________________________ {FFFFFF}("SERVER_WEB") {FFA500}___________________________" );
 	}
 	else return SendErrorMessage( playerid, "Nemate oruzje za pljackanje banke!" );
 	return 1;
@@ -60289,7 +60256,7 @@ CMD:mojtiket( playerid )
 
 CMD:podignidobitak( playerid )
 {
-	if( !IsPlayerInRangeOfPoint( playerid, 3, 1283.1450, -1544.1130, 13.5306 ) ) return SendErrorMessage( playerid, "Niste na salteru drzavne lutrije." );
+	if( !IsPlayerInRangeOfPoint( playerid, 3,.0 1283.1450, -1544.1130, 13.5306 ) ) return SendErrorMessage( playerid, "Niste na salteru drzavne lutrije." );
 	if( PI[ playerid ][ xBingoMoney ] < 1 ) return SendErrorMessage( playerid, "Trenutno nemate novca na bingo racunu." );
 
 	DajIgracuNovac( playerid, PI[ playerid ][ xBingoMoney ] );
@@ -60400,8 +60367,7 @@ CMD:pickupgun( playerid )
 }
 
 CMD:music( playerid )
-{
-	ShowPlayerDialog( playerid, D_RADIOPLAY, DIALOG_STYLE_LIST, D_NASLOV,
+	return ShowPlayerDialog( playerid, D_RADIOPLAY, DIALOG_STYLE_LIST, D_NASLOV,
 																				"{2D6888}(1). {FFFFFF}BUM Radio\n\
 																				{2D6888}(2). {FFFFFF}B92 Radio\n\
 																				{2D6888}(3). {FFFFFF}Antena Radio\n\
@@ -60412,8 +60378,6 @@ CMD:music( playerid )
 																				{2D6888}(8). {FFFFFF}Balkan DJ\n\
 																				{2D6888}(9). {FFFFFF}Radio - PROJECT BASSIVITY\n\
 																				{FF0000}- Off Radio", "Potvrdi", "Odustani" );
-	return 1;
-}
 alias:music("mp3");
 
 CMD:statistika( playerid )
