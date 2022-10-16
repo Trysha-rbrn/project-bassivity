@@ -65,13 +65,13 @@ new mSQL;
 
 //================================[ Postavke ]================================//
 const SERVER_IZRADA = 						(1);
-#define VERZIJA_MODA     					"v1.0.0"
-#define MODE_BUILD							"build 0.01"
+#define VERZIJA_MODA     					"v1.0.2"
+#define MODE_BUILD							"build 0.02"
 #define CLIENT_LANGUAGE						"Project Bassivity"
 #define SERVER_WEB                  		"www.uskoro.com"
 
 #define D_NASLOV 							"{2D6888}(PB): {FFFFFF}www.uskoro.com"
-#define LAST_UPDATE							"{FFFFFF}UPDATE {2D6888}| 25.07.2021:"
+#define LAST_UPDATE							"{FFFFFF}UPDATE {2D6888}| 16.10.2022:"
 
 const UKLJUCEN =							(1);
 const ISKLJUCEN =							(0);
@@ -30332,7 +30332,7 @@ public OnDialogResponse( playerid, dialogid, response, listitem, inputtext[])
 																								"{FFFFFF}** {2D6888}Promoter 1:\n\n\
 																								 {2D6888}>> SPECIAL BONUS: {FFFFFF}Dodatak na placu (1.5k).\n\
 																								 {2D6888}>> /port: {FFFFFF}Portanje na odredjene lokacije.\n\
-																								 {2D6888}>> /g: {FFFFFF}Promoter chat.\n\
+																								 {2D6888}>> /g: {FFFFFF}G chat.\n\
 																								 {2D6888}>> /(fv)fixveh: {FFFFFF}Popravljanje vozila.", "Zatvori", "");
 
 					    if( PI[ playerid ][ xAdmin ] >= 6 || PI[ playerid ][ xPromoter ] >= 2 )
@@ -30341,7 +30341,7 @@ public OnDialogResponse( playerid, dialogid, response, listitem, inputtext[])
 																									"{FFFFFF}** {2D6888}Promoter 2:\n\n\
 																									 {2D6888}>> SPECIAL BONUS: {FFFFFF}Dodatak na placu (2k).\n\
 																									 {2D6888}>> /port: {FFFFFF}Portanje na odredjene lokacije.\n\
-																									 {2D6888}>> /g: {FFFFFF}Promoter chat.\n\
+																									 {2D6888}>> /g: {FFFFFF}G chat.\n\
 																									 {2D6888}>> /(fv)fixveh: {FFFFFF}Popravljanje vozila.\n\
 																									 {2D6888}>> /nitro: {FFFFFF}Dodavanje nitra u vozilo.\n\
 																									 {2D6888}>> /rtc: {FFFFFF}Respawnovanje vozila.", "Zatvori", "");
@@ -30353,7 +30353,7 @@ public OnDialogResponse( playerid, dialogid, response, listitem, inputtext[])
 																									 {2D6888}>> SPECIAL BONUS: {FFFFFF}Dodatak na placu (2.5k).\n\
 																									 {2D6888}>> SPECIAL: {FFFFFF}Neam cooldown na /port.\n\
 																									 {2D6888}>> /port: {FFFFFF}Portanje na odredjene lokacije.\n\
-																									 {2D6888}>> /g: {FFFFFF}Promoter chat.\n\
+																									 {2D6888}>> /g: {FFFFFF}G chat.\n\
 																									 {2D6888}>> /(fv)fixveh: {FFFFFF}Popravljanje vozila.\n\
 																									 {2D6888}>> /nitro: {FFFFFF}Dodavanje nitra u vozilo.\n\
 																									 {2D6888}>> /rtc: {FFFFFF}Respawnovanje vozila.", "Zatvori", "");
@@ -30364,7 +30364,7 @@ public OnDialogResponse( playerid, dialogid, response, listitem, inputtext[])
 																									"{FFFFFF}** {2D6888}Youtuber 1:\n\n\
 																									 {2D6888}>> SPECIAL BONUS: {FFFFFF}Dodatak na placu (3k).\n\
 																									 {2D6888}>> /port: {FFFFFF}Portanje na odredjene lokacije.\n\
-																									 {2D6888}>> /g: {FFFFFF}Promoter chat.\n\
+																									 {2D6888}>> /g: {FFFFFF}G chat.\n\
 																									 {2D6888}>> /(fv)fixveh: {FFFFFF}Popravljanje vozila.\n\
 																									 {2D6888}>> /nitro: {FFFFFF}Dodavanje nitra u vozilo.\n\
 																									 {2D6888}>> /rtc: {FFFFFF}Respawnovanje vozila.\n\
@@ -30373,11 +30373,11 @@ public OnDialogResponse( playerid, dialogid, response, listitem, inputtext[])
 				        }
 						if( PI[ playerid ][ xAdmin ] >= 6 || PI[ playerid ][ xPromoter ] >= 5 || PI[ playerid ] [ xSkriptaRank ] == 5 )
 						{
-				        	ShowPlayerDialog(playerid, 0, DIALOG_STYLE_MSGBOX, "{FFFFFF}Pomoc - Youtuber:",
+				        	ShowPlayerDialog(playerid, 0, DIALOG_STYLE_MSGBOX, "{FFFFFF}Pomoc - Youtuber 2:",
 																									"{FFFFFF}** {2D6888}Youtuber 2:\n\n\
 																									 {2D6888}>> SPECIAL BONUS: {FFFFFF}Dodatak na placu (3.5k).\n\
 																									 {2D6888}>> /port: {FFFFFF}Portanje na odredjene lokacije.\n\
-																									 {2D6888}>> /g: {FFFFFF}Promoter chat.\n\
+																									 {2D6888}>> /g: {FFFFFF}G chat.\n\
 																									 {2D6888}>> /(fv)fixveh: {FFFFFF}Popravljanje vozila.\n\
 																									 {2D6888}>> /nitro: {FFFFFF}Dodavanje nitra u vozilo.\n\
 																									 {2D6888}>> /rtc: {FFFFFF}Respawnovanje vozila.\n\
@@ -45279,7 +45279,7 @@ CMD:makevip( playerid, const params[] )
 
 CMD:makepromoter(playerid, const params[]) 
 {
-    if( PI[ playerid ][ xAdmin ] >= 5 || PI[playerid][xSkriptaRank] == 54)
+    if( PI[ playerid ][ xAdmin ] >= 5 || PI[playerid][xSkriptaRank] == 5)
     {
 		new id, kolicina, razlog[ 64 ];
 	    if( sscanf( params, "uis[64]", id, kolicina, razlog ) ) return SendUsageMessage( playerid, "/makepromoter [id] [level(0/5)] [razlog]");
