@@ -2,9 +2,17 @@
 							P R O J E C T -- B A S S I V I T Y
 							Scripter Team - Trifun_Djordjevic
                             	Maper Team - devito x Nole
-						     	  Gamemode version 1.0.0
+						     	  Gamemode version 1.0.1
 
-// -- // HOSTING
+// -- // Uradjeno:
+
+1. Stavljeno sve pod jednu proveru kod komandi:
+	/pljackajbanku /pljackajzlataru
+2. Izmenjen sistem promotera
+	- Vodja promotera moze biti samo admin
+	- 4. level promoter izbacen
+3. Izbacen sistem youtubera
+	- Youtuberi dodati kod promotera kao 4. i 5. level
 */
 
 #include 									< a_samp >
@@ -51,26 +59,19 @@ const MYSQL_STATE = 						(1);
 	static const MYSQL_DB[13] =				"bassivity_db";
 	static const MYSQL_PASS[7] =			"123456";
 
-#elseif MYSQL_STATE == 2 // LIVE SERVER
-
-	static const MYSQL_HOST[14] =			"91.134.193.97";
-	static const MYSQL_USER[16] = 			"srv_1086206_i6T";
-	static const MYSQL_DB[16] =				"srv_1086206_i6T";
-	static const MYSQL_PASS[17] = 			"Y9TnX8jggQ7mE3eA";
-
 #endif
 
 new mSQL;
 
 //================================[ Postavke ]================================//
 const SERVER_IZRADA = 						(1);
-#define VERZIJA_MODA     					"v1.0.0"
-#define MODE_BUILD							"build 0.01"
+#define VERZIJA_MODA     					"v1.0.2"
+#define MODE_BUILD							"build 0.02"
 #define CLIENT_LANGUAGE						"Project Bassivity"
 #define SERVER_WEB                  		"www.uskoro.com"
 
 #define D_NASLOV 							"{2D6888}(PB): {FFFFFF}www.uskoro.com"
-#define LAST_UPDATE							"{FFFFFF}UPDATE {2D6888}| 25.07.2021:"
+#define LAST_UPDATE							"{FFFFFF}UPDATE {2D6888}| 16.10.2022:"
 
 const UKLJUCEN =							(1);
 const ISKLJUCEN =							(0);
@@ -223,7 +224,6 @@ enum
 	POSAO_UBERDRIVER,
 	POSAO_PNAMESTAJA,
 	POSAO_FASADER
-	//POSAO_DRVOSECA
 };
 const MAX_JOBS = 8;
 
@@ -411,34 +411,33 @@ enum tpData
 	Float:tpPosY,
 	Float:tpPosZ,
 	tpVIP,
-	tpPromoter,
-	tpYouTuber
+	tpPromoter
 };
 new portInfo[MAX_PORTS][tpData] = 
 {
-	//NAZIV               		   				//LOKACIJA              			    //VIP 		//PROMOTER 		//YOUTUBER
-	{"A/GM Baza", 								{4303.3457}, {3027.1594}, {5.2321}, 	99,			99,				99},
-	{"V/P/YT Baza", 							{860.2669}, {-1663.7114}, {13.5468}, 	1,			1,				1},
-	{"Spawn - Hotel Bassivity", 				{1814.7524}, {-1854.7432}, {12.9751}, 	1,			1,				1},
-	{"Opstina", 								{1474.4249}, {-1723.2360}, {13.5469}, 	1,			1,				1},
-	{"Banka", 									{1469.6525}, {-1046.0811}, {23.8281}, 	1,			1,				1},
-	{"Zlatara/Dijamant Store", 					{2018.6461}, {-1254.4033}, {23.9844}, 	2,			2,				99},
-	{"Bolnica", 								{1210.4511}, {-1321.7767}, {13.3984}, 	2,			2,				99},
-	{"Igraonica", 								{1279.2339}, {-1308.7339}, {13.3446}, 	2,			2,				99},
-	{"Salon Vozila", 							{556.2736}, {-1244.5571}, {16.5712}, 	2,			2,				99},
-	{"Oglasi", 									{1714.6606}, {-1341.9164}, {13.3828}, 	3,			3,				99},
-	{"Auto Skola", 								{2078.9580}, {-1939.4135}, {13.5351}, 	3,			3,				99},
-	{"Lutrija", 								{1295.0535}, {-1537.3029}, {13.5333}, 	3,			3,				99},
-	{"Crno Trziste",							{199.5335}, {-237.6040}, {2.6083}, 		4,			99,				99},
-	{"Hangar", 									{2242.6260}, {-2206.1250}, {12.8848}, 	4,			99,				99},
-	{"Plaza", 									{220.4795}, {-1863.1206}, {2.9754}, 	4,			99,				99},
-	{"Bandera Srece", 							{1135.7046}, {-951.4317}, {42.2323}, 	4,			99,				99},
-	{"LS - Los Santos", 						{1315.0231}, {-727.5245}, {92.8225}, 	5,			99,				99},
-	{"LV - Las Venturas", 						{2515.0380}, {1372.7479}, {10.6718}, 	5,			99,				99},
-	{"SF - San Fierro", 						{-2249.2810}, {-77.2153}, {35.1796}, 	5,			99,				99},
-	{"Deagle Event", 							{-1736.3834}, {-1170.3705}, {3.9841}, 	99,			99,				99},
-	{"Novo Mesto", 							    {2397.4065}, {-684.8215}, {126.6387}, 	99,			99,				99}
-};
+	//NAZIV               		   				//LOKACIJA              			    //VIP 		//PROMOTER
+	{"A/GM Baza", 								{4303.3457}, {3027.1594}, {5.2321}, 	99,			99}
+	{"V/P/YT Baza", 							{860.2669}, {-1663.7114}, {13.5468}, 	1,			1}
+	{"Spawn - Hotel Bassivity", 				{1814.7524}, {-1854.7432}, {12.9751}, 	1,			1}	
+	{"Opstina", 								{1474.4249}, {-1723.2360}, {13.5469}, 	1,			1}	
+	{"Banka", 									{1469.6525}, {-1046.0811}, {23.8281}, 	1,			1}	
+	{"Zlatara/Dijamant Store", 					{2018.6461}, {-1254.4033}, {23.9844}, 	2,			2}
+	{"Bolnica", 								{1210.4511}, {-1321.7767}, {13.3984}, 	2,			2}
+	{"Igraonica", 								{1279.2339}, {-1308.7339}, {13.3446}, 	2,			2}
+	{"Salon Vozila", 							{556.2736}, {-1244.5571}, {16.5712}, 	2,			2}
+	{"Oglasi", 									{1714.6606}, {-1341.9164}, {13.3828}, 	3,			3}
+	{"Auto Skola", 								{2078.9580}, {-1939.4135}, {13.5351}, 	3,			3}
+	{"Lutrija", 								{1295.0535}, {-1537.3029}, {13.5333}, 	3,			3}
+	{"Crno Trziste",							{199.5335}, {-237.6040}, {2.6083}, 		4,			99}
+	{"Hangar", 									{2242.6260}, {-2206.1250}, {12.8848}, 	4,			99}
+	{"Plaza", 									{220.4795}, {-1863.1206}, {2.9754}, 	4,			99}
+	{"Bandera Srece", 							{1135.7046}, {-951.4317}, {42.2323}, 	4,			99}
+	{"LS - Los Santos", 						{1315.0231}, {-727.5245}, {92.8225}, 	5,			99}
+	{"LV - Las Venturas", 						{2515.0380}, {1372.7479}, {10.6718}, 	5,			99}
+	{"SF - San Fierro", 						{-2249.2810}, {-77.2153}, {35.1796}, 	5,			99}
+	{"Deagle Event", 							{-1736.3834}, {-1170.3705}, {3.9841}, 	99,			99}
+	{"Novo Mesto", 							    {2397.4065}, {-684.8215}, {126.6387}, 	99,			99}
+	};
  
 //================================[ PAKETI ]==================================//
 
@@ -1736,8 +1735,6 @@ enum
 	D_ACODE,
 	D_RADIO,
 	D_RENTANJE,
-	D_PROMOTERVEH,
-	D_YTVEH,
 	D_PROPERTYWEPTAKE,
 	D_JOBLIST,
 	D_BUY_GPS,
@@ -2376,7 +2373,6 @@ new CreateRentID[ MAX_PLAYERS ],
     AdminDialog[ MAX_PLAYERS ],
     VipVozilo[ MAX_PLAYERS ],
     PromoterVozilo[MAX_PLAYERS],
-    YTVozilo[MAX_PLAYERS],
     PosaoVozilo[ MAX_PLAYERS ],
     PosaoTrailer[ MAX_PLAYERS ],
     TrkaVozilo[ MAX_PLAYERS ],
@@ -3301,7 +3297,6 @@ enum xPI
 	xDrzava, // done sql
 	xVIPLevel, // done sql
 	xPromoter, // done sql
-	xYouTuber, // done sql
 	xHitmenCena, // done sql
 	xKazneniUgovor, // done sql
 	xOffPJail[ 64 ], // done sql
@@ -11038,8 +11033,7 @@ GChat(color, const text[], {Float, _}:...)
 	{
 	    foreach(new i : Player)
 		{
-			if(PI[i][xAdmin] >= 1 || PI[i][xGamemaster] >= 1 || PI[i][xSpecAdmin] >= 1 || PI[i][xVIPLevel] >= 1 || PI[i][xPromoter] >= 1
-				|| PI[i][xYouTuber] >= 1)
+			if(PI[i][xAdmin] >= 1 || PI[i][xGamemaster] >= 1 || PI[i][xSpecAdmin] >= 1 || PI[i][xVIPLevel] >= 1 || PI[i][xPromoter] >= 1)
 			{
 	    		SendClientMessage(i, color, text);
 	    	}
@@ -11070,7 +11064,7 @@ GChat(color, const text[], {Float, _}:...)
 		foreach(new i : Player)
 		{
 			if(PI[i][xAdmin] >= 1 || PI[i][xGamemaster] >= 1 || PI[i][xSpecAdmin] >= 1 || PI[i][xVIPLevel] >= 1 || PI[i][xPromoter] >= 1
-				|| PI[i][xPromoter] >= 1 || PI[i][xYouTuber] >= 1)
+				)
 			{
 	    		SendClientMessage(i, color, str);
 	    	}
@@ -13671,7 +13665,7 @@ _:public ShowDialogStats( playerid, targetid )
         strcat( DialogStrgEx, "{FFFFFF}** Opste informacije:\n" );
 	 	format( str, sizeof( str ),
 		 	"{2D6888}Datum registracije: {FFFFFF}[%s]\n{2D6888}Level: {FFFFFF}[%s]\n{2D6888}Sati igranja: {FFFFFF}[%sh]\n{2D6888}Respekti: {FFFFFF}[%d/%d]\n{2D6888}Spawn Health: {FFFFFF}[%.2f]\n\
-		 	{2D6888}Admin: {FFFFFF}[%s(A:%d)]\n{2D6888}Spec Admin: {FFFFFF}[%s]\n{2D6888}Gamemaster: {FFFFFF}[%d]\n{2D6888}VIP: {FFFFFF}[%d]\n{2D6888}Promoter: {FFFFFF}[%d]\n{2D6888}YouTuber: {FFFFFF}[%d]\n{2D6888}Vreme do plate: {FFFFFF}[%d min]\n",
+		 	{2D6888}Admin: {FFFFFF}[%s(A:%d)]\n{2D6888}Spec Admin: {FFFFFF}[%s]\n{2D6888}Gamemaster: {FFFFFF}[%d]\n{2D6888}VIP: {FFFFFF}[%d]\n{2D6888}Promoter: {FFFFFF}[%d]\n{2D6888}Vreme do plate: {FFFFFF}[%d min]\n",
 	            PI[ targetid ][ xRegDate ],
 				fNumber(PI[ targetid ][ xLevel ]),
 				fNumber(PI[ targetid ][ xOnlineSati ]),
@@ -13683,7 +13677,6 @@ _:public ShowDialogStats( playerid, targetid )
 				PI[ targetid ][ xGamemaster ],
 				PI[ targetid ][ xVIPLevel ],
 				PI[targetid][xPromoter],
-				PI[targetid][xYouTuber],
 				(60-PI[ targetid ][ xPayDay ]) );
         strcat( DialogStrgEx, str );
 
@@ -15655,7 +15648,6 @@ _:public ResetPlayer( playerid )
 	PI[ playerid ][ xDrzava ] = 0;
 	PI[ playerid ][ xVIPLevel ] = 0;
 	PI[playerid][xPromoter] = 0;
-	PI[playerid][xYouTuber] = 0;
 	PI[ playerid ][ xHitmenCena ] = 0;
 	PI[ playerid ][ xMarried ] = 0;
 	PI[ playerid ][ xSpecAdmin ] = 0;
@@ -15869,7 +15861,6 @@ _:public ResetPlayer( playerid )
     AdminVozilo[ playerid ] = -1;
     VipVozilo[ playerid ] = -1;
     PromoterVozilo[playerid] = -1;
-    YTVozilo[playerid] = -1;
     PosaoVozilo[ playerid ] = -1;
     PosaoTrailer[ playerid ] = -1;
     TrkaVozilo[ playerid ] = -1;
@@ -16265,8 +16256,6 @@ _:public PayDay( playerid )
 
 			if( PI[ playerid ][ xPromoter ] > 0 ) plataprom = 3000+(PI[ playerid ][ xPromoter ]*500);
 
-			if( PI[ playerid ][ xYouTuber ] > 0 ) plataprom = 3000+(PI[ playerid ][ xYouTuber ]*500);
-
 	        if( PI[ playerid ][ xSpecAdmin ] > 0 ) plataspec = 3000;
 
 	        if( PI[ playerid ][ xGamemaster ] > 0 ) plataadms = 2500+(PI[ playerid ][ xGamemaster ]*200);
@@ -16284,8 +16273,6 @@ _:public PayDay( playerid )
 			if( PI[ playerid ][ xLider ] > 0 ) dodataknaplatu = 2500+(PI[ playerid ][ xLider ]*200);
 
 			if( PI[ playerid ][ xPromoter ] > 0 ) dodataknaplatu = 2500+(PI[ playerid ][ xPromoter ]*200);
-
-			if( PI[ playerid ][ xYouTuber ] > 0 ) dodataknaplatu = 2500+(PI[ playerid ][ xYouTuber ]*200);
 
 		}
 
@@ -17661,13 +17648,13 @@ _:public Player_OneSecond(i)
 		{
 			SetPlayerChatBubble( i, "[ VIP ]", 0xAA333300, 40.0, 10000);
 		}
-		else if( PI[ i ][ xPromoter ] >= 1 )
+		else if( PI[ i ][ xPromoter ] >= 1 && PI[ i ][ xPromoter ] < 4 )
 		{
 			SetPlayerChatBubble( i, "[ PROMOTER ]", 0xAEFAA2FF, 40.0, 10000);
 		}
-		else if( PI[ i ][ xYouTuber ] >= 1 )
+		else if( PI[i][xPromoter] > 3)
 		{
-			SetPlayerChatBubble( i, "[ YOUTUBER ]", 0xDB2C2CFF, 40.0, 10000);
+			SetPlayerChatBubble( i, "[ YOUTUBER ]", 0xAEFAA2FF, 40.0, 10000);
 		}
 		else if( PI[ i ][ xLevel ] == 1 )
 		{
@@ -20543,8 +20530,7 @@ _:public CreatePickupsAnd3Ds()
 
 	//vip vehicle
 	Create3DandP( "{4282C1}VIP - Vozilo\nDa spawnate VIP vozilo kucajte {FFFFFF}\"/vipveh\"\n\n\
-					{4282C1}Promoter - Vozilo\nDa spawnate Promoter vozilo kucajte {FFFFFF}\"/promoterveh\" {4282C1}ili {FFFFFF}\"/pveh\"\n\n\
-					{4282C1}YouTuber - Vozilo\nDa spawnate YT vozilo kucajte {FFFFFF}\"/ytveh\"", 873.9756, -1663.4427, 13.5469, -1, -1, 2485, 10.0);
+					{4282C1}Promoter - Vozilo\nDa spawnate Promoter vozilo kucajte {FFFFFF}\"/promoterveh\" {4282C1}ili {FFFFFF}\"/pveh\"\n\n", 873.9756, -1663.4427, 13.5469, -1, -1, 2485, 10.0);
 
 	//kurve
 	CreateDynamic3DTextLabel( "{D4B5FF}Kurva\n{FFFFFF}Denise\n\n{D4B5FF}Da krenete kucajte {FFFFFF}\"/blowjob\"", -1, -2436.4424, 995.2935, -20.5350, 3.0, IPI, IVI, 1, -1, -1 );
@@ -20798,9 +20784,9 @@ _:public sql_user_update( playerid )
 	    query, PI[ playerid ][ xTelefonBon ], PI[ playerid ][ xZatvor ], PI[ playerid ][ xZatvorVreme ],
 		PI[ playerid ][ xBRacun ], PI[ playerid ][ xPreostaloZaOtplatu ], PI[ playerid ][ xIznosKredita ], PI[ playerid ][ xIznosRate ] );
 
-	mysql_format( mSQL, query, sizeof( query ), "%s, `xOnlineSati` = '%d', `mute` = '%d', `org_contract` = '%d', `vip_level` = '%d', `promoter_level`='%d', `xYouTuber`='%d', `org_punishment` = '%d', `staff_min` = '%d'",
+	mysql_format( mSQL, query, sizeof( query ), "%s, `xOnlineSati` = '%d', `mute` = '%d', `org_contract` = '%d', `vip_level` = '%d', `promoter_level`='%d', `org_punishment` = '%d', `staff_min` = '%d'",
 	    query, PI[ playerid ][ xOnlineSati ], PI[ playerid ][ xMute ], PI[ playerid ][ xOrgUgovor ],
-		PI[ playerid ][ xVIPLevel ], PI[playerid][xPromoter], PI[playerid][xYouTuber], PI[ playerid ][ xKazneniUgovor ], PI[ playerid ][ xStaffMin ] );
+		PI[ playerid ][ xVIPLevel ], PI[playerid][xPromoter], PI[ playerid ][ xKazneniUgovor ], PI[ playerid ][ xStaffMin ] );
 
 	mysql_format( mSQL, query, sizeof( query ), "%s, `rent_id` = '%d', `vip_time` = '%f', `xTDColor` = '%d' WHERE `user_id` = '%d' LIMIT 1",
 	    query, PI[ playerid ][ xRentID ], PI[ playerid ][ xVipTime ], PI[ playerid ][ xTDColor ],
@@ -22467,7 +22453,6 @@ _:public OnAccountLoad( playerid )
 	PI[ playerid ][ xDrzava ]				= 	cache_get_field_content_int(0, "country");
 	PI[ playerid ][ xVIPLevel ]				= 	cache_get_field_content_int(0, "vip_level");
 	PI[playerid][xPromoter]					=	cache_get_field_content_int(0, "promoter_level");
-	PI[playerid][xYouTuber]					=	cache_get_field_content_int(0, "xYouTuber");
 	PI[ playerid ][ xHitmenCena ]			= 	cache_get_field_content_int(0, "hitman_price");
 	PI[ playerid ][ xKazneniUgovor ]		= 	cache_get_field_content_int(0, "org_punishment");
 	cache_get_field_content( 0, "offpjail", 		PI[ playerid ][ xOffPJail ], mSQL, 64 );
@@ -23502,9 +23487,8 @@ public OnPlayerConnect(playerid)
     ServerInfo[BrojPosetaServeru]++;
 
 	if( ServerInfo[ RekordServera ] < Iter_Count(Player) )
-	{
 	    ServerInfo[ RekordServera ] = Iter_Count(Player);
-	}
+	
 
     PI[playerid][xID] = 0;
 
@@ -23984,48 +23968,6 @@ _:public selectQueryPromoterList( playerid )
     return 1;
 }
 
-_:public selectQueryYouTuberList( playerid )
-{
-    new rows, 
-    	fields, 
-    	p_name[ 24 ], 
-    	last_login[ 22 ],
-    	is_online,
-    	promo;
-
-    cache_get_data( rows, fields, mSQL );
-
-    if( rows )
-	{
-        strdel( DialogStrgEx, 0, sizeof( DialogStrgEx ) );
-        strcat( DialogStrgEx, "{FFFFFF}Name\t{FFFFFF}YouTuber\t{FFFFFF}Status\n" );
-
-        for( new i = 0; i < rows; i ++ )
-		{
-            promo = cache_get_field_content_int( i, "xYouTuber" );
-            is_online = cache_get_field_content_int( i, "isonline" );
-            cache_get_field_content( i, "p_name", p_name, mSQL, 24 );
-
-            if(is_online == 0 )
-            {
-            	cache_get_field_content( i, "last_login", last_login, mSQL, 22 );
-
-				format( globalstring, sizeof( globalstring ), "{FFFFFF}%s\tYT:%d\t{FF0000}%s\n", p_name, promo, last_login );
-				strcat( DialogStrgEx, globalstring );
-			}
-			else
-			{
-            	format( globalstring, sizeof( globalstring ), "{FFFFFF}[%d] %s\tYT:%d\t{00FF00}Online\n", GetPlayerIdFromName(p_name), p_name, promo );
-				strcat( DialogStrgEx, globalstring );
-			}
-		}
-		ShowPlayerDialog( playerid, 0, DIALOG_STYLE_TABLIST_HEADERS, "{FFFFFF}Lista svih YouTubera:", DialogStrgEx, "OK", "" );
-		strdel( DialogStrgEx, 0, sizeof( DialogStrgEx ) );
-    }
-    else SendErrorMessage( playerid, "Nema YouTubera." );
-    return 1;
-}
-
 _:public selectQueryVehModelList( playerid, model )
 {
     new rows, fields;
@@ -24260,16 +24202,6 @@ _:public CheckPlayerOffRank( playerid, type, imeigraca[] )
 				SCMF( playerid, CRVENA, "#OFFRANK: {FFFFFF}Smenili ste offline Promotera %s.", imeigraca );
 
 				WriteLog("log-smjenjivanja", "Admin %s je smenio %s sa pozicije Promotera.", ImeIgraca( playerid ), imeigraca);
-			}
-			case 6:
-			{
-			    new q[ 144 ];
-				mysql_format( mSQL, q, sizeof(q), "UPDATE `users` SET `xYouTuber` = '0', `spawn` = '0' WHERE `user_id` = '%d' LIMIT 1", user_id );
-		    	mysql_tquery( mSQL, q );
-
-				SCMF( playerid, CRVENA, "#OFFRANK: {FFFFFF}Smenili ste offline YouTubera %s.", imeigraca );
-
-				WriteLog("log-smjenjivanja", "Admin %s je smenio %s sa pozicije YouTubera.", ImeIgraca( playerid ), imeigraca);
 			}
 		}
 	}
@@ -25230,7 +25162,6 @@ public OnPlayerDisconnect( playerid, reason )
 	if( AdminVozilo[ playerid ] != -1 ) VehicleInfo[ AdminVozilo[ playerid ] ][ Validv3DText ] = false, DestroyDynamic3DTextLabel(VehicleInfo[ AdminVozilo[ playerid ] ][ v3DText ]), SMG_DestroyVehicle( AdminVozilo[ playerid ] ), ResetVehicle( AdminVozilo[ playerid ] ), AdminVozilo[ playerid ] = -1;
 	if( VipVozilo[ playerid ] != -1 ) VehicleInfo[ VipVozilo[ playerid ] ][ Validv3DText ] = false, DestroyDynamic3DTextLabel(VehicleInfo[ VipVozilo[ playerid ] ][ v3DText ]), SMG_DestroyVehicle( VipVozilo[ playerid ] ), ResetVehicle( VipVozilo[ playerid ] ), VipVozilo[ playerid ] = -1;
 	if( PromoterVozilo[ playerid ] != -1 ) VehicleInfo[ PromoterVozilo[ playerid ] ][ Validv3DText ] = false, DestroyDynamic3DTextLabel(VehicleInfo[ PromoterVozilo[ playerid ] ][ v3DText ]), SMG_DestroyVehicle( PromoterVozilo[ playerid ] ), ResetVehicle( PromoterVozilo[ playerid ] ), PromoterVozilo[ playerid ] = -1;
-	if( YTVozilo[ playerid ] != -1 ) VehicleInfo[ YTVozilo[ playerid ] ][ Validv3DText ] = false, DestroyDynamic3DTextLabel(VehicleInfo[ YTVozilo[ playerid ] ][ v3DText ]), SMG_DestroyVehicle( YTVozilo[ playerid ] ), ResetVehicle( YTVozilo[ playerid ] ), YTVozilo[ playerid ] = -1;
 	if( PosaoVozilo[ playerid ] != -1 ) VehicleInfo[ PosaoVozilo[ playerid ] ][ Validv3DText ] = false, DestroyDynamic3DTextLabel(VehicleInfo[ PosaoVozilo[ playerid ] ][ v3DText ]), SMG_DestroyVehicle( PosaoVozilo[ playerid ] ), ResetVehicle( PosaoVozilo[ playerid ] ), PosaoVozilo[ playerid ] = -1;
 	if( PosaoTrailer[ playerid ] != -1 ) VehicleInfo[ PosaoTrailer[ playerid ] ][ Validv3DText ] = false, DestroyDynamic3DTextLabel(VehicleInfo[ PosaoTrailer[ playerid ] ][ v3DText ]), SMG_DestroyVehicle( PosaoTrailer[ playerid ] ), ResetVehicle( PosaoTrailer[ playerid ] ), PosaoTrailer[ playerid ] = -1;
 	if( TrkaVozilo[ playerid ] != -1 ) SMG_DestroyVehicle( TrkaVozilo[ playerid ] ), ResetVehicle( TrkaVozilo[ playerid ] ), TrkaVozilo[ playerid ] = -1;
@@ -25473,7 +25404,6 @@ public OnPlayerSpawn( playerid )
     if( AdminVozilo[ playerid ] != -1 ) VehicleInfo[ AdminVozilo[ playerid ] ][ Validv3DText ] = false, DestroyDynamic3DTextLabel(VehicleInfo[ AdminVozilo[ playerid ] ][ v3DText ]), SMG_DestroyVehicle( AdminVozilo[ playerid ] ), ResetVehicle( AdminVozilo[ playerid ] ), AdminVozilo[ playerid ] = -1;
 	if( VipVozilo[ playerid ] != -1 ) VehicleInfo[ VipVozilo[ playerid ] ][ Validv3DText ] = false, DestroyDynamic3DTextLabel(VehicleInfo[ VipVozilo[ playerid ] ][ v3DText ]), SMG_DestroyVehicle( VipVozilo[ playerid ] ), ResetVehicle( VipVozilo[ playerid ] ), VipVozilo[ playerid ] = -1;
 	if( PromoterVozilo[ playerid ] != -1 ) VehicleInfo[ PromoterVozilo[ playerid ] ][ Validv3DText ] = false, DestroyDynamic3DTextLabel(VehicleInfo[ PromoterVozilo[ playerid ] ][ v3DText ]), SMG_DestroyVehicle( PromoterVozilo[ playerid ] ), ResetVehicle( PromoterVozilo[ playerid ] ), PromoterVozilo[ playerid ] = -1;
-	if( YTVozilo[ playerid ] != -1 ) VehicleInfo[ YTVozilo[ playerid ] ][ Validv3DText ] = false, DestroyDynamic3DTextLabel(VehicleInfo[ YTVozilo[ playerid ] ][ v3DText ]), SMG_DestroyVehicle( YTVozilo[ playerid ] ), ResetVehicle( YTVozilo[ playerid ] ), YTVozilo[ playerid ] = -1;
 	if( PosaoVozilo[ playerid ] != -1 ) VehicleInfo[ PosaoVozilo[ playerid ] ][ Validv3DText ] = false, DestroyDynamic3DTextLabel(VehicleInfo[ PosaoVozilo[ playerid ] ][ v3DText ]), SMG_DestroyVehicle( PosaoVozilo[ playerid ] ), ResetVehicle( PosaoVozilo[ playerid ] ), PosaoVozilo[ playerid ] = -1;
 	if( PosaoTrailer[ playerid ] != -1 ) VehicleInfo[ PosaoTrailer[ playerid ] ][ Validv3DText ] = false, DestroyDynamic3DTextLabel(VehicleInfo[ PosaoTrailer[ playerid ] ][ v3DText ]), SMG_DestroyVehicle( PosaoTrailer[ playerid ] ), ResetVehicle( PosaoTrailer[ playerid ] ), PosaoTrailer[ playerid ] = -1;
 	if( TrkaVozilo[ playerid ] != -1 ) SMG_DestroyVehicle( TrkaVozilo[ playerid ] ), ResetVehicle( TrkaVozilo[ playerid ] ), TrkaVozilo[ playerid ] = -1;
@@ -26105,7 +26035,6 @@ public OnPlayerDeath( playerid, killerid, reason )
 		if( AdminVozilo[ playerid ] != -1 ) VehicleInfo[ AdminVozilo[ playerid ] ][ Validv3DText ] = false, DestroyDynamic3DTextLabel(VehicleInfo[ AdminVozilo[ playerid ] ][ v3DText ]), SMG_DestroyVehicle( AdminVozilo[ playerid ] ), ResetVehicle( AdminVozilo[ playerid ] ), AdminVozilo[ playerid ] = -1;
 		if( VipVozilo[ playerid ] != -1 ) VehicleInfo[ VipVozilo[ playerid ] ][ Validv3DText ] = false, DestroyDynamic3DTextLabel(VehicleInfo[ VipVozilo[ playerid ] ][ v3DText ]), SMG_DestroyVehicle( VipVozilo[ playerid ] ), ResetVehicle( VipVozilo[ playerid ] ), VipVozilo[ playerid ] = -1;
 		if( PromoterVozilo[ playerid ] != -1 ) VehicleInfo[ PromoterVozilo[ playerid ] ][ Validv3DText ] = false, DestroyDynamic3DTextLabel(VehicleInfo[ PromoterVozilo[ playerid ] ][ v3DText ]), SMG_DestroyVehicle( PromoterVozilo[ playerid ] ), ResetVehicle( PromoterVozilo[ playerid ] ), PromoterVozilo[ playerid ] = -1;
-		if( YTVozilo[ playerid ] != -1 ) VehicleInfo[ YTVozilo[ playerid ] ][ Validv3DText ] = false, DestroyDynamic3DTextLabel(VehicleInfo[ YTVozilo[ playerid ] ][ v3DText ]), SMG_DestroyVehicle( YTVozilo[ playerid ] ), ResetVehicle( YTVozilo[ playerid ] ), YTVozilo[ playerid ] = -1;
 		if( PosaoVozilo[ playerid ] != -1 ) VehicleInfo[ PosaoVozilo[ playerid ] ][ Validv3DText ] = false, DestroyDynamic3DTextLabel(VehicleInfo[ PosaoVozilo[ playerid ] ][ v3DText ]), SMG_DestroyVehicle( PosaoVozilo[ playerid ] ), ResetVehicle( PosaoVozilo[ playerid ] ), PosaoVozilo[ playerid ] = -1;
 		if( PosaoTrailer[ playerid ] != -1 ) VehicleInfo[ PosaoTrailer[ playerid ] ][ Validv3DText ] = false, DestroyDynamic3DTextLabel(VehicleInfo[ PosaoTrailer[ playerid ] ][ v3DText ]), SMG_DestroyVehicle( PosaoTrailer[ playerid ] ), ResetVehicle( PosaoTrailer[ playerid ] ), PosaoTrailer[ playerid ] = -1;
 		if( TrkaVozilo[ playerid ] != -1 ) SMG_DestroyVehicle( TrkaVozilo[ playerid ] ), ResetVehicle( TrkaVozilo[ playerid ] ), TrkaVozilo[ playerid ] = -1;
@@ -26748,11 +26677,6 @@ public OnVehicleDeath( vehicleid, killerid )
 			VehicleInfo[ PromoterVozilo[ playerid ] ][ Validv3DText ] = false, DestroyDynamic3DTextLabel(VehicleInfo[ PromoterVozilo[ playerid ] ][ v3DText ]), SMG_DestroyVehicle( PromoterVozilo[ playerid ] ), ResetVehicle( PromoterVozilo[ playerid ] ), PromoterVozilo[ playerid ] = -1;
 			break;
 		}
-		if( YTVozilo[ playerid ] == vehicleid )
-		{
-			VehicleInfo[ YTVozilo[ playerid ] ][ Validv3DText ] = false, DestroyDynamic3DTextLabel(VehicleInfo[ YTVozilo[ playerid ] ][ v3DText ]), SMG_DestroyVehicle( YTVozilo[ playerid ] ), ResetVehicle( YTVozilo[ playerid ] ), YTVozilo[ playerid ] = -1;
-			break;
-		}
 		if( PosaoVozilo[ playerid ] == vehicleid )
 		{
 			VehicleInfo[ PosaoVozilo[ playerid ] ][ Validv3DText ] = false, DestroyDynamic3DTextLabel(VehicleInfo[ PosaoVozilo[ playerid ] ][ v3DText ]), SMG_DestroyVehicle( PosaoVozilo[ playerid ] ), ResetVehicle( PosaoVozilo[ playerid ] ), PosaoVozilo[ playerid ] = -1;
@@ -27252,17 +27176,6 @@ public OnPlayerEnterVehicle(playerid, vehicleid, ispassenger)
 				   	GetPlayerPos( playerid, PozX, PozY, PozZ );
 				   	SMG_SetPlayerPos( playerid, PozX, PozY, PozZ );
 				   	SendClientMessage( playerid, ANTICHEAT, "(VOZILO): Ovo nije vase Promoter vozilo.");
-				}
-			    break;
-		    }
-		    else if(YTVozilo[i] == vehicleid)
-		    {
-		        if(PI[playerid][xAdmin] < 1 && PI[playerid][xSpecAdmin] < 1 && PI[playerid][xGamemaster] < 1 && PI[playerid][xYouTuber] < 1)
-		    	{
-			    	new Float:PozX, Float:PozY, Float:PozZ;
-				   	GetPlayerPos( playerid, PozX, PozY, PozZ );
-				   	SMG_SetPlayerPos( playerid, PozX, PozY, PozZ );
-				   	SendClientMessage( playerid, ANTICHEAT, "(VOZILO): Ovo nije vase YouTuber vozilo.");
 				}
 			    break;
 		    }
@@ -29242,7 +29155,7 @@ public OnPlayerKeyStateChange( playerid, newkeys, oldkeys )
 			{
 			    if( BikeBH[ playerid ] == 0 )
 				{
-				    if( PI[ playerid ][ xAdmin ] < 1 && PI[ playerid ][ xSpecAdmin ] < 1 && PI[ playerid ][ xGamemaster ] < 1 && PI[ playerid ][ xPromoter ] < 1 && PI[ playerid ][ xYouTuber ] < 1 && PI[ playerid ][ xVIPLevel ] < 3 )
+				    if( PI[ playerid ][ xAdmin ] < 1 && PI[ playerid ][ xSpecAdmin ] < 1 && PI[ playerid ][ xGamemaster ] < 1  && PI[ playerid ][ xVIPLevel ] < 3 )
 					{
 					    SendErrorMessage( playerid, "Ne mozete skakati sa biciklom.");
 					    SetPlayerTimerEx(playerid, "BikeBunnyHop", 2000, false, "i", playerid);
@@ -29305,8 +29218,6 @@ public OnPlayerKeyStateChange( playerid, newkeys, oldkeys )
 		{
 		    if( !KnockedDown[ playerid ] &&
 					PI[ playerid ][ xZatvor ] == 0 &&
-						PI[ playerid ][ xPromoter ] < 1 &&
-							PI[ playerid ][ xYouTuber ] < 1 &&
 								!IsPlayerInAnyVehicle( playerid ) &&
 									!AdminDuty[ playerid ] &&
 										PI[ playerid ][ xVIPLevel ] < 4 &&
@@ -29977,14 +29888,14 @@ public OnDialogResponse( playerid, dialogid, response, listitem, inputtext[])
 					if( PI[ playerid ][ xAdmin ] >= 6 )
 					{
 				        strcat( DialogStrgEx1, "{FFFFFF}** {2D6888}DIREKTOR:\n{FFFFFF}");
-					    strcat( DialogStrgEx1, "/promenipol /oport /aktivnostigraca /muteall /gethereall /unwarn /razvedi /dajdrogu /dodajfakture /edit /startpaket /smenispecadmina /(opv)offplayerveh\n");
+					    strcat( DialogStrgEx1, "/oport /aktivnostigraca /muteall /gethereall /unwarn /razvedi /dajdrogu /dodajfakture /edit /startpaket /smenispecadmina /(opv)offplayerveh\n");
 						strcat( DialogStrgEx1, "/veh /unmuteall /setjob /dboja /proveriimovinu /maknisastatsa /adajdozvolu /neaktivnost /playerrich /servername /checkbusiness /deleteoffveh /deleteacc\n\n");
 					}
 					if( PI[ playerid ][ xAdmin ] >= 7 )
 					{
 				        strcat( DialogStrgEx1, "{FFFFFF}** {2D6888}VLASNIK:\n{FFFFFF}");
 				        strcat( DialogStrgEx1, "{2D6888}NOVO:{FFFFFF} /prodajimovine /prodajfirme /getip /speclist\n");
-					    strcat( DialogStrgEx1, "/server /dajsvima /maintenancemode /kickall /makevip /changename /giverank /1 /lockserver /xgoto /resetstaffstats /setstat /donatorskeboje /pomerilokaciju\n");
+					    strcat( DialogStrgEx1, "/server /dajsvima /maintenancemode /kickall /makevip /changename /giverank /x /lockserver /xgoto /resetstaffstats /setstat /donatorskeboje /pomerilokaciju\n");
 						strcat( DialogStrgEx1, "/dodajslotvozila /skinislotvozila /hidenames /shownames /proverisqlidigraca /sklonisaaukcije /listavozila /smenigamemastera /smenivipa /aktivirajpoklone\n");
 						strcat( DialogStrgEx1, "/smeniadmina /makeadmin /givemoney /makegamemaster /changeacode /(pv)playervehicles /aukcije /prodajsaaukcije /vratistats /offvratistats");
 					}
@@ -30420,90 +30331,59 @@ public OnDialogResponse( playerid, dialogid, response, listitem, inputtext[])
 				        ShowPlayerDialog(playerid, 0, DIALOG_STYLE_MSGBOX, "{FFFFFF}Pomoc - Promoter:",
 																								"{FFFFFF}** {2D6888}Promoter 1:\n\n\
 																								 {2D6888}>> SPECIAL BONUS: {FFFFFF}Dodatak na placu (1.5k).\n\
-																								 {2D6888}>> SPECIAL: {FFFFFF}Anti BH iskljucen.\n\
 																								 {2D6888}>> /port: {FFFFFF}Portanje na odredjene lokacije.\n\
-																								 {2D6888}>> /g: {FFFFFF}Promoter chat.\n\
-																								 {2D6888}>> /(fv)fixveh: {FFFFFF}Popravljanje vozila.\n\
-																								 {2D6888}>> /(pveh)promoterveh: {FFFFFF}Promoter vozilo.", "Zatvori", "");
+																								 {2D6888}>> /g: {FFFFFF}G chat.\n\
+																								 {2D6888}>> /(fv)fixveh: {FFFFFF}Popravljanje vozila.", "Zatvori", "");
 
 					    if( PI[ playerid ][ xAdmin ] >= 6 || PI[ playerid ][ xPromoter ] >= 2 )
 						{
 				        	ShowPlayerDialog(playerid, 0, DIALOG_STYLE_MSGBOX, "{FFFFFF}Pomoc - Promoter:",
 																									"{FFFFFF}** {2D6888}Promoter 2:\n\n\
 																									 {2D6888}>> SPECIAL BONUS: {FFFFFF}Dodatak na placu (2k).\n\
-																									 {2D6888}>> SPECIAL: {FFFFFF}Anti BH iskljucen.\n\
 																									 {2D6888}>> /port: {FFFFFF}Portanje na odredjene lokacije.\n\
-																									 {2D6888}>> /g: {FFFFFF}Promoter chat.\n\
+																									 {2D6888}>> /g: {FFFFFF}G chat.\n\
 																									 {2D6888}>> /(fv)fixveh: {FFFFFF}Popravljanje vozila.\n\
 																									 {2D6888}>> /nitro: {FFFFFF}Dodavanje nitra u vozilo.\n\
-																									 {2D6888}>> /rtc: {FFFFFF}Respawnovanje vozila.\n\
-																									 {2D6888}>> /(pveh)promoterveh: {FFFFFF}Promoter vozilo.", "Zatvori", "");
+																									 {2D6888}>> /rtc: {FFFFFF}Respawnovanje vozila.", "Zatvori", "");
 					    }
 					    if( PI[ playerid ][ xAdmin ] >= 6 || PI[ playerid ][ xPromoter ] >= 3 )
 						{
 				        	ShowPlayerDialog(playerid, 0, DIALOG_STYLE_MSGBOX, "{FFFFFF}Pomoc - Promoter:",
 																									"{FFFFFF}** {2D6888}Promoter 3:\n\n\
 																									 {2D6888}>> SPECIAL BONUS: {FFFFFF}Dodatak na placu (2.5k).\n\
-																									 {2D6888}>> SPECIAL: {FFFFFF}Anti BH iskljucen.\n\
 																									 {2D6888}>> SPECIAL: {FFFFFF}Neam cooldown na /port.\n\
 																									 {2D6888}>> /port: {FFFFFF}Portanje na odredjene lokacije.\n\
-																									 {2D6888}>> /g: {FFFFFF}Promoter chat.\n\
+																									 {2D6888}>> /g: {FFFFFF}G chat.\n\
 																									 {2D6888}>> /(fv)fixveh: {FFFFFF}Popravljanje vozila.\n\
 																									 {2D6888}>> /nitro: {FFFFFF}Dodavanje nitra u vozilo.\n\
-																									 {2D6888}>> /rtc: {FFFFFF}Respawnovanje vozila.\n\
-																									 {2D6888}>> /fasttune: {FFFFFF}Brzo tuniranje vozila.\n\
-																									 {2D6888}>> /playercc: {FFFFFF}Brise sopstveni chat.\n\
-																									 {2D6888}>> /(pveh)promoterveh: {FFFFFF}Promoter vozilo.", "Zatvori", "");
+																									 {2D6888}>> /rtc: {FFFFFF}Respawnovanje vozila.", "Zatvori", "");
 					    }
 					    if( PI[ playerid ][ xAdmin ] >= 6 || PI[ playerid ][ xPromoter ] >= 4 || PI[ playerid ] [ xSkriptaRank ] == 5 )
 						{
-				        	ShowPlayerDialog(playerid, 0, DIALOG_STYLE_MSGBOX, "{FFFFFF}Pomoc - Promoter:",
-																									"{FFFFFF}** {2D6888}Head Promoter:\n\n\
+				        	ShowPlayerDialog(playerid, 0, DIALOG_STYLE_MSGBOX, "{FFFFFF}Pomoc - Youtuber:",
+																									"{FFFFFF}** {2D6888}Youtuber 1:\n\n\
 																									 {2D6888}>> SPECIAL BONUS: {FFFFFF}Dodatak na placu (3k).\n\
-																									 {2D6888}>> SPECIAL: {FFFFFF}Anti BH iskljucen.\n\
-																									 {2D6888}>> SPECIAL: {FFFFFF}Neam cooldown na /port.\n\
 																									 {2D6888}>> /port: {FFFFFF}Portanje na odredjene lokacije.\n\
-																									 {2D6888}>> /g: {FFFFFF}Promoter chat.\n\
+																									 {2D6888}>> /g: {FFFFFF}G chat.\n\
 																									 {2D6888}>> /(fv)fixveh: {FFFFFF}Popravljanje vozila.\n\
 																									 {2D6888}>> /nitro: {FFFFFF}Dodavanje nitra u vozilo.\n\
 																									 {2D6888}>> /rtc: {FFFFFF}Respawnovanje vozila.\n\
-																									 {2D6888}>> /fasttune: {FFFFFF}Brzo tuniranje vozila.\n\
-																									 {2D6888}>> /playercc: {FFFFFF}Brise sopstveni chat.\n\
 																									 {2D6888}>> /pskin: {FFFFFF}Specijalni VIP skin.\n\
-																									 {2D6888}>> /getcar: {FFFFFF}Porta vozilo do sebe.\n\
-																									 {2D6888}>> /mark: {FFFFFF}Oznacava specijalnu lokaciju.\n\
-																									 {2D6888}>> /gotomark: {FFFFFF}Porta do specijalne lokacije.\n\
-																									 {2D6888}>> /(pveh)promoterveh: {FFFFFF}Promoter vozilo.", "Zatvori", "");
+																									 {2D6888}>> /getcar: {FFFFFF}Porta vozilo do sebe.", "Zatvori", "");
 				        }
-				    }
-					else return SendErrorMessage( playerid, "Niste u mogucnosti koristiti ovu komandu." );
-			    }
-				case 21:
-			    {
-			        //YouTuber
-			        if( PI[ playerid ][ xAdmin ] >= 6 || PI[ playerid ][ xYouTuber ] >= 1 )
-					{
-				        ShowPlayerDialog(playerid, 0, DIALOG_STYLE_MSGBOX, "{FFFFFF}Pomoc - YouTuber:",
-																								"{FFFFFF}** {2D6888}YouTuber:\n\n\
-																								 {2D6888}>> SPECIAL BONUS: {FFFFFF}Dodatak na placu.\n\
-																								 {2D6888}>> SPECIAL: {FFFFFF}Anti BH iskljucen.\n\
-																								 {2D6888}>> /port: {FFFFFF}Portanje na odredjene lokacije.\n\
-																								 {2D6888}>> /g: {FFFFFF}YouTuber chat.\n\
-																								 {2D6888}>> /(fv)fixveh: {FFFFFF}Popravljanje vozila.\n\
-																								 {2D6888}>> /ytveh: {FFFFFF}YouTuber vozilo.", "Zatvori", "");
-
-					    if( PI[ playerid ][ xAdmin ] >= 6 || PI[ playerid ][ xYouTuber ] >= 2 )
+						if( PI[ playerid ][ xAdmin ] >= 6 || PI[ playerid ][ xPromoter ] >= 5 || PI[ playerid ] [ xSkriptaRank ] == 5 )
 						{
-				        	ShowPlayerDialog(playerid, 0, DIALOG_STYLE_MSGBOX, "{FFFFFF}Pomoc - YouTuber:",
-																									"{FFFFFF}** {2D6888}Head YouTuber:\n\n\
-																									 {2D6888}>> SPECIAL BONUS: {FFFFFF}Dodatak na placu.\n\
+				        	ShowPlayerDialog(playerid, 0, DIALOG_STYLE_MSGBOX, "{FFFFFF}Pomoc - Youtuber 2:",
+																									"{FFFFFF}** {2D6888}Youtuber 2:\n\n\
+																									 {2D6888}>> SPECIAL BONUS: {FFFFFF}Dodatak na placu (3.5k).\n\
 																									 {2D6888}>> /port: {FFFFFF}Portanje na odredjene lokacije.\n\
-																									 {2D6888}>> /g: {FFFFFF}YouTuber chat.\n\
+																									 {2D6888}>> /g: {FFFFFF}G chat.\n\
 																									 {2D6888}>> /(fv)fixveh: {FFFFFF}Popravljanje vozila.\n\
-																									 {2D6888}>> /ytveh: {FFFFFF}YouTuber vozilo.\n\
-																									 {2D6888}>> /makeyoutuber: {FFFFFF}Postavljanje/skidanje YTera.\n\
-																									 {2D6888}>> /smeniytera: {FFFFFF}Skidanje offline YTera.", "Zatvori", "");
-					    }
+																									 {2D6888}>> /nitro: {FFFFFF}Dodavanje nitra u vozilo.\n\
+																									 {2D6888}>> /rtc: {FFFFFF}Respawnovanje vozila.\n\
+																									 {2D6888}>> /pskin: {FFFFFF}Specijalni VIP skin.\n\
+																									 {2D6888}>> /getcar: {FFFFFF}Porta vozilo do sebe.", "Zatvori", "");
+				        }
 				    }
 					else return SendErrorMessage( playerid, "Niste u mogucnosti koristiti ovu komandu." );
 			    }
@@ -37456,318 +37336,6 @@ public OnDialogResponse( playerid, dialogid, response, listitem, inputtext[])
 			}
 	    }
 	}
-	else if(dialogid == D_PROMOTERVEH )
-	{
-		if( response )
-		{
-		    switch(listitem)
-			{
-				case 0:
-				{
-					PromoterVozilo[ playerid ] = SMG_CreateVehicle(560, 873.9756, -1663.4427, 13.5469, 270.0000, 79, 79, -1 );
-					LinkVehicleToInterior( PromoterVozilo[ playerid ], GetPlayerInterior( playerid ) );
-			        SetVehicleVirtualWorld( PromoterVozilo[ playerid ], GetPlayerVirtualWorld( playerid ) );
-			        ResetVehicle( PromoterVozilo[ playerid ] );
-					vCanDrive[ PromoterVozilo[ playerid ] ] = 1;
-				    PutPlayerInVehicle( playerid, PromoterVozilo[ playerid ], 0 );
-					ResetVehicleStatistics( PromoterVozilo[ playerid ] );
-
-					new string[ 35+MAX_PLAYER_NAME ];
-			  		format( string, sizeof( string ), "[ PROMOTER - {FFFFFF}%s {AEFAA2}]", ImeIgraca(playerid) );
-					VehicleInfo[ PromoterVozilo[ playerid ] ][ Validv3DText ] = true;
-					VehicleInfo[ PromoterVozilo[ playerid ] ][ v3DText ] = CreateDynamic3DTextLabel(string, 0xAEFAA2FF, 0.0, 0.0, -100.0, 7.5, IPI, PromoterVozilo[ playerid ], 0, -1, -1, -1, 7.5, -1, 0);
-
-					new engine, lights, alarm, doors, bonnet, boot, objective;
-				    GetVehicleParamsEx( PromoterVozilo[ playerid ], engine, lights, alarm, doors, bonnet, boot, objective );
-				    SetVehicleParamsEx( PromoterVozilo[ playerid ], 1, 0, alarm, 0, 0, 0, objective );
-
-				    if(PI[playerid][xPromoter] >= 1) SpawnovaoVozilo[playerid] = gettime()+120;
-				}
-				case 1:
-				{
-					PromoterVozilo[ playerid ] = SMG_CreateVehicle(579, 873.9756, -1663.4427, 13.5469, 270.0000, 79, 79, -1 );
-					LinkVehicleToInterior( PromoterVozilo[ playerid ], GetPlayerInterior( playerid ) );
-			        SetVehicleVirtualWorld( PromoterVozilo[ playerid ], GetPlayerVirtualWorld( playerid ) );
-			        ResetVehicle( PromoterVozilo[ playerid ] );
-					vCanDrive[ PromoterVozilo[ playerid ] ] = 1;
-				    PutPlayerInVehicle( playerid, PromoterVozilo[ playerid ], 0 );
-					ResetVehicleStatistics( PromoterVozilo[ playerid ] );
-
-					new string[ 35+MAX_PLAYER_NAME ];
-			  		format( string, sizeof( string ), "[ PROMOTER - {FFFFFF}%s {AEFAA2}]", ImeIgraca(playerid) );
-					VehicleInfo[ PromoterVozilo[ playerid ] ][ Validv3DText ] = true;
-					VehicleInfo[ PromoterVozilo[ playerid ] ][ v3DText ] = CreateDynamic3DTextLabel(string, 0xaefaa2FF, 0.0, 0.0, -100.0, 7.5, IPI, PromoterVozilo[ playerid ], 0, -1, -1, -1, 7.5, -1, 0);
-
-					new engine, lights, alarm, doors, bonnet, boot, objective;
-				    GetVehicleParamsEx( PromoterVozilo[ playerid ], engine, lights, alarm, doors, bonnet, boot, objective );
-				    SetVehicleParamsEx( PromoterVozilo[ playerid ], 1, 0, alarm, 0, 0, 0, objective );
-
-				    if(PI[playerid][xPromoter] >= 1) SpawnovaoVozilo[playerid] = gettime()+120;
-				}
-				case 2:
-				{
-					PromoterVozilo[ playerid ] = SMG_CreateVehicle(447, 873.9756, -1663.4427, 13.5469, 270.0000, 79, 79, -1 );
-					LinkVehicleToInterior( PromoterVozilo[ playerid ], GetPlayerInterior( playerid ) );
-			        SetVehicleVirtualWorld( PromoterVozilo[ playerid ], GetPlayerVirtualWorld( playerid ) );
-			        ResetVehicle( PromoterVozilo[ playerid ] );
-					vCanDrive[ PromoterVozilo[ playerid ] ] = 1;
-				    PutPlayerInVehicle( playerid, PromoterVozilo[ playerid ], 0 );
-					ResetVehicleStatistics( PromoterVozilo[ playerid ] );
-
-					new string[ 35+MAX_PLAYER_NAME ];
-			  		format( string, sizeof( string ), "[ PROMOTER - {FFFFFF}%s {AEFAA2}]", ImeIgraca(playerid) );
-					VehicleInfo[ PromoterVozilo[ playerid ] ][ Validv3DText ] = true;
-					VehicleInfo[ PromoterVozilo[ playerid ] ][ v3DText ] = CreateDynamic3DTextLabel(string, 0xaefaa2FF, 0.0, 0.0, -100.0, 7.5, IPI, PromoterVozilo[ playerid ], 0, -1, -1, -1, 7.5, -1, 0);
-
-					new engine, lights, alarm, doors, bonnet, boot, objective;
-				    GetVehicleParamsEx( PromoterVozilo[ playerid ], engine, lights, alarm, doors, bonnet, boot, objective );
-				    SetVehicleParamsEx( PromoterVozilo[ playerid ], 1, 0, alarm, 0, 0, 0, objective );
-
-				    if(PI[playerid][xPromoter] >= 1) SpawnovaoVozilo[playerid] = gettime()+120;
-				}
-				case 3:
-				{
-					PromoterVozilo[ playerid ] = SMG_CreateVehicle(411, 873.9756, -1663.4427, 13.5469, 270.0000, 79, 79, -1 );
-					LinkVehicleToInterior( PromoterVozilo[ playerid ], GetPlayerInterior( playerid ) );
-			        SetVehicleVirtualWorld( PromoterVozilo[ playerid ], GetPlayerVirtualWorld( playerid ) );
-			        ResetVehicle( PromoterVozilo[ playerid ] );
-					vCanDrive[ PromoterVozilo[ playerid ] ] = 1;
-				    PutPlayerInVehicle( playerid, PromoterVozilo[ playerid ], 0 );
-					ResetVehicleStatistics( PromoterVozilo[ playerid ] );
-
-					new string[ 35+MAX_PLAYER_NAME ];
-			  		format( string, sizeof( string ), "[ PROMOTER - {FFFFFF}%s {AEFAA2}]", ImeIgraca(playerid) );
-					VehicleInfo[ PromoterVozilo[ playerid ] ][ Validv3DText ] = true;
-					VehicleInfo[ PromoterVozilo[ playerid ] ][ v3DText ] = CreateDynamic3DTextLabel(string, 0xaefaa2FF, 0.0, 0.0, -100.0, 7.5, IPI, PromoterVozilo[ playerid ], 0, -1, -1, -1, 7.5, -1, 0);
-
-					new engine, lights, alarm, doors, bonnet, boot, objective;
-				    GetVehicleParamsEx( PromoterVozilo[ playerid ], engine, lights, alarm, doors, bonnet, boot, objective );
-				    SetVehicleParamsEx( PromoterVozilo[ playerid ], 1, 0, alarm, 0, 0, 0, objective );
-
-				    if(PI[playerid][xPromoter] >= 1) SpawnovaoVozilo[playerid] = gettime()+120;
-				}
-				case 4:
-				{
-					PromoterVozilo[ playerid ] = SMG_CreateVehicle(451, 873.9756, -1663.4427, 13.5469, 270.0000, 79, 79, -1 );
-					LinkVehicleToInterior( PromoterVozilo[ playerid ], GetPlayerInterior( playerid ) );
-			        SetVehicleVirtualWorld( PromoterVozilo[ playerid ], GetPlayerVirtualWorld( playerid ) );
-			        ResetVehicle( PromoterVozilo[ playerid ] );
-					vCanDrive[ PromoterVozilo[ playerid ] ] = 1;
-				    PutPlayerInVehicle( playerid, PromoterVozilo[ playerid ], 0 );
-					ResetVehicleStatistics( PromoterVozilo[ playerid ] );
-
-					new string[ 35+MAX_PLAYER_NAME ];
-			  		format( string, sizeof( string ), "[ PROMOTER - {FFFFFF}%s {AEFAA2}]", ImeIgraca(playerid) );
-					VehicleInfo[ PromoterVozilo[ playerid ] ][ Validv3DText ] = true;
-					VehicleInfo[ PromoterVozilo[ playerid ] ][ v3DText ] = CreateDynamic3DTextLabel(string, 0xaefaa2FF, 0.0, 0.0, -100.0, 7.5, IPI, PromoterVozilo[ playerid ], 0, -1, -1, -1, 7.5, -1, 0);
-
-					new engine, lights, alarm, doors, bonnet, boot, objective;
-				    GetVehicleParamsEx( PromoterVozilo[ playerid ], engine, lights, alarm, doors, bonnet, boot, objective );
-				    SetVehicleParamsEx( PromoterVozilo[ playerid ], 1, 0, alarm, 0, 0, 0, objective );
-
-				    if(PI[playerid][xPromoter] >= 1) SpawnovaoVozilo[playerid] = gettime()+120;
-				}
-				case 5:
-				{
-					PromoterVozilo[ playerid ] = SMG_CreateVehicle(522, 873.9756, -1663.4427, 13.5469, 270.0000, 79, 79, -1 );
-					LinkVehicleToInterior( PromoterVozilo[ playerid ], GetPlayerInterior( playerid ) );
-			        SetVehicleVirtualWorld( PromoterVozilo[ playerid ], GetPlayerVirtualWorld( playerid ) );
-			        ResetVehicle( PromoterVozilo[ playerid ] );
-					vCanDrive[ PromoterVozilo[ playerid ] ] = 1;
-				    PutPlayerInVehicle( playerid, PromoterVozilo[ playerid ], 0 );
-					ResetVehicleStatistics( PromoterVozilo[ playerid ] );
-
-					new string[ 35+MAX_PLAYER_NAME ];
-			  		format( string, sizeof( string ), "[ PROMOTER - {FFFFFF}%s {AEFAA2}]", ImeIgraca(playerid) );
-					VehicleInfo[ PromoterVozilo[ playerid ] ][ Validv3DText ] = true;
-					VehicleInfo[ PromoterVozilo[ playerid ] ][ v3DText ] = CreateDynamic3DTextLabel(string, 0xaefaa2FF, 0.0, 0.0, -100.0, 7.5, IPI, PromoterVozilo[ playerid ], 0, -1, -1, -1, 7.5, -1, 0);
-
-					new engine, lights, alarm, doors, bonnet, boot, objective;
-				    GetVehicleParamsEx( PromoterVozilo[ playerid ], engine, lights, alarm, doors, bonnet, boot, objective );
-				    SetVehicleParamsEx( PromoterVozilo[ playerid ], 1, 0, alarm, 0, 0, 0, objective );
-
-				    if(PI[playerid][xPromoter] >= 1) SpawnovaoVozilo[playerid] = gettime()+120;
-				}
-				case 6:
-				{
-					PromoterVozilo[ playerid ] = SMG_CreateVehicle(541, 873.9756, -1663.4427, 13.5469, 270.0000, 79, 79, -1 );
-					LinkVehicleToInterior( PromoterVozilo[ playerid ], GetPlayerInterior( playerid ) );
-			        SetVehicleVirtualWorld( PromoterVozilo[ playerid ], GetPlayerVirtualWorld( playerid ) );
-			        ResetVehicle( PromoterVozilo[ playerid ] );
-					vCanDrive[ PromoterVozilo[ playerid ] ] = 1;
-				    PutPlayerInVehicle( playerid, PromoterVozilo[ playerid ], 0 );
-					ResetVehicleStatistics( PromoterVozilo[ playerid ] );
-
-					new string[ 35+MAX_PLAYER_NAME ];
-			  		format( string, sizeof( string ), "[ PROMOTER - {FFFFFF}%s {AEFAA2}]", ImeIgraca(playerid) );
-					VehicleInfo[ PromoterVozilo[ playerid ] ][ Validv3DText ] = true;
-					VehicleInfo[ PromoterVozilo[ playerid ] ][ v3DText ] = CreateDynamic3DTextLabel(string, 0xaefaa2FF, 0.0, 0.0, -100.0, 7.5, IPI, PromoterVozilo[ playerid ], 0, -1, -1, -1, 7.5, -1, 0);
-
-					new engine, lights, alarm, doors, bonnet, boot, objective;
-				    GetVehicleParamsEx( PromoterVozilo[ playerid ], engine, lights, alarm, doors, bonnet, boot, objective );
-				    SetVehicleParamsEx( PromoterVozilo[ playerid ], 1, 0, alarm, 0, 0, 0, objective );
-
-				    if(PI[playerid][xPromoter] >= 1) SpawnovaoVozilo[playerid] = gettime()+120;
-				}
-			}
-	    }
-	}
-	else if(dialogid == D_YTVEH )
-	{
-		if( response )
-		{
-		    switch(listitem)
-			{
-				case 0:
-				{
-					YTVozilo[ playerid ] = SMG_CreateVehicle(560, 873.9756, -1663.4427, 13.5469, 270.0000, 3, 3, -1 );
-					LinkVehicleToInterior( YTVozilo[ playerid ], GetPlayerInterior( playerid ) );
-			        SetVehicleVirtualWorld( YTVozilo[ playerid ], GetPlayerVirtualWorld( playerid ) );
-			        ResetVehicle( YTVozilo[ playerid ] );
-					vCanDrive[ YTVozilo[ playerid ] ] = 1;
-				    PutPlayerInVehicle( playerid, YTVozilo[ playerid ], 0 );
-					ResetVehicleStatistics( YTVozilo[ playerid ] );
-
-					new string[ 35+MAX_PLAYER_NAME ];
-			  		format( string, sizeof( string ), "[ YOUTUBER - {FFFFFF}%s {DB2C2C}]", ImeIgraca(playerid) );
-					VehicleInfo[ YTVozilo[ playerid ] ][ Validv3DText ] = true;
-					VehicleInfo[ YTVozilo[ playerid ] ][ v3DText ] = CreateDynamic3DTextLabel(string, 0xDB2C2CFF, 0.0, 0.0, -100.0, 7.5, IPI, YTVozilo[ playerid ], 0, -1, -1, -1, 7.5, -1, 0);
-
-					new engine, lights, alarm, doors, bonnet, boot, objective;
-				    GetVehicleParamsEx( YTVozilo[ playerid ], engine, lights, alarm, doors, bonnet, boot, objective );
-				    SetVehicleParamsEx( YTVozilo[ playerid ], 1, 0, alarm, 0, 0, 0, objective );
-
-				    SpawnovaoVozilo[playerid] = gettime()+120;
-				}
-				case 1:
-				{
-					YTVozilo[ playerid ] = SMG_CreateVehicle(579, 873.9756, -1663.4427, 13.5469, 270.0000, 3, 3, -1 );
-					LinkVehicleToInterior( YTVozilo[ playerid ], GetPlayerInterior( playerid ) );
-			        SetVehicleVirtualWorld( YTVozilo[ playerid ], GetPlayerVirtualWorld( playerid ) );
-			        ResetVehicle( YTVozilo[ playerid ] );
-					vCanDrive[ YTVozilo[ playerid ] ] = 1;
-				    PutPlayerInVehicle( playerid, YTVozilo[ playerid ], 0 );
-					ResetVehicleStatistics( YTVozilo[ playerid ] );
-
-					new string[ 35+MAX_PLAYER_NAME ];
-			  		format( string, sizeof( string ), "[ YOUTUBER - {FFFFFF}%s {DB2C2C}]", ImeIgraca(playerid) );
-					VehicleInfo[ YTVozilo[ playerid ] ][ Validv3DText ] = true;
-					VehicleInfo[ YTVozilo[ playerid ] ][ v3DText ] = CreateDynamic3DTextLabel(string, 0xDB2C2CFF, 0.0, 0.0, -100.0, 7.5, IPI, YTVozilo[ playerid ], 0, -1, -1, -1, 7.5, -1, 0);
-
-					new engine, lights, alarm, doors, bonnet, boot, objective;
-				    GetVehicleParamsEx( YTVozilo[ playerid ], engine, lights, alarm, doors, bonnet, boot, objective );
-				    SetVehicleParamsEx( YTVozilo[ playerid ], 1, 0, alarm, 0, 0, 0, objective );
-
-				    SpawnovaoVozilo[playerid] = gettime()+120;
-				}
-				case 2:
-				{
-					YTVozilo[ playerid ] = SMG_CreateVehicle(447, 873.9756, -1663.4427, 13.5469, 270.0000, 3, 3, -1 );
-					LinkVehicleToInterior( YTVozilo[ playerid ], GetPlayerInterior( playerid ) );
-			        SetVehicleVirtualWorld( YTVozilo[ playerid ], GetPlayerVirtualWorld( playerid ) );
-			        ResetVehicle( YTVozilo[ playerid ] );
-					vCanDrive[ YTVozilo[ playerid ] ] = 1;
-				    PutPlayerInVehicle( playerid, YTVozilo[ playerid ], 0 );
-					ResetVehicleStatistics( YTVozilo[ playerid ] );
-
-					new string[ 35+MAX_PLAYER_NAME ];
-			  		format( string, sizeof( string ), "[ YOUTUBER - {FFFFFF}%s {DB2C2C}]", ImeIgraca(playerid) );
-					VehicleInfo[ YTVozilo[ playerid ] ][ Validv3DText ] = true;
-					VehicleInfo[ YTVozilo[ playerid ] ][ v3DText ] = CreateDynamic3DTextLabel(string, 0xDB2C2CFF, 0.0, 0.0, -100.0, 7.5, IPI, YTVozilo[ playerid ], 0, -1, -1, -1, 7.5, -1, 0);
-
-					new engine, lights, alarm, doors, bonnet, boot, objective;
-				    GetVehicleParamsEx( YTVozilo[ playerid ], engine, lights, alarm, doors, bonnet, boot, objective );
-				    SetVehicleParamsEx( YTVozilo[ playerid ], 1, 0, alarm, 0, 0, 0, objective );
-
-				    SpawnovaoVozilo[playerid] = gettime()+120;
-				}
-				case 3:
-				{
-					YTVozilo[ playerid ] = SMG_CreateVehicle(411, 873.9756, -1663.4427, 13.5469, 270.0000, 3, 3, -1 );
-					LinkVehicleToInterior( YTVozilo[ playerid ], GetPlayerInterior( playerid ) );
-			        SetVehicleVirtualWorld( YTVozilo[ playerid ], GetPlayerVirtualWorld( playerid ) );
-			        ResetVehicle( YTVozilo[ playerid ] );
-					vCanDrive[ YTVozilo[ playerid ] ] = 1;
-				    PutPlayerInVehicle( playerid, YTVozilo[ playerid ], 0 );
-					ResetVehicleStatistics( YTVozilo[ playerid ] );
-
-					new string[ 35+MAX_PLAYER_NAME ];
-			  		format( string, sizeof( string ), "[ YOUTUBER - {FFFFFF}%s {DB2C2C}]", ImeIgraca(playerid) );
-					VehicleInfo[ YTVozilo[ playerid ] ][ Validv3DText ] = true;
-					VehicleInfo[ YTVozilo[ playerid ] ][ v3DText ] = CreateDynamic3DTextLabel(string, 0xDB2C2CFF, 0.0, 0.0, -100.0, 7.5, IPI, YTVozilo[ playerid ], 0, -1, -1, -1, 7.5, -1, 0);
-
-					new engine, lights, alarm, doors, bonnet, boot, objective;
-				    GetVehicleParamsEx( YTVozilo[ playerid ], engine, lights, alarm, doors, bonnet, boot, objective );
-				    SetVehicleParamsEx( YTVozilo[ playerid ], 1, 0, alarm, 0, 0, 0, objective );
-
-				    SpawnovaoVozilo[playerid] = gettime()+120;
-				}
-				case 4:
-				{
-					YTVozilo[ playerid ] = SMG_CreateVehicle(451, 873.9756, -1663.4427, 13.5469, 270.0000, 3, 3, -1 );
-					LinkVehicleToInterior( YTVozilo[ playerid ], GetPlayerInterior( playerid ) );
-			        SetVehicleVirtualWorld( YTVozilo[ playerid ], GetPlayerVirtualWorld( playerid ) );
-			        ResetVehicle( YTVozilo[ playerid ] );
-					vCanDrive[ YTVozilo[ playerid ] ] = 1;
-				    PutPlayerInVehicle( playerid, YTVozilo[ playerid ], 0 );
-					ResetVehicleStatistics( YTVozilo[ playerid ] );
-
-					new string[ 35+MAX_PLAYER_NAME ];
-			  		format( string, sizeof( string ), "[ YOUTUBER - {FFFFFF}%s {DB2C2C}]", ImeIgraca(playerid) );
-					VehicleInfo[ YTVozilo[ playerid ] ][ Validv3DText ] = true;
-					VehicleInfo[ YTVozilo[ playerid ] ][ v3DText ] = CreateDynamic3DTextLabel(string, 0xDB2C2CFF, 0.0, 0.0, -100.0, 7.5, IPI, YTVozilo[ playerid ], 0, -1, -1, -1, 7.5, -1, 0);
-
-					new engine, lights, alarm, doors, bonnet, boot, objective;
-				    GetVehicleParamsEx( YTVozilo[ playerid ], engine, lights, alarm, doors, bonnet, boot, objective );
-				    SetVehicleParamsEx( YTVozilo[ playerid ], 1, 0, alarm, 0, 0, 0, objective );
-
-				    SpawnovaoVozilo[playerid] = gettime()+120;
-				}
-				case 5:
-				{
-					YTVozilo[ playerid ] = SMG_CreateVehicle(522, 873.9756, -1663.4427, 13.5469, 270.0000, 3, 3, -1 );
-					LinkVehicleToInterior( YTVozilo[ playerid ], GetPlayerInterior( playerid ) );
-			        SetVehicleVirtualWorld( YTVozilo[ playerid ], GetPlayerVirtualWorld( playerid ) );
-			        ResetVehicle( YTVozilo[ playerid ] );
-					vCanDrive[ YTVozilo[ playerid ] ] = 1;
-				    PutPlayerInVehicle( playerid, YTVozilo[ playerid ], 0 );
-					ResetVehicleStatistics( YTVozilo[ playerid ] );
-
-					new string[ 35+MAX_PLAYER_NAME ];
-			  		format( string, sizeof( string ), "[ YOUTUBER - {FFFFFF}%s {DB2C2C}]", ImeIgraca(playerid) );
-					VehicleInfo[ YTVozilo[ playerid ] ][ Validv3DText ] = true;
-					VehicleInfo[ YTVozilo[ playerid ] ][ v3DText ] = CreateDynamic3DTextLabel(string, 0xDB2C2CFF, 0.0, 0.0, -100.0, 7.5, IPI, YTVozilo[ playerid ], 0, -1, -1, -1, 7.5, -1, 0);
-
-					new engine, lights, alarm, doors, bonnet, boot, objective;
-				    GetVehicleParamsEx( YTVozilo[ playerid ], engine, lights, alarm, doors, bonnet, boot, objective );
-				    SetVehicleParamsEx( YTVozilo[ playerid ], 1, 0, alarm, 0, 0, 0, objective );
-
-				    SpawnovaoVozilo[playerid] = gettime()+120;
-				}
-				case 6:
-				{
-					YTVozilo[ playerid ] = SMG_CreateVehicle(541, 873.9756, -1663.4427, 13.5469, 270.0000, 3, 3, -1 );
-					LinkVehicleToInterior( YTVozilo[ playerid ], GetPlayerInterior( playerid ) );
-			        SetVehicleVirtualWorld( YTVozilo[ playerid ], GetPlayerVirtualWorld( playerid ) );
-			        ResetVehicle( YTVozilo[ playerid ] );
-					vCanDrive[ YTVozilo[ playerid ] ] = 1;
-				    PutPlayerInVehicle( playerid, YTVozilo[ playerid ], 0 );
-					ResetVehicleStatistics( YTVozilo[ playerid ] );
-
-					new string[ 35+MAX_PLAYER_NAME ];
-			  		format( string, sizeof( string ), "[ YOUTUBER - {FFFFFF}%s {DB2C2C}]", ImeIgraca(playerid) );
-					VehicleInfo[ YTVozilo[ playerid ] ][ Validv3DText ] = true;
-					VehicleInfo[ YTVozilo[ playerid ] ][ v3DText ] = CreateDynamic3DTextLabel(string, 0xDB2C2CFF, 0.0, 0.0, -100.0, 7.5, IPI, YTVozilo[ playerid ], 0, -1, -1, -1, 7.5, -1, 0);
-
-					new engine, lights, alarm, doors, bonnet, boot, objective;
-				    GetVehicleParamsEx( YTVozilo[ playerid ], engine, lights, alarm, doors, bonnet, boot, objective );
-				    SetVehicleParamsEx( YTVozilo[ playerid ], 1, 0, alarm, 0, 0, 0, objective );
-
-				    SpawnovaoVozilo[playerid] = gettime()+120;
-				}
-			}
-	    }
-	}
 	else if(dialogid == D_PROPERTYWEPTAKE )
 	{
 	    new wepname[ 32 ];
@@ -40549,7 +40117,6 @@ public OnDialogResponse( playerid, dialogid, response, listitem, inputtext[])
 		    if(PI[playerid][xAdmin] != 0 || PI[playerid][xSpecAdmin] != 0 || PI[playerid][xGamemaster] != 0) ima_dozvolu = true;
 		    if(portInfo[id][tpVIP] <= PI[playerid][xVIPLevel]) ima_dozvolu = true;
 		    if(portInfo[id][tpPromoter] <= PI[playerid][xPromoter]) ima_dozvolu = true;
-		    if(portInfo[id][tpYouTuber] <= PI[playerid][xYouTuber]) ima_dozvolu = true;
 
 			if(!ima_dozvolu) return SendErrorMessage(playerid, "Ne mozete se portati na ovu lokaciju, niste ovlasceni.");
 
@@ -40589,13 +40156,8 @@ public OnDialogResponse( playerid, dialogid, response, listitem, inputtext[])
 			{ 
 				DodajWarnRed("~y~(PORT) ~w~Promoter ~y~%s ~w~se teleportova%s do ~y~%s.", ImeIgraca(playerid), getPolForString(playerid, "o", "la"), portInfo[id][tpNaziv] );
 
-				if(PI[playerid][xPromoter] < 3) CooldownPort[ playerid ] = gettime()+60;
-			}
-			else if(PI[playerid][xYouTuber] != 0)
-			{ 
-				DodajWarnRed("~y~(PORT) ~w~YouTuber ~y~%s ~w~se teleportova%s do ~y~%s.", ImeIgraca(playerid), getPolForString(playerid, "o", "la"), portInfo[id][tpNaziv] );
-
-				if(PI[playerid][xYouTuber] < 2) CooldownPort[ playerid ] = gettime()+60;
+				if(PI[playerid][xPromoter] < 5) CooldownPort[ playerid ] = gettime()+60;
+				else CooldownPort[ playerid ] = gettime()+45;
 			}
 			SCMF(playerid, 0x2D6888FF, "(TP): Teleportovali ste se do lokacije {FFFFFF}%s.", portInfo[ id ][ tpNaziv ] );
 		}
@@ -40638,13 +40200,7 @@ public OnDialogResponse( playerid, dialogid, response, listitem, inputtext[])
 			{ 
 				DodajWarnRed("~y~(PORT) ~w~Promoter ~y~%s ~w~se teleportova%s do ~y~%s.", ImeIgraca(playerid), getPolForString(playerid, "o", "la"),jobsInfos[ listitem ][ jName ]  );
 
-				if(PI[playerid][xPromoter] < 3) CooldownPort[ playerid ] = gettime()+60;
-			}
-			else if(PI[playerid][xYouTuber] != 0)
-			{ 
-				DodajWarnRed("~y~(PORT) ~w~YouTuber ~y~%s ~w~se teleportova%s do ~y~%s.", ImeIgraca(playerid), getPolForString(playerid, "o", "la"),jobsInfos[ listitem ][ jName ]  );
-
-				if(PI[playerid][xYouTuber] < 2) CooldownPort[ playerid ] = gettime()+60;
+				if(PI[playerid][xPromoter] < 5) CooldownPort[ playerid ] = gettime()+60;
 			}
 			SetPlayerInterior( playerid, 0 );
 			SetPlayerVirtualWorld( playerid, 0 );
@@ -43171,8 +42727,7 @@ public OnDialogResponse( playerid, dialogid, response, listitem, inputtext[])
 					if( AdminVozilo[playerid] != -1 ) return SendErrorMessage(playerid, "Imate spawnovano A/GM vozilo, unistite ga pa pokrenite trku.");
 					if( VipVozilo[playerid] != -1 ) return SendErrorMessage(playerid, "Imate spawnovano V/T vozilo, unistite ga pa pokrenite trku.");
 					if( PromoterVozilo[playerid] != -1 ) return SendErrorMessage(playerid, "Imate spawnovano Promoter vozilo, unistite ga pa pokrenite trku.");
-					if( YTVozilo[playerid] != -1 ) return SendErrorMessage(playerid, "Imate spawnovano YT vozilo, unistite ga pa pokrenite trku.");
-	                ShowPlayerDialog( playerid, D_NFSIZAZOVI, DIALOG_STYLE_INPUT, "{FFFFFF}Izazovite na trku:", "{FFFFFF}* Unesite ID igraca, zatim broj iz ponude i ulog.\n[Broj] 1. Sultan 2. Infernus 3. Bullet 4. Elegy 5. Turismo\n[Broj] 6. Quad 7. Sabre 8. Hotring Racer 9. NRG-500 10. Tractor\n[Ulog] Ukoliko je ulog 0, igracete bez uloga\n\nPrimer: 25 4 1320", "U redu", "Izadji" );
+					ShowPlayerDialog( playerid, D_NFSIZAZOVI, DIALOG_STYLE_INPUT, "{FFFFFF}Izazovite na trku:", "{FFFFFF}* Unesite ID igraca, zatim broj iz ponude i ulog.\n[Broj] 1. Sultan 2. Infernus 3. Bullet 4. Elegy 5. Turismo\n[Broj] 6. Quad 7. Sabre 8. Hotring Racer 9. NRG-500 10. Tractor\n[Ulog] Ukoliko je ulog 0, igracete bez uloga\n\nPrimer: 25 4 1320", "U redu", "Izadji" );
 				}
 	        }
 	    }
@@ -45628,7 +45183,7 @@ CMD:tunecar( playerid )
 
 CMD:fasttune(playerid)
 {
-	if(PI[playerid][xVIPLevel] < 5 && PI[playerid][xAdmin] < 1 && PI[playerid][xGamemaster] < 1 && PI[playerid][xSpecAdmin] < 1 && PI[playerid][xPromoter] < 3) return SendErrorMessage(playerid, "Niste ovlasceni.");
+	if(PI[playerid][xVIPLevel] < 5 && PI[playerid][xAdmin] < 1 && PI[playerid][xGamemaster] < 1 && PI[playerid][xSpecAdmin] < 1) return SendErrorMessage(playerid, "Niste ovlasceni.");
 	if(!IsPlayerInAnyVehicle(playerid)) return SendErrorMessage(playerid, "Niste u vozilu.");
 	if( PI[playerid][xWanted] != 0 ) return SendErrorMessage(playerid, "Ne mozete dok imate WL.");
 	if(IsVehicleBrod(GetPlayerVehicleID(playerid)) || IsVehicleBajs(GetPlayerVehicleID(playerid)) || IsVehicleMotor(GetPlayerVehicleID(playerid)) || IsVehicleLetelica(GetPlayerVehicleID(playerid))
@@ -45640,16 +45195,6 @@ CMD:fasttune(playerid)
 
 	SendClientMessage(playerid, 0x00FF00FF, "Uzeli ste brzi tuning: nitro 10x, zlatne felge i hidrauliku.");
 	GChat(0x00FF00FF, "#FASTTUNE: {FFFFFF}%s {00FF00}je ugradio/la brzi tuning u vozilo (nitro, felge, hidraulika).", ImeIgraca(playerid));
-	return 1;
-}
-
-CMD:playercc( playerid )
-{
-	if( PI[ playerid ][ xAdmin ] < 1 && PI[ playerid ][ xGamemaster ] < 1 && PI[ playerid ][ xVIPLevel ] < 2 && PI[ playerid ][ xPromoter ] < 3) return SendErrorMessage( playerid, "Niste u mogucnosti koristiti ovu komandu." );
-
-	ClearChat( playerid, 18 );
-	SendClientMessage(playerid, -1, "PLAYER-CC | Ocistili ste vas chat.");
-	SendClientMessage(playerid, 0x2D6888FF, "== "SERVER_WEB" ==");
 	return 1;
 }
 
@@ -45734,13 +45279,12 @@ CMD:makevip( playerid, const params[] )
 
 CMD:makepromoter(playerid, const params[]) 
 {
-    if( PI[ playerid ][ xAdmin ] >= 5 || PI[playerid][xSkriptaRank] == 5 || PI[playerid][xPromoter] == 4)
+    if( PI[ playerid ][ xAdmin ] >= 5 || PI[playerid][xSkriptaRank] == 5)
     {
 		new id, kolicina, razlog[ 64 ];
-	    if( sscanf( params, "uis[64]", id, kolicina, razlog ) ) return SendUsageMessage( playerid, "/makepromoter [id] [level(0/4)] [razlog]");
+	    if( sscanf( params, "uis[64]", id, kolicina, razlog ) ) return SendUsageMessage( playerid, "/makepromoter [id] [level(0/5)] [razlog]");
 		if( id == IPI ) return SendErrorMessage( playerid, "Taj igrac nije na serveru.");
-		if( kolicina < 0 || kolicina > 4 ) return SendErrorMessage( playerid, "Pogresno level promotera (0/4).");
-		if( kolicina == 4 && PI[playerid][xAdmin] < 7 ) return SendErrorMessage(playerid, "Ne mozete postaviti vodju promotera, mozete samo obicnog promotera od 1 do 3lvl.");
+		if( kolicina < 0 || kolicina > 5 ) return SendErrorMessage( playerid, "Pogresno level promotera (0/5).");
 
 		switch(kolicina) 
 		{
@@ -45756,11 +45300,11 @@ CMD:makepromoter(playerid, const params[])
 				SCMF( id, 0x00FF00FF, "#PROMOTER: {FFFFFF}Admin {00FF00}%s {FFFFFF}vam je postavi%s Promotera {00FF00}(%d).", ImeIgraca( playerid ), getPolForString(playerid, "o", "la"), kolicina );
 				SCMF( playerid, 0x00FF00FF, "#PROMOTER: {FFFFFF}Postavili ste igracu {00FF00}%s {FFFFFF}Promotera {00FF00}(%d).", ImeIgraca( id ), kolicina );
 			}
-			case 4:
+			case 4..5:
 			{
 				PI[ id ][ xPromoter ] = kolicina;
-				SCMF( id, 0x00FF00FF, "#PROMOTER: {FFFFFF}Admin {00FF00}%s {FFFFFF}vam je postavi%s Head Promotera.", ImeIgraca( playerid ), getPolForString(playerid, "o", "la") );
-				SCMF( playerid, 0x00FF00FF, "#PROMOTER: {FFFFFF}Postavili ste igracu {00FF00}%s {FFFFFF}Head Promotera.", ImeIgraca( id ) );
+				SCMF( id, 0x00FF00FF, "#PROMOTER: {FFFFFF}Admin {00FF00}%s {FFFFFF}vam je postavi%s YouTubera.", ImeIgraca( playerid ), getPolForString(playerid, "o", "la") );
+				SCMF( playerid, 0x00FF00FF, "#PROMOTER: {FFFFFF}Postavili ste igracu {00FF00}%s {FFFFFF}YouTubera.", ImeIgraca( id ) );
 			}
 		}
 
@@ -45774,41 +45318,6 @@ CMD:makepromoter(playerid, const params[])
 	return 1;
 }
 
-CMD:makeyoutuber(playerid, const params[]) 
-{
-    if( PI[ playerid ][ xAdmin ] >= 7 || PI[playerid][xYouTuber] == 2)
-    {
-		new id, kolicina, razlog[ 64 ];
-	    if( sscanf( params, "ris[64]", id, kolicina, razlog ) ) return SendUsageMessage( playerid, "/makeyoutuber [id] [level(0/2)] [razlog]");
-		if( id == IPI ) return SendErrorMessage( playerid, "Taj igrac nije na serveru.");
-		if( kolicina < 0 || kolicina > 2 ) return SendErrorMessage( playerid, "Pogresno level YouTuber (0/2).");
-		if( kolicina == 2 && PI[playerid][xAdmin] < 7 ) return SendErrorMessage(playerid, "Ne mozete vi davati vodju youtubera, samo obicnog youtubera.");
-
-		switch(kolicina) 
-		{
-			case 0: 
-			{
-				PI[ id ][ xYouTuber ] = 0;
-				SCMF( id, 0xFF0000FF, "#YOUTUBER: {FFFFFF}Admin {FF0000}%s {FFFFFF}vam je skinuo YouTubera.", ImeIgraca( playerid ) );
-				SCMF( playerid, 0xFF0000FF, "#YOUTUBER: {FFFFFF}Skinuli ste igracu {FF0000}%s {FFFFFF}YouTubera.", ImeIgraca( id ) );
-			}
-			case 1 .. 2: 
-			{
-				PI[ id ][ xYouTuber ] = kolicina;
-				SCMF( id, 0x00FF00FF, "#YOUTUBER: {FFFFFF}Admin {00FF00}%s {FFFFFF}vam je postavio YouTubera {00FF00}(%d).", ImeIgraca( playerid ), kolicina );
-				SCMF( playerid, 0x00FF00FF, "#YOUTUBER: {FFFFFF}Postavili ste igracu {00FF00}%s {FFFFFF}YouTubera {00FF00}(%d).", ImeIgraca( id ), kolicina );
-			}
-		}
-
-	    static q[ 128 ];
-		mysql_format( mSQL, q, sizeof(q), "UPDATE `users` SET `xYouTuber` = '%d' WHERE `user_id` = '%d'", PI[ id ][ xYouTuber ], PI[ id ][ xID ] );
-		mysql_tquery( mSQL, q );
-
-		WriteLog("log-make", "Admin %s | Igrac: %s | YouTuber: %d | Razlog: %s", ImeIgraca( playerid ), ImeIgraca( id ), kolicina, razlog);
-    }
-    else return SendErrorMessage( playerid, "Niste u mogucnosti koristiti ovu komandu.");
-	return 1;
-}
 
 CMD:givemoney( playerid, const params[] )
 {
@@ -46031,40 +45540,6 @@ CMD:makegamemaster( playerid, const params[] )
 		else return SendErrorMessage( playerid, "Pogresan level Gamemastera(0/3)." );
     } 
     else return SendErrorMessage( playerid, "Niste u mogucnosti koristiti ovu komandu.");
-	return 1;
-}
-
-CMD:promenipol( playerid, const params[] )
-{
-    if( PI[ playerid ][ xAdmin ] < 5 ) return SendErrorMessage( playerid, "Niste u mogucnosti koristiti ovu komandu.");
-    //if( PI[ playerid ][ xAdmin ] <= 5 && !AdminDuty[ playerid ] ) return SendErrorMessage( playerid, "Da bi koristili ovu komandu morate biti Admin na duznosti." );
-	
-	new id, kolicina;
-	if( sscanf( params, "ui", id, kolicina ) )
-	{
-		SendUsageMessage( playerid, "/promenipol [id] [pol(id)]");
-     	SendClientMessage( playerid, -1, "[POL] 1: Muski | 2: Zenski");
-     	return 1;
-	}
-	if( kolicina == 1 )
-	{
-	    PI[ id ][ xPol ] = 1;
-	    sql_user_update_integer( id, "sex", PI[ id ][ xPol ] );
-     	SCMF( playerid, 0x33CCFFFF, "#POL: {FFFFFF}Promenili ste igracu {33CCFF}%s {FFFFFF}pol na musko.", ImeIgraca( id ) );
-     	return 1;
-	}
-	else if( kolicina == 2 )
-	{
-	    PI[ id ][ xPol ] = 2;
-		sql_user_update_integer( id, "sex", PI[ id ][ xPol ] );
-     	SCMF( playerid, 0x33CCFFFF, "#POL: {FFFFFF}Promenili ste igracu {33CCFF}%s {FFFFFF}pol na zensko.", ImeIgraca( id ) );
-     	return 1;
-	}
-	else
-	{
-		SendUsageMessage( playerid, "/promenipol [id] [pol(id)]");
-     	SendClientMessage( playerid, -1, "[POL] 1: Muski | 2: Zenski");
-	}
 	return 1;
 }
 
@@ -46620,10 +46095,10 @@ CMD:jetpack( playerid )
 
 CMD:nitro( playerid )
 {
-    if( PI[ playerid ][ xAdmin ] < 2 && PI[ playerid ][ xVIPLevel ] < 5 && PI[ playerid ][ xPromoter ] < 2 ) return SendErrorMessage( playerid, "Niste u mogucnosti koristiti ovu komandu." );
+    if( PI[ playerid ][ xAdmin ] < 2 && PI[ playerid ][ xVIPLevel ] < 5 && PI[ playerid ][ xPromoter ] < 5 ) return SendErrorMessage( playerid, "Niste u mogucnosti koristiti ovu komandu." );
     if( !IsPlayerInAnyVehicle( playerid ) ) return SendErrorMessage( playerid, "Morate biti u vozilu!");
 
-    if( PI[ playerid ][ xVIPLevel ] >= 5 || PI[ playerid ][ xPromoter ] >= 2 && PI[ playerid ][ xAdmin ] == 0 )
+    if( PI[ playerid ][ xVIPLevel ] >= 5 || PI[ playerid ][ xPromoter ] >= 5 && PI[ playerid ][ xAdmin ] == 0 )
 	{
 		if( ProcesSvercanja[ playerid ] > 0 ) return SendErrorMessage( playerid, "Ne mozes nitro dok svercas." );
 		if( NaDmEventu[ playerid ]) return SendErrorMessage( playerid, "Ne mozes dok si na CS-DM." );
@@ -46650,7 +46125,6 @@ CMD:veh( playerid, const params[] )
 	if( TrkaVozilo[playerid] != -1 ) return SendErrorMessage(playerid, "Imate spawnovano trkace vozilo, ponistite ili zavrsite utrku pa spawnujte vozilo.");
 	if( VipVozilo[playerid] != -1 ) return SendErrorMessage(playerid, "Imate spawnovano V/T vozilo, unistite ga pa spawnujte vozilo.");
 	if( PromoterVozilo[playerid] != -1 ) return SendErrorMessage(playerid, "Imate spawnovano Promoter vozilo, unistite ga pa spawnujte vozilo.");
-	if( YTVozilo[playerid] != -1 ) return SendErrorMessage(playerid, "Imate spawnovano YT vozilo, unistite ga pa spawnujte vozilo.");
 	if( Spectate[ playerid ] != -1) return SendErrorMessage(playerid, "Ne mozete u spectate modu.");
 
     if( AdminVozilo[ playerid ] == -1 ) 
@@ -46721,7 +46195,6 @@ CMD:vipveh( playerid, const params[] )
 	if( TrkaVozilo[playerid] != -1 ) return SendErrorMessage(playerid, "Imate spawnovano trkace vozilo, ponistite ili zavrsite utrku pa spawnujte vozilo.");
 	if( AdminVozilo[playerid] != -1 ) return SendErrorMessage(playerid, "Imate spawnovano A/GM vozilo, unistite ga pa spawnujte vozilo.");
 	if( PromoterVozilo[playerid] != -1 ) return SendErrorMessage(playerid, "Imate spawnovano Promoter vozilo, unistite ga pa spawnujte vozilo.");
-	if( YTVozilo[playerid] != -1 ) return SendErrorMessage(playerid, "Imate spawnovano YT vozilo, unistite ga pa spawnujte vozilo.");
 	if( Spectate[ playerid ] != -1) return SendErrorMessage(playerid, "Ne mozete u spectate modu.");
 
     if( VipVozilo[ playerid ] == -1 )
@@ -46781,93 +46254,17 @@ CMD:vipveh( playerid, const params[] )
 	return 1;
 }
 
-CMD:promoterveh( playerid, const params[] )
-{
-    if( ServerInfo[ BrojKreiranihVozila ] > MaxBrojKreiranih ) return SendClientMessage( playerid, ANTICHEAT, "[ANTICHEAT]: Nemoguce je trenutno kreirati vozilo, limit vozila na serveru je dosegnut.");
-	if( PI[ playerid ][ xPromoter ] < 1) return SendErrorMessage( playerid, "Niste u mogucnosti koristiti ovu komandu." );
-	if( PosaoVozilo[playerid] != -1 ) return SendErrorMessage(playerid, "Imate spawnovano poslovno vozilo, ponistite posao pa spawnujte vozilo.");
-	if( RentVozilo[playerid] != -1 ) return SendErrorMessage(playerid, "Imate spawnovano rent vozilo, ponistite rent pa spawnujte vozilo.");
-	if( TrkaVozilo[playerid] != -1 ) return SendErrorMessage(playerid, "Imate spawnovano trkace vozilo, ponistite ili zavrsite utrku pa spawnujte vozilo.");
-	if( AdminVozilo[playerid] != -1 ) return SendErrorMessage(playerid, "Imate spawnovano A/GM vozilo, unistite ga pa spawnujte vozilo.");
-	if( YTVozilo[playerid] != -1 ) return SendErrorMessage(playerid, "Imate spawnovano YT vozilo, unistite ga pa spawnujte vozilo.");
-	if( Spectate[ playerid ] != -1) return SendErrorMessage(playerid, "Ne mozete u spectate modu.");
-
-	if( PromoterVozilo[ playerid ] != -1 ) 
-	{
-	    SendInfoMessage( playerid, "Vozilo ID {FFFFFF}(%d) {2D6888}je unisteno.", PromoterVozilo[ playerid ] );
-
-		VehicleInfo[ PromoterVozilo[ playerid ] ][ Validv3DText ] = false;
-        DestroyDynamic3DTextLabel(VehicleInfo[ PromoterVozilo[ playerid ] ][ v3DText ]);
-	    ResetVehicle( PromoterVozilo[ playerid ] );
-		SMG_DestroyVehicle( PromoterVozilo[ playerid ] );
-		PromoterVozilo[ playerid ] = -1;
-	}
-	else
-	{
-		if( !IsPlayerInRangeOfPoint(playerid, 3.0, 873.9756, -1663.4427, 13.5469) ) return SendErrorMessage( playerid, "Niste u bazi na mjestu spawnovanja vozila." );
-		if(gettime() < SpawnovaoVozilo[playerid]) return SendErrorMessage(playerid, "Mozete spawnovati vozilo za %d sec.", gettime()-SpawnovaoVozilo[playerid]);
-
-		ShowPlayerDialog(playerid, D_PROMOTERVEH, DIALOG_STYLE_LIST, "{FFFFFF}Promoter Vozilo:",
-																									"{2D6888}(1). {FFFFFF}Sultan\n\
-																									{2D6888}(2). {FFFFFF}Huntley\n\
-																									{2D6888}(3). {FFFFFF}Sparrow\n\
-																									{2D6888}(4). {FFFFFF}Infernus\n\
-																									{2D6888}(5). {FFFFFF}Turismo\n\
-																									{2D6888}(6). {FFFFFF}NRG\n\
-																									{2D6888}(7). {FFFFFF}Bullet", "Potvrdi", "Zatvori");
-	}
-	return 1;
-}
-alias:promoterveh("pveh");
-
-CMD:ytveh( playerid, const params[] )
-{
-    if( ServerInfo[ BrojKreiranihVozila ] > MaxBrojKreiranih ) return SendClientMessage( playerid, ANTICHEAT, "[ANTICHEAT]: Nemoguce je trenutno kreirati vozilo, limit vozila na serveru je dosegnut.");
-	if( PI[ playerid ][ xYouTuber ] < 1) return SendErrorMessage( playerid, "Niste u mogucnosti koristiti ovu komandu." );
-	if( PosaoVozilo[playerid] != -1 ) return SendErrorMessage(playerid, "Imate spawnovano poslovno vozilo, ponistite posao pa spawnujte vozilo.");
-	if( RentVozilo[playerid] != -1 ) return SendErrorMessage(playerid, "Imate spawnovano rent vozilo, ponistite rent pa spawnujte vozilo.");
-	if( TrkaVozilo[playerid] != -1 ) return SendErrorMessage(playerid, "Imate spawnovano trkace vozilo, ponistite ili zavrsite utrku pa spawnujte vozilo.");
-	if( AdminVozilo[playerid] != -1 ) return SendErrorMessage(playerid, "Imate spawnovano A/GM vozilo, unistite ga pa spawnujte vozilo.");
-	if( PromoterVozilo[playerid] != -1 ) return SendErrorMessage(playerid, "Imate spawnovano Promoter vozilo, unistite ga pa spawnujte vozilo.");
-	if( Spectate[ playerid ] != -1) return SendErrorMessage(playerid, "Ne mozete u spectate modu.");
-
-	if( YTVozilo[ playerid ] != -1 ) 
-	{
-	    SendInfoMessage( playerid, "Vozilo ID {FFFFFF}(%d) {2D6888}je unisteno.", YTVozilo[ playerid ] );
-
-		VehicleInfo[ YTVozilo[ playerid ] ][ Validv3DText ] = false;
-        DestroyDynamic3DTextLabel(VehicleInfo[ YTVozilo[ playerid ] ][ v3DText ]);
-	    ResetVehicle( YTVozilo[ playerid ] );
-		SMG_DestroyVehicle( YTVozilo[ playerid ] );
-		YTVozilo[ playerid ] = -1;
-	}
-	else
-	{
-		if( !IsPlayerInRangeOfPoint(playerid, 3.0, 873.9756, -1663.4427, 13.5469) ) return SendErrorMessage( playerid, "Niste u bazi na mjestu spawnovanja vozila." );
-		if(gettime() < SpawnovaoVozilo[playerid]) return SendErrorMessage(playerid, "Mozete spawnovati vozilo za %d sec.", gettime()-SpawnovaoVozilo[playerid]);
-
-		ShowPlayerDialog(playerid, D_YTVEH, DIALOG_STYLE_LIST, "{FFFFFF}YouTuber Vozilo:",
-																									"{2D6888}(1). {FFFFFF}Sultan\n\
-																									{2D6888}(2). {FFFFFF}Huntley\n\
-																									{2D6888}(3). {FFFFFF}Sparrow\n\
-																									{2D6888}(4). {FFFFFF}Infernus\n\
-																									{2D6888}(5). {FFFFFF}Turismo\n\
-																									{2D6888}(6). {FFFFFF}NRG\n\
-																									{2D6888}(7). {FFFFFF}Bullet", "Potvrdi", "Zatvori");
-	}
-	return 1;
-}
 
 CMD:fixveh( playerid )
 {
-    if( PI[ playerid ][ xAdmin ] >= 1 || PI[ playerid ][ xSpecAdmin ] >= 1 || PI[ playerid ][ xGamemaster ] >= 1 || PI[ playerid ][ xVIPLevel ] >= 4 || PI[ playerid ][ xPromoter ] >= 1 || PI[ playerid ][ xYouTuber ] >= 1 )
+    if( PI[ playerid ][ xAdmin ] >= 1 || PI[ playerid ][ xSpecAdmin ] >= 1 || PI[ playerid ][ xGamemaster ] >= 1 || PI[ playerid ][ xVIPLevel ] >= 4 || PI[ playerid ][ xPromoter ] >= 1 )
 	{
 		if( PI[ playerid ][ xGamemaster ] >= 1 || PI[ playerid ][ xAdmin ] <= 4 || PI[ playerid ][ xSpecAdmin ] >= 1 )
 		{
 		    if( UzeoOpremu[ playerid ]) return SendErrorMessage( playerid, "Ne mozes koristi ovu komandu dok radis posao ili imas uniformu posla." );
 			if( (PI[ playerid ][ xAdmin ] > 0 && PI[ playerid ][ xAdmin ] <= 4) && !AdminDuty[ playerid ] ) return SendErrorMessage( playerid, "Da bi koristili ovu komandu morate biti Admin na duznosti." );
 		}
-		else if( PI[ playerid ][ xVIPLevel ] >= 4 || PI[ playerid ][ xPromoter ] >= 1 || PI[ playerid ][ xYouTuber ] >= 1 )
+		else if( PI[ playerid ][ xVIPLevel ] >= 4 || PI[ playerid ][ xPromoter ] >= 1 )
 		{
 			if( NaUtrci[ playerid ] ) return SendErrorMessage( playerid, "Ne mozes koristi ovu komandu dok si na trci." );
 			if( PlayerCP[ playerid ] > 0 ) return SendErrorMessage( playerid, "Ne mozes koristi ovu komandu dok si na eventu." );
@@ -49604,7 +49001,7 @@ CMD:port(playerid)
 
 		ShowPlayerDialog(playerid, D_TELEPORTS, DIALOG_STYLE_LIST, "{FFFFFF}Izaberite teleport:", "{2D6888}(1). {FFFFFF}Lokacije\n{2D6888}(2). {FFFFFF}Poslovi\n{2D6888}(3). {FFFFFF}Organizacije", "Potvrdi", "Odustani");
 	}
-	else if( PI[ playerid ][ xVIPLevel ] >= 1 || PI[ playerid ] [ xPromoter ] >= 1 || PI[ playerid ] [ xYouTuber ] >= 1 )
+	else if( PI[ playerid ][ xVIPLevel ] >= 1 || PI[ playerid ] [ xPromoter ] >= 1 )
 	{
 		if( ProcesSvercanja[ playerid ] > 0 ) return SendErrorMessage( playerid, "Ne mozes se portati dok svercas." );
         if( NaUtrci[ playerid ] ) return SendErrorMessage( playerid, "Ne mozes dok si na trci." );
@@ -49627,7 +49024,7 @@ CMD:port(playerid)
 
 CMD:mark( playerid )
 {
-    if( PI[ playerid ][ xAdmin ] >= 3 || PI[ playerid ][ xVIPLevel ] >= 4 || PI[ playerid ][ xPromoter ] >= 3)
+    if( PI[ playerid ][ xAdmin ] >= 3 || PI[ playerid ][ xVIPLevel ] >= 4)
 	{
 		GetPlayerPos( playerid, PI[ playerid ][ xMarker ][ 0 ], PI[ playerid ][ xMarker ][ 1 ], PI[ playerid ][ xMarker ][ 2 ] );
 
@@ -49647,9 +49044,9 @@ CMD:mark( playerid )
 
 CMD:gotomark( playerid )
 {
-    if( PI[ playerid ][ xAdmin ] >= 3 || PI[ playerid ][ xVIPLevel ] >= 4 || PI[ playerid ][ xPromoter ] >= 3)
+    if( PI[ playerid ][ xAdmin ] >= 3 || PI[ playerid ][ xVIPLevel ] >= 4)
 	{
-        if( PI[ playerid ][ xVIPLevel ] >= 3 || PI[ playerid ][ xPromoter ] >= 3)
+        if( PI[ playerid ][ xVIPLevel ] >= 3)
 		{
 			if( ProcesSvercanja[ playerid ] > 0 ) return SendErrorMessage( playerid, "Ne mozes se portati dok svercas." );
             if( NaUtrci[ playerid ] ) return SendErrorMessage( playerid, "Ne mozes dok si na trci." );
@@ -50201,27 +49598,6 @@ CMD:smenipromotera( playerid, const params[] )
         new query[128];
 		mysql_format( mSQL, query, sizeof(query), "SELECT `user_id` FROM `users` WHERE `p_name` = '%e' LIMIT 1", imeigraca );
 		mysql_tquery( mSQL, query, "CheckPlayerOffRank", "iis", playerid, 5, imeigraca );
-	}
-	else return SendErrorMessage( playerid, "Niste u mogucnosti koristiti ovu komandu." );
-	return 1;
-}
-
-CMD:smeniytera( playerid, const params[] )
-{
-    if( PI[ playerid ][ xAdmin ] >= 7 || PI[playerid][xYouTuber] == 2 )
-	{
-		new imeigraca[ MAX_PLAYER_NAME ];
-	    if( sscanf( params, "s[24]", imeigraca ) ) return SendUsageMessage( playerid, "/smeniytera [Ime_Prezime]" );
-
-        if( IsPlayerConnected( GetPlayerIdFromName( imeigraca ) ) )
-		{
-			SendErrorMessage( playerid, "Taj igrac je online tako da smeni ga online.");
-			return 1;
-		}
-
-        new query[128];
-		mysql_format( mSQL, query, sizeof(query), "SELECT `user_id` FROM `users` WHERE `p_name` = '%e' LIMIT 1", imeigraca );
-		mysql_tquery( mSQL, query, "CheckPlayerOffRank", "iis", playerid, 6, imeigraca );
 	}
 	else return SendErrorMessage( playerid, "Niste u mogucnosti koristiti ovu komandu." );
 	return 1;
@@ -50870,7 +50246,7 @@ CMD:g( playerid, const params[] )
 	new text[ 128 ];
     if( sscanf( params, "s[128]", text ) ) return SendUsageMessage( playerid, "/g [tekst]" );
     if(IsTextUppercase(text) && PI[playerid][xAdmin] < 6) return SendClientMessage(playerid, ANTICHEAT, "(ANTI-CAPS): Zabranjeno je koristiti CapsLock!");
-	if( PI[ playerid ][ xPromoter ] >= 1 || PI[ playerid ][ xYouTuber ] >= 1 || PI[playerid][xGamemaster] >= 1 || PI[ playerid ][ xVIPLevel ] >= 1 || PI[ playerid ][ xAdmin ] >= 1 || PI[ playerid ][ xSpecAdmin ] >= 1 )
+	if( PI[ playerid ][ xPromoter ] >= 1 || PI[playerid][xGamemaster] >= 1 || PI[ playerid ][ xVIPLevel ] >= 1 || PI[ playerid ][ xAdmin ] >= 1 || PI[ playerid ][ xSpecAdmin ] >= 1 )
 	{
         if(PI[playerid][xSkriptaRank] == 1) GChat(0x48E86BFF, "[G] {FFFFFF}Skripter - {48E86B}%s[%d]: {FFFFFF}%s", ImeIgraca(playerid), playerid, text);
 		else if(PI[playerid][xSkriptaRank] == 2) GChat(0x48E86BFF, "[G] {FFFFFF}Suvlasnik - {48E86B}%s[%d]: {FFFFFF}%s", ImeIgraca(playerid), playerid, text);
@@ -50879,9 +50255,8 @@ CMD:g( playerid, const params[] )
 		else if(PI[playerid][xSpecAdmin] >= 1) GChat(0x48E86BFF, "[G] {FFFFFF}Spec Admin - {48E86B}%s[%d]: {FFFFFF}%s", ImeIgraca(playerid), playerid, text);
 		else if(PI[playerid][xGamemaster] >= 1) GChat(0x48E86BFF, "[G] {FFFFFF}GameMaster[%d] - {48E86B}%s[%d]: {FFFFFF}%s", PI[playerid][xGamemaster], ImeIgraca(playerid), playerid, text);
         else if(PI[playerid][xVIPLevel] >= 1) GChat(0x48E86BFF, "[G] {FFFFFF}VIP[%d] - {48E86B}%s[%d]: {FFFFFF}%s", PI[playerid][xVIPLevel], ImeIgraca(playerid), playerid, text);
-		else if(PI[playerid][xPromoter] >= 1) GChat(0x48E86BFF, "[G] {FFFFFF}Promoter[%d] - {48E86B}%s[%d]: {FFFFFF}%s", PI[playerid][xPromoter], ImeIgraca(playerid), playerid, text);
-		else if(PI[playerid][xYouTuber] >= 1) GChat(0x48E86BFF, "[G] {FFFFFF}%s - {48E86B}%s[%d]: {FFFFFF}%s", (PI[playerid][xYouTuber] == 2 ? "Head YouTuber" : "YouTuber"), ImeIgraca(playerid), playerid, text);
-
+		else if(PI[playerid][xPromoter] >= 1 && PI[playerid][xPromoter] < 4) GChat(0x48E86BFF, "[G] {FFFFFF}Promoter[%d] - {48E86B}%s[%d]: {FFFFFF}%s", PI[playerid][xPromoter], ImeIgraca(playerid), playerid, text);
+		else if(PI[playerid][xPromoter] >= 1 && PI[playerid][xPromoter] >= 4) GChat(0x48E86BFF, "[G] {FFFFFF}Youtuber[%d] - {48E86B}%s[%d]: {FFFFFF}%s", PI[playerid][xPromoter], ImeIgraca(playerid), playerid, text);
 		WriteLog("log-chat", "CMD: /g > %s: %s", ImeIgraca( playerid ), text);
 	}
 	else return SendErrorMessage( playerid, "Niste u mogucnosti koristiti ovu komandu." );
@@ -50994,11 +50369,6 @@ CMD:promoteri( playerid )
 	if(PI[playerid][xAdmin] < 1 && PI[playerid][xSkriptaRank] != 5) return SendErrorMessage( playerid, "Niste u mogucnosti koristiti ovu komandu." );
 	return mysql_tquery( mSQL, "SELECT `p_name`, `promoter_level`, `isonline`, `last_login` FROM `users` WHERE `promoter_level` > '0' ORDER BY `promoter_level` DESC", "selectQueryPromoterList", "i", playerid );
 }
-CMD:youtuberi( playerid ) 
-{
-	if(PI[playerid][xAdmin] < 1 && PI[playerid][xYouTuber] != 2) return SendErrorMessage( playerid, "Niste u mogucnosti koristiti ovu komandu." );
-	return mysql_tquery( mSQL, "SELECT `p_name`, `xYouTuber`, `isonline`, `last_login` FROM `users` WHERE `xYouTuber` > '0' ORDER BY `xYouTuber` DESC", "selectQueryYouTuberList", "i", playerid );
-}
 CMD:novajlije( playerid )
 {
     if( PI[ playerid ][ xAdmin ] < 1 ) return SendErrorMessage( playerid, "Niste u mogucnosti koristiti ovu komandu." );
@@ -51076,12 +50446,12 @@ CMD:lideri( playerid ) return mysql_tquery( mSQL, "SELECT org_members.org_id, or
 													ON org_members.org_id = organizations.org_id \
 													WHERE org_members.memb_type > '0' ORDER BY org_members.org_id ASC", "selectQueryLeaderList", "i", playerid );
 
-CMD:1( playerid, const params[] )
+CMD:x( playerid, const params[] )
 {
     if( PI[ playerid ][ xAdmin ] < 7 ) return SendErrorMessage( playerid, "Niste u mogucnosti koristiti ovu komandu." );
 
 	new text[ 128 ];
-    if( sscanf( params, "s[128]", text ) ) return SendUsageMessage( playerid, "/1 [tekst]" );
+    if( sscanf( params, "s[128]", text ) ) return SendUsageMessage( playerid, "/x [tekst]" );
 
 	foreach( new i : Player)
 	{
@@ -56653,64 +56023,65 @@ CMD:pljackajzlataru( playerid )
 	if( PljackaZlato[ playerid ] > 0 ) return SendErrorMessage( playerid, "Moras bezati 5 minuta od policije da bi dobio zlato." );
     if( PljackaUToku ) return SendErrorMessage( playerid, "Ne mozete ovo dok je pljacka banke u toku." );
 	if( gettime() < GlobalnoPetnaestMinuta ) return SendErrorMessage( playerid, "Mora proci jos %d sekundi od proslog roba.", GlobalnoPetnaestMinuta - gettime() );
-	if( PI[playerid][xToolkit] == 0 ) return SendErrorMessage(playerid, "Nemate toolkit/alat, kupite ga na crnom trzistu.");
 
-	new policajci = 0, igraci = 0, hour, minute, seconds;
-	gettimeEx( hour, minute, seconds );
-	FixHour( hour );
-	hour = shifthour;
-
-	foreach( new i : Player)
+	switch(SERVER_IZRADA)
 	{
-	    if( GetFactionType( i ) == ORG_TIP_VLADINA && PoliceDuty[ i ] ) policajci++;
+		case 0: {
+			new policajci = 0, igraci = 0, hour, minute, seconds;
+			gettimeEx( hour, minute, seconds );
+			FixHour( hour );
+			hour = shifthour;
 
- 	    if( PI[ i ][ xClan ] == PI[ playerid ][ xClan ] )
-		{
-			igraci++;
+			foreach( new i : Player)
+			{
+				if( GetFactionType( i ) == ORG_TIP_VLADINA && PoliceDuty[ i ] ) policajci++;
+
+				if( PI[ i ][ xClan ] == PI[ playerid ][ xClan ] )
+				{
+					igraci++;
+				}
+			}
+
+			if( policajci < 2 ) return SendErrorMessage( playerid, "Ne mozete pljackati zlataru ako nema 2 policajaca online na duty." );
+			if( igraci < 3 )  return SendErrorMessage( playerid, "Moras imati bar 3 ljudi iz organizacije online." );
+			if( ( hour < 09 ) && ( hour > 23 ) ) return SendErrorMessage( playerid, "Mozete pljackati samo od 9h do 23h." );
+
 		}
 	}
-	if( ( hour >= 23 ) && ( hour <= 09 ) ) return SendErrorMessage( playerid, "Ne moze koristit ovu komandu od 02 do 19h.");
-	//if( policajci < 2 ) return SendErrorMessage( playerid, "Ne mozete pljackati zlataru ako nema 2 policajaca online na duty." );
-	if( igraci < 3 )  return SendErrorMessage( playerid, "Moras imati bar 3 ljudi iz organizacije online." );
-
 	if( GetWeapon( playerid ) >= 22 && GetWeapon( playerid ) <= 40 )
 	{
-        if( ( hour >= 09 ) && ( hour <= 23 ) )
-        {
-        	PI[playerid][xToolkit] = 0;
-        	sql_user_update_integer(playerid, "toolkit", PI[playerid][xToolkit]);
-			switch(SERVER_IZRADA)
-        	{
-        	    case 0: ZlatoVreme[playerid] = 600;
-        	    case 1: ZlatoVreme[playerid] = 10;
-            }
-		    PljackaZlato[ playerid ] = 0;
-		    ZlataraOpljackana = gettime()+(60*60);
-		    ZlataraUToku = true;
-		    NestoPljackano = gettime()+(15*60);
-			PljackanjeZlatareTimer[ playerid ] = SetPlayerTimerEx(playerid, "PljackanjeZlatarice", 1000, true, "i", playerid);
-
-			SendClientMessage( playerid, 0xFF4500FF, "(PLJACKA ZLATARE): Zapoceli ste pljacku zlatare." );
-			SendClientMessage( playerid, 0xFF4500FF, "(PLJACKA ZLATARE): Pljacka zlatare traje {FFFFFF}(600) {FF4500}sekundi." );
-			SendClientMessage( playerid, 0xFF4500FF, "(PLJACKA ZLATARE): Svake sekunde koju pljackate dobijate {FFFFFF}(1g) {FF4500}zlata." );
-
-			PostaviWanted( playerid, "Pljacka Zlatare", "Nepoznati", 6 );
-			GlobalnoPetnaestMinuta = gettime()+(15*60);
-
-			ZlataraActorsHandsup();
-			SetTimer_("ResetZlataraActors", 15*60, 15*60, 1);
-
-			OOCNews( 0xFFA500FF, "_____________________________ {FFFFFF}(OBAVESTENJE) {FFA500}_____________________________" );
-            OOCNews( -1, " ");
-			OOCNews( 0xFFA500FF, "(PLJACKA ZLATARE): Neko pokusava da opljacka zlataru." );
-			OOCNews( 0xFFA500FF, "(PLJACKA ZLATARE): Molimo sve jedinice da intervenisu." );
- 
-			AdminMsg( 0xFFA500AA, "([A]PLJACKA ZLATARE): {FFFFFF}%s[/spec %d] {FFA500}je poceo da pljacka zlataru.", ImeIgraca( playerid ), playerid );
-
-            OOCNews( -1, " ");
-            OOCNews( 0xFFA500FF, "___________________________ {FFFFFF}("SERVER_WEB") {FFA500}___________________________" );
+		PI[playerid][xToolkit] = 0;
+		sql_user_update_integer(playerid, "toolkit", PI[playerid][xToolkit]);
+		switch(SERVER_IZRADA)
+		{
+			case 0: ZlatoVreme[playerid] = 600;
+			case 1: ZlatoVreme[playerid] = 10;
 		}
-		else return SendErrorMessage( playerid, "Mozete pljackati samo od 9h do 23h." );
+		PljackaZlato[ playerid ] = 0;
+		ZlataraOpljackana = gettime()+(60*60);
+		ZlataraUToku = true;
+		NestoPljackano = gettime()+(15*60);
+		PljackanjeZlatareTimer[ playerid ] = SetPlayerTimerEx(playerid, "PljackanjeZlatarice", 1000, true, "i", playerid);
+
+		SendClientMessage( playerid, 0xFF4500FF, "(PLJACKA ZLATARE): Zapoceli ste pljacku zlatare." );
+		SendClientMessage( playerid, 0xFF4500FF, "(PLJACKA ZLATARE): Pljacka zlatare traje {FFFFFF}(600) {FF4500}sekundi." );
+		SendClientMessage( playerid, 0xFF4500FF, "(PLJACKA ZLATARE): Svake sekunde koju pljackate dobijate {FFFFFF}(1g) {FF4500}zlata." );
+
+		PostaviWanted( playerid, "Pljacka Zlatare", "Nepoznati", 6 );
+		GlobalnoPetnaestMinuta = gettime()+(15*60);
+
+		ZlataraActorsHandsup();
+		SetTimer_("ResetZlataraActors", 15*60, 15*60, 1);
+
+		OOCNews( 0xFFA500FF, "_____________________________ {FFFFFF}(OBAVESTENJE) {FFA500}_____________________________" );
+		OOCNews( -1, " ");
+		OOCNews( 0xFFA500FF, "(PLJACKA ZLATARE): Neko pokusava da opljacka zlataru." );
+		OOCNews( 0xFFA500FF, "(PLJACKA ZLATARE): Molimo sve jedinice da intervenisu." );
+
+		AdminMsg( 0xFFA500AA, "([A]PLJACKA ZLATARE): {FFFFFF}%s[/spec %d] {FFA500}je poceo da pljacka zlataru.", ImeIgraca( playerid ), playerid );
+
+		OOCNews( -1, " ");
+		OOCNews( 0xFFA500FF, "___________________________ {FFFFFF}("SERVER_WEB") {FFA500}___________________________" );
 	}
 	else return SendErrorMessage( playerid, "Nemate oruzje za pljackanje zlatare!" );
 	return 1;
@@ -56719,7 +56090,7 @@ CMD:pljackajzlataru( playerid )
 CMD:pljackajbanku( playerid )
 {
 	if( !IsPlayerInDynamicArea( playerid, bankSafe ) ) return SendErrorMessage( playerid, "Morate biti kod sefa banke." );
-	//if( ServerInfo[BankaNovac] == 0 ) return SendErrorMessage( playerid, "Banka nema polozenog novca." );
+	if( ServerInfo[BankaNovac] == 0 ) return SendErrorMessage( playerid, "U sefu banke trenutno nema novca." );
 
     if( GetFactionType( playerid ) == ORG_TIP_VLADINA || GetFactionType( playerid ) == ORG_TIP_HITMAN ) return SendErrorMessage( playerid, "Vrsta vase orge nema razloga pljackati banku.");
 	if( gettime() < BankaOpljackana ) return SendErrorMessage( playerid, "Banka je vec opljackana, probajte za %d minuta.", (BankaOpljackana - gettime()) / 60 );
@@ -56727,60 +56098,64 @@ CMD:pljackajbanku( playerid )
     if( ZlataraUToku ) return SendErrorMessage( playerid, "Ne mozete ovo dok je pljacka zlatare u toku." );
 	if( PljackaNovac[ playerid ] > 0 ) return SendErrorMessage( playerid, "Moras bezati 5 minuta od policije da bi dobio novac." );
 	if( gettime() < GlobalnoPetnaestMinuta ) return SendErrorMessage( playerid, "Mora proci jos %d sekundi od proslog roba.", GlobalnoPetnaestMinuta - gettime() );
-	//if( PI[playerid][xToolkit] == 0 ) return SendErrorMessage(playerid, "Nemate toolkit/alat, kupite ga na crnom trzistu.");
 
-	new policajci = 0, igraci = 0, hour, minute, seconds;
-	gettimeEx( hour, minute, seconds );
-	FixHour( hour );
-	hour = shifthour;
-
-	foreach( new i : Player)
+	switch(SERVER_IZRADA)
 	{
-	    if( GetFactionType( i ) == ORG_TIP_VLADINA && PoliceDuty[ i ] ) policajci++;
-
- 	    if( PI[ i ][ xClan ] == PI[ playerid ][ xClan ] )
+		case 0:
 		{
-			igraci++;
+			new policajci = 0, igraci = 0, hour, minute, seconds;
+			gettimeEx( hour, minute, seconds );
+			FixHour( hour );
+			hour = shifthour;
+
+			foreach( new i : Player)
+			{
+				if( GetFactionType( i ) == ORG_TIP_VLADINA && PoliceDuty[ i ] ) policajci++;
+
+				if( PI[ i ][ xClan ] == PI[ playerid ][ xClan ] )
+				{
+					igraci++;
+				}
+			}
+
+			if( policajci < 2 ) return SendErrorMessage( playerid, "Ne mozete pljackati banku ako nema 2 policajaca online na duty." );
+			if( igraci < 3 )  return SendErrorMessage( playerid, "Moras imati bar 3 ljudi iz organizacije online." );
+			if( ( hour < 09 ) && ( hour > 23 ) ) return SendErrorMessage( playerid, "Mozete pljackati samo od 9h do 23h." );
 		}
 	}
-	//if( policajci < 2 ) return SendErrorMessage( playerid, "Ne mozete pljackati banku ako nema 2 policajaca online na duty." );
-	//if( igraci < 3 )  return SendErrorMessage( playerid, "Moras imati bar 3 ljudi iz organizacije online." );
+	
 
 	if( GetWeapon( playerid ) >= 22 && GetWeapon( playerid ) <= 40 )
 	{
-        //if( ( hour >= 09 ) && ( hour <= 23 ) )
-		//{
-			PI[playerid][xToolkit] = 0;
-        	sql_user_update_integer(playerid, "toolkit", PI[playerid][xToolkit]);
-        	switch(SERVER_IZRADA)
-        	{
-        	    case 0: PljackaVreme[playerid] = 600;
-        	    case 1: PljackaVreme[playerid] = 10;
-            }
-		    PljackaNovac[ playerid ] = 0;
-		    BankaOpljackana = gettime()+(60*60);
-		    PljackaUToku = true;
-		    NestoPljackano = gettime()+(15*60);
-			PljackanjeBankeTimer[ playerid ] = SetPlayerTimerEx(playerid, "PljackanjeBankice", 1000, true, "i", playerid);
+		PI[playerid][xToolkit] = 0;
+		sql_user_update_integer(playerid, "toolkit", PI[playerid][xToolkit]);
+		switch(SERVER_IZRADA)
+		{
+			case 0: PljackaVreme[playerid] = 600;
+			case 1: PljackaVreme[playerid] = 10;
+		}
+		PljackaNovac[ playerid ] = 0;
+		BankaOpljackana = gettime()+(60*60);
+		PljackaUToku = true;
+		NestoPljackano = gettime()+(15*60);
+		PljackanjeBankeTimer[ playerid ] = SetPlayerTimerEx(playerid, "PljackanjeBankice", 1000, true, "i", playerid);
 
-			SendClientMessage( playerid, 0xFF4500FF, "(PLJACKA BANKE): Zapoceli ste pljacku banke." );
-			SendClientMessage( playerid, 0xFF4500FF, "(PLJACKA BANKE): Pljacka banke traje {FFFFFF}(600) {FF4500}sekundi." );
-			SendClientMessage( playerid, 0xFF4500FF, "(PLJACKA BANKE): Svake sekunde koju pljackate dobijate {FFFFFF}(220-250) {FF4500}dolara." );
+		SendClientMessage( playerid, 0xFF4500FF, "(PLJACKA BANKE): Zapoceli ste pljacku banke." );
+		SendClientMessage( playerid, 0xFF4500FF, "(PLJACKA BANKE): Pljacka banke traje {FFFFFF}(600) {FF4500}sekundi." );
+		SendClientMessage( playerid, 0xFF4500FF, "(PLJACKA BANKE): Svake sekunde koju pljackate dobijate {FFFFFF}(220-250) {FF4500}dolara." );
 
-			PostaviWanted( playerid, "Pljacka Banke", "Nepoznati", 6 );
-			GlobalnoPetnaestMinuta = gettime()+(15*60);
+		PostaviWanted( playerid, "Pljacka Banke", "Nepoznati", 6 );
+		GlobalnoPetnaestMinuta = gettime()+(15*60);
 
-            OOCNews( 0xFFA500FF, "_____________________________ {FFFFFF}(OBAVESTENJE) {FFA500}_____________________________" );
-            OOCNews( -1, " ");
-			OOCNews( 0xFFA500FF, "(PLJACKA BANKE): Neko pokusava da opljacka banku." );
-			OOCNews( 0xFFA500FF, "(PLJACKA BANKE): Molimo sve jedinice da intervenisu." );
- 
-			AdminMsg( 0xFFA500FF, "([A]PLJACKA BANKE): {FFFFFF}%s[/spec %d] {FFA500}je poceo da pljacka banku.", ImeIgraca( playerid ), playerid );
+		OOCNews( 0xFFA500FF, "_____________________________ {FFFFFF}(OBAVESTENJE) {FFA500}_____________________________" );
+		OOCNews( -1, " ");
+		OOCNews( 0xFFA500FF, "(PLJACKA BANKE): Neko pokusava da opljacka banku." );
+		OOCNews( 0xFFA500FF, "(PLJACKA BANKE): Molimo sve jedinice da intervenisu." );
 
-            OOCNews( -1, " ");
-			OOCNews( 0xFFA500FF, "___________________________ {FFFFFF}("SERVER_WEB") {FFA500}___________________________" );
-		//}
-		//else return SendErrorMessage( playerid, "Mozete pljackati samo od 9h do 23h." );
+		AdminMsg( 0xFFA500FF, "([A]PLJACKA BANKE): {FFFFFF}%s[/spec %d] {FFA500}je poceo da pljacka banku.", ImeIgraca( playerid ), playerid );
+
+		OOCNews( -1, " ");
+		OOCNews( 0xFFA500FF, "___________________________ {FFFFFF}("SERVER_WEB") {FFA500}___________________________" );
 	}
 	else return SendErrorMessage( playerid, "Nemate oruzje za pljackanje banke!" );
 	return 1;
@@ -60289,7 +59664,7 @@ CMD:mojtiket( playerid )
 
 CMD:podignidobitak( playerid )
 {
-	if( !IsPlayerInRangeOfPoint( playerid, 3, 1283.1450, -1544.1130, 13.5306 ) ) return SendErrorMessage( playerid, "Niste na salteru drzavne lutrije." );
+	if( !IsPlayerInRangeOfPoint( playerid, 3,.0 1283.1450, -1544.1130, 13.5306 ) ) return SendErrorMessage( playerid, "Niste na salteru drzavne lutrije." );
 	if( PI[ playerid ][ xBingoMoney ] < 1 ) return SendErrorMessage( playerid, "Trenutno nemate novca na bingo racunu." );
 
 	DajIgracuNovac( playerid, PI[ playerid ][ xBingoMoney ] );
@@ -60400,8 +59775,7 @@ CMD:pickupgun( playerid )
 }
 
 CMD:music( playerid )
-{
-	ShowPlayerDialog( playerid, D_RADIOPLAY, DIALOG_STYLE_LIST, D_NASLOV,
+	return ShowPlayerDialog( playerid, D_RADIOPLAY, DIALOG_STYLE_LIST, D_NASLOV,
 																				"{2D6888}(1). {FFFFFF}BUM Radio\n\
 																				{2D6888}(2). {FFFFFF}B92 Radio\n\
 																				{2D6888}(3). {FFFFFF}Antena Radio\n\
@@ -60412,8 +59786,6 @@ CMD:music( playerid )
 																				{2D6888}(8). {FFFFFF}Balkan DJ\n\
 																				{2D6888}(9). {FFFFFF}Radio - PROJECT BASSIVITY\n\
 																				{FF0000}- Off Radio", "Potvrdi", "Odustani" );
-	return 1;
-}
 alias:music("mp3");
 
 CMD:statistika( playerid )
@@ -60580,57 +59952,6 @@ CMD:prodajdijamante(playerid, const params[])
 	SendInfoMessage( playerid, "Uspesno ste prodali {FFFFFF}(%d) {2D6888}grama dijamanata te dobili {FFFFFF}($%d) {2D6888}novca.", kolicina, kolicina*100000 );
 	return 1;
 }
-
-/*CMD:update(playerid, const params[])
-{
-	if(sscanf(params, "i", params[0])) return SendUsageMessage(playerid, "/update [stranica(1/)]");
-	if(params[0] < 1 || params[0] > 2) return SendErrorMessage(playerid, "Pogresna stranica <1/2>.");
-
-	switch(params[0])
-	{
-		case 1:
-		{
-			ShowPlayerDialog(playerid, 0, DIALOG_STYLE_MSGBOX, D_NASLOV,
-																	"{2D6888}UPDATE 22.02.2020. (v1.0.0 - build 20)\n\
-																	{2D6888}(1). {FFFFFF}Smanjen radius na labelima sa 25 na 10 metara\n\
-																	{2D6888}(2). {FFFFFF}Ugasen zimski mod\n\
-																	{2D6888}(3). {C14549}[in progress] {FFFFFF}Novi zadaci i misije (/zadaci)\n\
-																	{2D6888}(4). {C14549}[in progress] {FFFFFF}Reworkovani pocetni zadaci\n\
-																	{2D6888}(5). {C14549}[in progress] {FFFFFF}Sredeni svi ispisi brojeva, npr: 100000 u 100.000\n\
-																	{2D6888}(6). {FFFFFF}Na odgvoru svakog pitanja automatski se postavlja Postovani/a\n\
-																	{2D6888}(7). {FFFFFF}Komanda /pogledajodgovor prebacena u /podg\n\
-																	{2D6888}(8). {C14549}[in progress] {FFFFFF}Skillovi poslova reworkovani (/posaoskillovi)\n\
-																	{2D6888}(9). {C14549}[in progress] {FFFFFF}Optimizacija jednog djela moda\n\
-																	{2D6888}(10). {FFFFFF}Dodane nove mogucnosti za torbu (/torba)\n\
-																				\tMaterijali prebaceni u torbu;\n\
-																				\tUzimanje broj metaka po zelji\n\
-																	{2D6888}(11). {FFFFFF}Materijali maknuti iz igraceve statistike (/stats)\n\
-																	{2D6888}(12). {FFFFFF}/bail promjenjen, izlazi dialog sa potvrdom kaucije\n\
-																	{2D6888}(13). {FFFFFF}A/GM na duznosti ne moze primati pozive na mobitel\n\
-																	{2D6888}(14). {FFFFFF}Promjenjena provjera igraca (/proveri)\n\
-																	{2D6888}(15). {C14549}[in progress] {FFFFFF}Nova valuta servera - dijamant\n\
-																	{2D6888}(16). {FFFFFF}Nova komanda za admine /pip\n\
-																	{2D6888}(17). {FFFFFF}Sredene neke komande za A/GM/SA/P/VIP/YT\n\
-																	{2D6888}(18). {FFFFFF}Izbacena droga i materijali iz crnog trzista\n\
-																	{2D6888}(19). {FFFFFF}Skracenice za javljanje i prekidanje na telefon (/p & /h)\n\
-																	{2D6888}(20). {FFFFFF}Povecan porez na imovinu i firmu\n\
-																	{2D6888}(21). {FFFFFF}Ubaceno vise donatorskih boja (/dboja)\n\
-																	{2D6888}(22). {FFFFFF}Kad netko uplati Bingo izbacuje text svim igracima\n\
-																	{2D6888}(23). {FFFFFF}/rb /rrb /rrball od sada mogu A1+\n\
-																	{2D6888}(24). {FFFFFF}Blokade se sada mogu rotirati/postaviti po zelji (/rb)\n\
-																	{2D6888}(25). {FFFFFF}YouTuberima i Promoterima maknuta boja imena\n\
-																	{2D6888}(26). {FFFFFF}\n\
-																	{2D6888}(27). {FFFFFF}\n\
-																	{2D6888}(28). {FFFFFF}\n\
-																	{2D6888}(29). {FFFFFF}\n\
-																	{2D6888}(30). {FFFFFF}\n\n\
-																	{2D6888}\t>> [ Sljedeca stranica - /update 2 ]\n\
-																	{2D6888}\t>> UPDATE by Trifun", "OK", "");
-		}
-		default: SendErrorMessage(playerid, "Pogresna stranica <1/2>.");
-	}
-	return 1;
-}*/
 
 _:public PusenjeKraj( playerid )
 {
@@ -61188,8 +60509,7 @@ CMD:help(playerid)
 																				{2D6888}(18). {FFFFFF}Banka\n\
 																				{2D6888}(19). {FFFFFF}Bingo\n\
 																				{2D6888}(20). {FFFFFF}Pljacka\n\
-																				{2D6888}(21). {FFFFFF}Promoter\n\
-																				{2D6888}(22). {FFFFFF}YouTuber", "Potvrdi", "Zatvori");
+																				{2D6888}(21). {FFFFFF}Promoter", "Potvrdi", "Zatvori");
 	return 1;
 }
 
