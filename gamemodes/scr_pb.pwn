@@ -6,13 +6,13 @@
 
 // -- // Uradjeno:
 
-1. Staviti sve pod jednu proveru kod komandi:
+1. Stavljeno sve pod jednu proveru kod komandi:
 	/pljackajbanku /pljackajzlataru
-
-2. Malo izmenjen sistem promotera
-	- Vodje promtoera mogu biti sada samo admini
-	- 4. level promotera izbacen
-3. Izbaceni youtuberi kao posebna stavka i dodani u sistem promotera ( leveli 4 i 5 )
+2. Izmenjen sistem promotera
+	- Vodja promotera moze biti samo admin
+	- 4. level promoter izbacen
+3. Izbacen sistem youtubera
+	- Youtuberi dodati kod promotera kao 4. i 5. level
 */
 
 #include 									< a_samp >
