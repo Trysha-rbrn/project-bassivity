@@ -2,17 +2,9 @@
 							P R O J E C T -- B A S S I V I T Y
 							Scripter Team - Trifun_Djordjevic
                             	Maper Team - devito x Nole
-						     	  Gamemode version 1.0.1
+						     	  Gamemode version 1.1.0
 
-// -- // Uradjeno:
-
-1. Stavljeno sve pod jednu proveru kod komandi:
-	/pljackajbanku /pljackajzlataru
-2. Izmenjen sistem promotera
-	- Vodja promotera moze biti samo admin
-	- 4. level promoter izbacen
-3. Izbacen sistem youtubera
-	- Youtuberi dodati kod promotera kao 4. i 5. level
+ 
 */
 
 #include 									< a_samp >
@@ -45,33 +37,28 @@ const MAX_VEHICLES = 						(2000);
 //=================================[ MySQL ]==================================//
 const MYSQL_STATE = 						(1);
 
-#if MYSQL_STATE == 0 // LOCALHOST
+#if MYSQL_STATE == 0                       
 
-	static const MYSQL_HOST[10] =			"localhost";
-	static const MYSQL_USER[5] =			"root";
-	static const MYSQL_PASS[1] =			"";
-	static const MYSQL_DB[7] =				"u_db";
+	stock const MYSQL_HOST[10] =			"";
+	stock const MYSQL_USER[6] =				"";
+	stock const MYSQL_PASS[24] =			"";
+	stock const MYSQL_DB[6] =				"";
 
-#elseif MYSQL_STATE == 1 // TEST SERVER
-
-	static const MYSQL_HOST[10] =			"localhost";
-	static const MYSQL_USER[8] =			"trifun1";
-	static const MYSQL_DB[13] =				"bassivity_db";
-	static const MYSQL_PASS[7] =			"123456";
 
 #endif
 
-new mSQL;
+new MySQL:mSQL;
 
 //================================[ Postavke ]================================//
 const SERVER_IZRADA = 						(1);
-#define VERZIJA_MODA     					"v1.0.2"
-#define MODE_BUILD							"build 0.02"
+
+#define VERZIJA_MODA     					"v1.0.0"
+#define MODE_BUILD							"build 0.01"
 #define CLIENT_LANGUAGE						"Project Bassivity"
 #define SERVER_WEB                  		"www.uskoro.com"
 
 #define D_NASLOV 							"{2D6888}(PB): {FFFFFF}www.uskoro.com"
-#define LAST_UPDATE							"{FFFFFF}UPDATE {2D6888}| 16.10.2022:"
+#define LAST_UPDATE							"{FFFFFF}UPDATE {2D6888}| 25.07.2021:"
 
 const UKLJUCEN =							(1);
 const ISKLJUCEN =							(0);
@@ -224,6 +211,7 @@ enum
 	POSAO_UBERDRIVER,
 	POSAO_PNAMESTAJA,
 	POSAO_FASADER
+	//POSAO_DRVOSECA
 };
 const MAX_JOBS = 8;
 
@@ -411,33 +399,34 @@ enum tpData
 	Float:tpPosY,
 	Float:tpPosZ,
 	tpVIP,
-	tpPromoter
+	tpPromoter,
+	tpYouTuber
 };
 new portInfo[MAX_PORTS][tpData] = 
 {
-	//NAZIV               		   				//LOKACIJA              			    //VIP 		//PROMOTER
-	{"A/GM Baza", 								{4303.3457}, {3027.1594}, {5.2321}, 	99,			99}
-	{"V/P/YT Baza", 							{860.2669}, {-1663.7114}, {13.5468}, 	1,			1}
-	{"Spawn - Hotel Bassivity", 				{1814.7524}, {-1854.7432}, {12.9751}, 	1,			1}	
-	{"Opstina", 								{1474.4249}, {-1723.2360}, {13.5469}, 	1,			1}	
-	{"Banka", 									{1469.6525}, {-1046.0811}, {23.8281}, 	1,			1}	
-	{"Zlatara/Dijamant Store", 					{2018.6461}, {-1254.4033}, {23.9844}, 	2,			2}
-	{"Bolnica", 								{1210.4511}, {-1321.7767}, {13.3984}, 	2,			2}
-	{"Igraonica", 								{1279.2339}, {-1308.7339}, {13.3446}, 	2,			2}
-	{"Salon Vozila", 							{556.2736}, {-1244.5571}, {16.5712}, 	2,			2}
-	{"Oglasi", 									{1714.6606}, {-1341.9164}, {13.3828}, 	3,			3}
-	{"Auto Skola", 								{2078.9580}, {-1939.4135}, {13.5351}, 	3,			3}
-	{"Lutrija", 								{1295.0535}, {-1537.3029}, {13.5333}, 	3,			3}
-	{"Crno Trziste",							{199.5335}, {-237.6040}, {2.6083}, 		4,			99}
-	{"Hangar", 									{2242.6260}, {-2206.1250}, {12.8848}, 	4,			99}
-	{"Plaza", 									{220.4795}, {-1863.1206}, {2.9754}, 	4,			99}
-	{"Bandera Srece", 							{1135.7046}, {-951.4317}, {42.2323}, 	4,			99}
-	{"LS - Los Santos", 						{1315.0231}, {-727.5245}, {92.8225}, 	5,			99}
-	{"LV - Las Venturas", 						{2515.0380}, {1372.7479}, {10.6718}, 	5,			99}
-	{"SF - San Fierro", 						{-2249.2810}, {-77.2153}, {35.1796}, 	5,			99}
-	{"Deagle Event", 							{-1736.3834}, {-1170.3705}, {3.9841}, 	99,			99}
-	{"Novo Mesto", 							    {2397.4065}, {-684.8215}, {126.6387}, 	99,			99}
-	};
+	//NAZIV               		   				//LOKACIJA              			    //VIP 		//PROMOTER 		//YOUTUBER
+	{"A/GM Baza", 								{4303.3457}, {3027.1594}, {5.2321}, 	99,			99,				99},
+	{"V/P/YT Baza", 							{860.2669}, {-1663.7114}, {13.5468}, 	1,			1,				1},
+	{"Spawn - Hotel Bassivity", 				{1814.7524}, {-1854.7432}, {12.9751}, 	1,			1,				1},
+	{"Opstina", 								{1474.4249}, {-1723.2360}, {13.5469}, 	1,			1,				1},
+	{"Banka", 									{1469.6525}, {-1046.0811}, {23.8281}, 	1,			1,				1},
+	{"Zlatara/Dijamant Store", 					{2018.6461}, {-1254.4033}, {23.9844}, 	2,			2,				99},
+	{"Bolnica", 								{1210.4511}, {-1321.7767}, {13.3984}, 	2,			2,				99},
+	{"Igraonica", 								{1279.2339}, {-1308.7339}, {13.3446}, 	2,			2,				99},
+	{"Salon Vozila", 							{556.2736}, {-1244.5571}, {16.5712}, 	2,			2,				99},
+	{"Oglasi", 									{1714.6606}, {-1341.9164}, {13.3828}, 	3,			3,				99},
+	{"Auto Skola", 								{2078.9580}, {-1939.4135}, {13.5351}, 	3,			3,				99},
+	{"Lutrija", 								{1295.0535}, {-1537.3029}, {13.5333}, 	3,			3,				99},
+	{"Crno Trziste",							{199.5335}, {-237.6040}, {2.6083}, 		4,			99,				99},
+	{"Hangar", 									{2242.6260}, {-2206.1250}, {12.8848}, 	4,			99,				99},
+	{"Plaza", 									{220.4795}, {-1863.1206}, {2.9754}, 	4,			99,				99},
+	{"Bandera Srece", 							{1135.7046}, {-951.4317}, {42.2323}, 	4,			99,				99},
+	{"LS - Los Santos", 						{1315.0231}, {-727.5245}, {92.8225}, 	5,			99,				99},
+	{"LV - Las Venturas", 						{2515.0380}, {1372.7479}, {10.6718}, 	5,			99,				99},
+	{"SF - San Fierro", 						{-2249.2810}, {-77.2153}, {35.1796}, 	5,			99,				99},
+	{"Deagle Event", 							{-1736.3834}, {-1170.3705}, {3.9841}, 	99,			99,				99},
+	{"Novo Mesto", 							    {2397.4065}, {-684.8215}, {126.6387}, 	99,			99,				99}
+};
  
 //================================[ PAKETI ]==================================//
 
@@ -892,7 +881,7 @@ new tdm_ServerMap;
 
 stock const Special_Users[][] = 
 {
-    { "Trifun" },
+    { "Trifun_Djordjevic" },
     { "devito" },
     { "Nole" },
 	{ "Aleksic" }
@@ -940,9 +929,9 @@ new KontInfo[ MAX_KONT ][ kont ],
 
 //===============================[ Bankomati ]================================//
 
-const MAX_ATM = 															100;
+const MAX_ATM = 														  (100);
 
-enum atmDataa 
+enum E_ATM_DATA
 {
 	atmSQLID,
 	bool:atmPreseceneZice,
@@ -952,7 +941,7 @@ enum atmDataa
 	atmObject,
 	Text3D:atmText3D
 };
-new atmInfo[ MAX_ATM ][ atmDataa ],
+new AtmInfo[ MAX_ATM ][ E_ATM_DATA ],
 	Iterator:iter_ATM<MAX_ATM>;
 
 new robbingATMSeconds[ MAX_PLAYERS ],
@@ -1618,10 +1607,10 @@ new bankaSalter;
 #define IPI                     	INVALID_PLAYER_ID
 #define IVI                      	INVALID_VEHICLE_ID
 
-#define SendErrorMessage(%0,%1) 	SCMF(%0, 0xFF0000FF, "(GRESKA): "%1)
-#define SendJobMessage(%0,%1) 		SCMF(%0, 0x36AB00FF, "(POSAO): "%1)
-#define SendInfoMessage(%0,%1) 		SCMF(%0, 0x2D6888FF, "(INFO): "%1)
-#define SendUsageMessage(%0,%1) 	SCMF(%0, 0x0071B2FF, "(KOMANDA): {FFFFFF}"%1)
+#define SendErrorMessage(%0,%1) 	SCMF(%0, 0xFF0000FF, ""red"* Greska: {FFFFFF}"%1)
+#define SendJobMessage(%0,%1) 		SCMF(%0, 0x36AB00FF, ""zuta"** Job Guide ** {FFFFFF}"%1)
+#define SendInfoMessage(%0,%1) 		SCMF(%0, 0x2D6888FF, ""srw"(Veronica): {FFFFFF}"%1)
+#define SendUsageMessage(%0,%1) 	SCMF(%0, 0x0071B2FF, ""zelena"Komanda: {FFFFFF}"%1)
 
 #define _:public%0(%1) 			forward%0(%1); public%0(%1)
 
@@ -1735,6 +1724,8 @@ enum
 	D_ACODE,
 	D_RADIO,
 	D_RENTANJE,
+	D_PROMOTERVEH,
+	D_YTVEH,
 	D_PROPERTYWEPTAKE,
 	D_JOBLIST,
 	D_BUY_GPS,
@@ -2373,6 +2364,7 @@ new CreateRentID[ MAX_PLAYERS ],
     AdminDialog[ MAX_PLAYERS ],
     VipVozilo[ MAX_PLAYERS ],
     PromoterVozilo[MAX_PLAYERS],
+    YTVozilo[MAX_PLAYERS],
     PosaoVozilo[ MAX_PLAYERS ],
     PosaoTrailer[ MAX_PLAYERS ],
     TrkaVozilo[ MAX_PLAYERS ],
@@ -3164,7 +3156,15 @@ static const Float:RandomWARMapa52[ 4 ][ 3 ] =
 #define ZUTA                                                          0xFFFF00FF
 #define GAMEMASTER 													  0x48E86BFF
 #define ANTICHEAT 													  0xDC143CFF
-#define ADM_WARN                                                      0xC43500FF//0xDABB3EAA
+#define ADM_WARN                                                      0xC43500FF
+
+#define zelena 														  "{0CE540}"
+#define bela 														  "{FFFFFF}"
+#define red 														  "{F42727}"
+#define siva 														  "{959292}"
+#define plava 														  "{1578E8}"
+#define zuta 														  "{F5EE1D}"
+#define srw 														  "{BA0CD5}"
 
 //===============================[ Strings ]==================================//
 
@@ -3297,6 +3297,7 @@ enum xPI
 	xDrzava, // done sql
 	xVIPLevel, // done sql
 	xPromoter, // done sql
+	xYouTuber, // done sql
 	xHitmenCena, // done sql
 	xKazneniUgovor, // done sql
 	xOffPJail[ 64 ], // done sql
@@ -4036,16 +4037,16 @@ GetNearestRentVehicle(playerid)
 //--
 _:public mSQL_CreateVehicleRent( createID )
 {
-	static q[1000];
-    mysql_format( mSQL, q, sizeof( q ),
-
-		"INSERT INTO `rents` ( `vrLiP_Pos_X`, `vrLiP_Pos_Y`, `vrLiP_Pos_Z`, `vrSpawn_Pos_X`, `vrSpawn_Pos_Y`, `vrSpawn_Pos_Z`, `vrSpawn_Pos_A` ) \
-		VALUES( '%f', '%f', '%f', '%f', '%f', '%f', '%f' )",
-
-        	VoziloRentInfo[createID][vrLiP_Pos_X], VoziloRentInfo[createID][vrLiP_Pos_Y], VoziloRentInfo[createID][vrLiP_Pos_Z], VoziloRentInfo[createID][vrSpawn_Pos_X], VoziloRentInfo[createID][vrSpawn_Pos_Y],
-			VoziloRentInfo[createID][vrSpawn_Pos_Z], VoziloRentInfo[createID][vrSpawn_Pos_A] );
-
-    mysql_pquery( mSQL, q, "OnRentCreated", "i", createID );
+	static
+	    tmpStructure[ 385 ];
+	    
+	mysql_format( mSQL, tmpStructure, sizeof( tmpStructure ), "INSERT INTO `rents` (pos_x, pos_y, pos_z, vpos_x, v_posy, vpos_z, vpos_a)\
+	    VALUES('%f','%f','%f','%f','%f','%f','%f')",
+	    
+        VoziloRentInfo[ createID ][ vrLiP_Pos_X ], VoziloRentInfo[ createID ][ vrLiP_Pos_Y ], VoziloRentInfo[ createID ][ vrLiP_Pos_Z ], VoziloRentInfo[ createID ][ vrSpawn_Pos_X ], VoziloRentInfo[ createID ][ vrSpawn_Pos_Y ],
+        VoziloRentInfo[ createID ][ vrSpawn_Pos_Z ], VoziloRentInfo[ createID ][ vrSpawn_Pos_A ] );
+        
+	mysql_pquery( mSQL, tmpStructure, "OnRentCreated", "i", createID );
     
     Iter_Add(iter_Rent, createID);
 	return 1;
@@ -4063,23 +4064,23 @@ _:public OnRentCreated( createID )
 // --
 _:public OnRentsLoad()
 {
-    new rows, fields, thisID, string[90];
-    cache_get_data( rows, fields, mSQL );
+    new
+        rows = cache_num_rows(), thisID, string[90];
 
 	if( rows )
 	{
 		for( new i = 0; i < rows; i ++ )
 		{
 			thisID = Iter_Free(iter_Rent);
-
-            VoziloRentInfo[ thisID ][ vrSQLID ] 			= cache_get_field_content_int( i, "vrSQLID" );
-            VoziloRentInfo[ thisID ][ vrLiP_Pos_X ] 		= cache_get_field_content_float( i, "vrLiP_Pos_X" );
-            VoziloRentInfo[ thisID ][ vrLiP_Pos_Y ] 		= cache_get_field_content_float( i, "vrLiP_Pos_Y" );
-            VoziloRentInfo[ thisID ][ vrLiP_Pos_Z ] 		= cache_get_field_content_float( i, "vrLiP_Pos_Z" );
-            VoziloRentInfo[ thisID ][ vrSpawn_Pos_X ]		= cache_get_field_content_float( i, "vrSpawn_Pos_X" );
-            VoziloRentInfo[ thisID ][ vrSpawn_Pos_Y ] 		= cache_get_field_content_float( i, "vrSpawn_Pos_Y" );
-            VoziloRentInfo[ thisID ][ vrSpawn_Pos_Z ] 		= cache_get_field_content_float( i, "vrSpawn_Pos_Z" );
-            VoziloRentInfo[ thisID ][ vrSpawn_Pos_A ] 		= cache_get_field_content_float( i, "vrSpawn_Pos_A" );
+			
+          	cache_get_value_name_int( i, "id", VoziloRentInfo[ thisID ][ vrSQLID ] );
+			cache_get_value_name_float( i, "pos_x", VoziloRentInfo[ thisID ][ vrLiP_Pos_X ] );
+			cache_get_value_name_float( i, "pos_y", VoziloRentInfo[ thisID ][ vrLiP_Pos_Y ] );
+            cache_get_value_name_float( i, "pos_z", VoziloRentInfo[ thisID ][ vrLiP_Pos_Z ] );
+            cache_get_value_name_float( i, "vpos_x", VoziloRentInfo[ thisID ][ vrSpawn_Pos_X ] );
+            cache_get_value_name_float( i, "vpos_y", VoziloRentInfo[ thisID ][ vrSpawn_Pos_Y ] );
+            cache_get_value_name_float( i, "vpos_z", VoziloRentInfo[ thisID ][ vrSpawn_Pos_Z ] );
+            cache_get_value_name_float( i, "vpos_a", VoziloRentInfo[ thisID ][ vrSpawn_Pos_A ] );
 
 			format(string, sizeof(string), "Rent - ({FFFFFF}%d{008080})\nDa iznajmite vozilo kucajte {FFFFFF}\"/rentveh\"", thisID);
 			VoziloRentInfo[thisID][VoziloRentLabel] = CreateDynamic3DTextLabel(string, 0x008080FF, VoziloRentInfo[thisID][vrLiP_Pos_X], VoziloRentInfo[thisID][vrLiP_Pos_Y], VoziloRentInfo[thisID][vrLiP_Pos_Z], 10.0, IPI, IVI, 0, -1, -1);
@@ -4088,7 +4089,7 @@ _:public OnRentsLoad()
 			Iter_Add(iter_Rent, thisID);
 		}
 	}
-	printf("(PB) SQL: Ucitao - Rentovi(%d)", rows);
+	printf("(SQL - tmpStructure): Ucitao - Rentovi(%d)", rows);
     return 1;
 }
 //------------------------------------------------------------------------------
@@ -4766,7 +4767,7 @@ _:public IzvlacenjeKuglice()
        	if( PI[ i ][ xBingoNumber ] == bBroj )
 		{
            	PI[ i ][ xBingoMoney ] += bNagrada;
-			sql_user_update_integer( i, "xBingoMoney", PI[ i ][ xBingoMoney ] );
+			sql_user_update_integer( i, "bingo_money", PI[ i ][ xBingoMoney ] );
            	ImaNagrade = 1;
            	Dobitnik = i;
 		}
@@ -4776,7 +4777,7 @@ _:public IzvlacenjeKuglice()
             SCMF( i, 0x5FCE77FF, "(BINGO - WIN): {FFFFFF}Osvojena nagrada iznosi {FFFFFF}(%d).", bNagrada );
 		}
 		PI[ i ][ xBingoNumber ] = 0;
-		sql_user_update_integer( i, "xBingoNumber", PI[ i ][ xBingoNumber ] );
+		sql_user_update_integer( i, "bingo_number", PI[ i ][ xBingoNumber ] );
 	}
 	if( ImaNagrade == 0 )
 	{
@@ -4929,9 +4930,12 @@ _:public PlayerHasTazer( playerid )
 
 _:public mSQL_CreateTiki( createID )
 {
-	static q[120];
-    mysql_format( mSQL, q, sizeof( q ), "INSERT INTO `tiki` (tPosX, tPosY, tPosZ) VALUES( '%f', '%f', '%f' )", TikiInfo[ createID ][ tPosX ], TikiInfo[ createID ][ tPosY ], TikiInfo[ createID ][ tPosZ ] );
-    mysql_pquery( mSQL, q, "OnTikiCreated", "i", createID );
+	static
+	    tmpStructure[ 120 ];
+	    
+	mysql_format( mSQL, tmpStructure, sizeof( tmpStructure ), "INSERT INTO `tiki` (pos_x, pos_y, pos_z) VALUES ('%f','%f','%f')",
+	    TikiInfo[ createID ][ tPosX ], TikiInfo[ createID ][ tPosY ], TikiInfo[ createID ][ tPosZ ] );
+    mysql_pquery( mSQL, tmpStructure, "OnTikiCreated", "i", createID );
 
     Iter_Add(iter_Tiki, createID);
 	return 1;
@@ -4944,8 +4948,8 @@ _:public OnTikiCreated( createID )
 // --
 _:public OnTikisLoad( )
 {
-	new rows, fields, thisID;
-    cache_get_data( rows, fields, mSQL );
+    new
+        rows = cache_num_rows(), thisID;
 
 	if( rows )
 	{
@@ -4953,15 +4957,15 @@ _:public OnTikisLoad( )
 		{
 			thisID = Iter_Free(iter_Tiki);
 
-            TikiInfo[ thisID ][ tID ] 			= cache_get_field_content_int( i, "tID" );
-            TikiInfo[ thisID ][ tPosX ] 		= cache_get_field_content_float( i, "tPosX" );
-            TikiInfo[ thisID ][ tPosY ] 		= cache_get_field_content_float( i, "tPosY" );
-            TikiInfo[ thisID ][ tPosZ ] 		= cache_get_field_content_float( i, "tPosZ" );
+			cache_get_value_name_int( i, "id",  TikiInfo[ thisID ][ tID ] );
+            cache_get_value_name_float( i, "pos_x", TikiInfo[ thisID ][ tPosX ] );
+ 			cache_get_value_name_float( i, "pos_y", TikiInfo[ thisID ][ tPosY ] );
+            cache_get_value_name_float( i, "pos_z", TikiInfo[ thisID ][ tPosZ ] );
 
             Iter_Add(iter_Tiki, thisID);
 		}
 	}
-	printf("(PB) SQL: Ucitao - Tiki(%d)", rows);
+	printf("(SQL - tmpStructure): Ucitao - Tiki(%d)", rows);
 	return 1;
 }
 
@@ -4969,16 +4973,13 @@ _:public OnTikisLoad( )
 
 _:public mSQL_CreateGPS( createID )
 {
-	static q[333];
-    mysql_format( mSQL, q, sizeof( q ),
-
-		"INSERT INTO `gps` ( gpsName, gpsPos1, gpsPos2, gpsPos3 ) \
-		VALUES( '%s', '%f', '%f', '%f' )",
-
-        gpsInfo[ createID ][ gpsName ],
-		gpsInfo[ createID ][ gpsPos ][ 0 ], gpsInfo[ createID ][ gpsPos ][ 1 ], gpsInfo[ createID ][ gpsPos ][ 2 ] );
-
-    mysql_pquery( mSQL, q, "OnGPSCreated", "i", createID );
+	static
+	    tmpStructure[ 260 ];
+	    
+	mysql_format( mSQL, tmpStructure, sizeof( tmpStructure ), "INSERT INTO `gps` (name, pos_x, pos_y, pos_z) VALUES('%s','%f','%f','%f')",
+	    gpsInfo[ createID ][ gpsName ], gpsInfo[ createID ][ gpsPos ][ 0 ], gpsInfo[ createID ][ gpsPos ][ 1 ], gpsInfo[ createID ][ gpsPos ][ 2 ] );
+	mysql_pquery( mSQL, tmpStructure, "OnGPSCreated", "i", createID );
+	
 	return 1;
 }
 _:public OnGPSCreated( createID )
@@ -4989,8 +4990,8 @@ _:public OnGPSCreated( createID )
 // --
 _:public OnGPSsLoad( )
 {
-	new rows, fields, thisID;
-    cache_get_data( rows, fields, mSQL );
+    new
+        rows = cache_num_rows(), thisID;
 
 	if( rows )
 	{
@@ -4998,34 +4999,19 @@ _:public OnGPSsLoad( )
 		{
 			thisID = Iter_Free(iter_GPS);
 
-            gpsInfo[ thisID ][ gpsSQLID ] 			= cache_get_field_content_int( i, "gpsSQLID" );
-            gpsInfo[ thisID ][ gpsPos ][ 0 ] 		= cache_get_field_content_float( i, "gpsPos1" );
-            gpsInfo[ thisID ][ gpsPos ][ 1 ] 		= cache_get_field_content_float( i, "gpsPos2" );
-            gpsInfo[ thisID ][ gpsPos ][ 2 ] 		= cache_get_field_content_float( i, "gpsPos3" );
+			cache_get_value_name_int( i, "id", gpsInfo[ thisID ][ gpsSQLID ] );
+            cache_get_value_name_float( i, "pos_x", gpsInfo[ thisID ][ gpsPos ][ 0 ] );
+           	cache_get_value_name_float( i, "pos_y", gpsInfo[ thisID ][ gpsPos ][ 1 ] );
+            cache_get_value_name_float( i, "pos_z", gpsInfo[ thisID ][ gpsPos ][ 2 ] );
 
-            cache_get_field_content( i, "gpsName", gpsInfo[ thisID ][ gpsName ], mSQL, 50 );
+            cache_get_value_name( i, "name", gpsInfo[ thisID ][ gpsName ], 50 );
 
             Iter_Add(iter_GPS, thisID);
 		}
 	}
-	printf("(PB) SQL: Ucitao - GPS(%d)", rows);
+	printf("(SQL - tmpStructure): Ucitao - GPS(%d)", rows);
 	return 1;
 }
-// --
-_:public GPS_Save( id )
-{
-	static q[300];
-	mysql_format(mSQL, q, 300,
-
-	    "UPDATE `gps` SET `gpsName` = '%s', `gpsPos1` = '%f', `gpsPos2` = '%f', `gpsPos3` = '%f'\
-	    WHERE `gpsSQLID` = '%d'",
-
-		gpsInfo[id][gpsName], gpsInfo[id][gpsPos][0], gpsInfo[id][gpsPos][1], gpsInfo[id][gpsPos][2], gpsInfo[id][gpsSQLID]);
-
-	mysql_tquery(mSQL, q);
-	return 1;
-}
-
 //------------------------------------------------------------------------------
 
 GetNearestPresent(playerid) 
@@ -5066,24 +5052,24 @@ _:public OnPresentCreated( createID )
 // --
 _:public OnPresentsLoad( )
 {
-	new rows, fields, thisID;
-    cache_get_data( rows, fields, mSQL );
-
+	new
+	    rows = cache_num_rows(), thisID;
+	    
 	if( rows )
 	{
 		for( new i = 0; i < rows; i ++ )
 		{
 			thisID = Iter_Free(iter_Present);
 
-            presentsInfo[ thisID ][ presSQLID ] 		= cache_get_field_content_int( i, "presSQLID" );
-            presentsInfo[ thisID ][ presTaken ] 		= bool:cache_get_field_content_int( i, "presTaken" );
-            presentsInfo[ thisID ][ presPlaced ] 		= bool:cache_get_field_content_int( i, "presPlaced" );
-            presentsInfo[ thisID ][ presPos ][ 0 ]		= cache_get_field_content_float( i, "presPos1" );
-            presentsInfo[ thisID ][ presPos ][ 1 ]		= cache_get_field_content_float( i, "presPos2" );
-            presentsInfo[ thisID ][ presPos ][ 2 ]		= cache_get_field_content_float( i, "presPos3" );
-            presentsInfo[ thisID ][ presPos ][ 3 ]		= cache_get_field_content_float( i, "presPos4" );
-            presentsInfo[ thisID ][ presPos ][ 4 ]		= cache_get_field_content_float( i, "presPos5" );
-            presentsInfo[ thisID ][ presPos ][ 5 ]		= cache_get_field_content_float( i, "presPos6" );
+			cache_get_value_name_int( i, "presSQLID", presentsInfo[ thisID ][ presSQLID ] );
+            cache_get_value_name_bool( i, "presTaken", presentsInfo[ thisID ][ presTaken ] );
+ 			cache_get_value_name_bool( i, "presPlaced", presentsInfo[ thisID ][ presPlaced ] );
+  			cache_get_value_name_float( i, "presPos1", presentsInfo[ thisID ][ presPos ][ 0 ] );
+            cache_get_value_name_float( i, "presPos2", presentsInfo[ thisID ][ presPos ][ 1 ] );
+            cache_get_value_name_float( i, "presPos3", presentsInfo[ thisID ][ presPos ][ 2 ] );
+            cache_get_value_name_float( i, "presPos4", presentsInfo[ thisID ][ presPos ][ 3 ] );
+            cache_get_value_name_float( i, "presPos5", presentsInfo[ thisID ][ presPos ][ 4 ] );
+            cache_get_value_name_float( i, "presPos6", presentsInfo[ thisID ][ presPos ][ 5 ] );
 
 			if( presentsInfo[ thisID ][ presPlaced ] )
 			{
@@ -5115,7 +5101,7 @@ _:public OnPresentsLoad( )
 			Iter_Add(iter_Present, thisID);
 		}
 	}
-	printf("(PB) SQL: Ucitao - Pokloni(%d)", rows);
+	printf("(SQL - tmpStructure): Ucitao - Pokloni(%d)", rows);
 	return 1;
 }
 // --
@@ -5174,23 +5160,23 @@ _:public OnTreeCreated( createID )
 // --
 _:public OnTreesLoad( )
 {
-	new rows, fields, thisID;
-    cache_get_data( rows, fields, mSQL );
-
+	new
+	    rows = cache_num_rows(), thisID;
+	    
 	if( rows )
 	{
 		for( new i = 0; i < rows; i ++ )
 		{
 			thisID = Iter_Free(iter_CTree);
 
-            CTree[ thisID ][ ctSQLID ] 			= cache_get_field_content_int( i, "ctSQLID" );
-            CTree[ thisID ][ ctPlaced ] 		= bool:cache_get_field_content_int( i, "ctPlaced" );
-            CTree[ thisID ][ ctPos ][ 0 ]		= cache_get_field_content_float( i, "ctPos1" );
-            CTree[ thisID ][ ctPos ][ 1 ]		= cache_get_field_content_float( i, "ctPos2" );
-            CTree[ thisID ][ ctPos ][ 2 ]		= cache_get_field_content_float( i, "ctPos3" );
-            CTree[ thisID ][ ctPos ][ 3 ]		= cache_get_field_content_float( i, "ctPos4" );
-            CTree[ thisID ][ ctPos ][ 4 ]		= cache_get_field_content_float( i, "ctPos5" );
-            CTree[ thisID ][ ctPos ][ 5 ]		= cache_get_field_content_float( i, "ctPos6" );
+			cache_get_value_name_int( i, "ctSQLID", CTree[ thisID ][ ctSQLID ] );
+            cache_get_value_name_bool( i, "ctPlaced", CTree[ thisID ][ ctPlaced ] );
+            cache_get_value_name_float( i, "ctPos1", CTree[ thisID ][ ctPos ][ 0 ] );
+            cache_get_value_name_float( i, "ctPos2", CTree[ thisID ][ ctPos ][ 1 ] );
+            cache_get_value_name_float( i, "ctPos3", CTree[ thisID ][ ctPos ][ 2 ] );
+            cache_get_value_name_float( i, "ctPos4", CTree[ thisID ][ ctPos ][ 3 ] );
+            cache_get_value_name_float( i, "ctPos5", CTree[ thisID ][ ctPos ][ 4 ] );
+            cache_get_value_name_float( i, "ctPos6", CTree[ thisID ][ ctPos ][ 5 ] );
 
 			if( CTree[ thisID ][ ctPlaced ] )
 			{
@@ -5201,7 +5187,7 @@ _:public OnTreesLoad( )
 			Iter_Add(iter_CTree, thisID);
 		}
 	}
-	printf("(PB) SQL: Ucitao - Jelke(%d)", rows);
+	printf("(SQL - tmpStructure): Ucitao - Jelke(%d)", rows);
 	return 1;
 }
 
@@ -5301,7 +5287,7 @@ _:public PljackanjeZlatarice( playerid )
 			KillTimer(PljackanjeZlatareTimer[ playerid ]);
             ZlatoVreme[ playerid ] = 0;
             PI[ playerid ][ xZlato ] += PljackaZlato[ playerid ]; UpdateZlatoTD(playerid);
-			sql_user_update_integer( playerid, "xZlato", PI[ playerid ][ xZlato ] );
+			sql_user_update_integer( playerid, "gold", PI[ playerid ][ xZlato ] );
 
             OOCNews( 0xFFA500AA, "[LS] Vesti: Zlatara je nazalost opljackana i opljackano je {FFFFFF}(%dg) {FFA500}zlata.", PljackaZlato[ playerid ] );
 
@@ -5318,7 +5304,7 @@ _:public PljackanjeZlatarice( playerid )
         SCMF( playerid, 0xA00606FF, "(PLJACKA): Opljackao si zlataru i uzeo {FFFFFF}(%dg) {A00606}zlata.", PljackaZlato[ playerid ] );
  		KillTimer(PljackanjeZlatareTimer[ playerid ]);
  		PI[ playerid ][ xZlato ] += PljackaZlato[ playerid ]; UpdateZlatoTD(playerid);
-		sql_user_update_integer( playerid, "xZlato", PI[ playerid ][ xZlato ] );
+		sql_user_update_integer( playerid, "gold", PI[ playerid ][ xZlato ] );
 		PljackaZlato[ playerid ] = 0;
 
  		PostaviWanted( playerid, "Pljacka Zlatare", "Nepoznati", 6 );
@@ -5395,10 +5381,6 @@ _:public PljackanjeBankice( playerid )
 
 _:public SMG_ChangeVehicleColor(vehicleID, color1, color2)
 {
-	/*new colorStr[24];
- 	format(colorStr, sizeof(colorStr), "%d-%d", color1, color2);
-	setproperty(_, "", PROPERTY_OFFSET(vehicleID), colorStr);*/
-
 	return ChangeVehicleColor(vehicleID, color1, color2);
 }
 
@@ -9500,17 +9482,6 @@ _:public SetVehicleLabels( i )
 {
 	if( !VehicleInfo[ i ][ Validv3DText ] )
 	{
-	    /*if( VehicleInfo[ i ][ vUsage ] == PRIVATNO_VOZILO )
-		{
-	        if( VehicleInfo[ i ][ vOwner_sqlID ] != 0 )
-			{
-	            new string[ 50+MAX_PLAYER_NAME+1 ];
-	            format( string, sizeof( string ), "(PRIVATNO)\n{FFFFFF}%s", VehicleInfo[ i ][ vOwner ] );
-				VehicleInfo[ i ][ Validv3DText ] = true;
-    			VehicleInfo[ i ][ v3DText ] = CreateDynamic3DTextLabel(string, 0x2D6888FF, 0.0, 0.0, -100.0, 15.0, IPI, i, 0, -1, -1, -1, 15.0, -1, 0);
-	        }
-	    }
-		else*/
 		if( VehicleInfo[ i ][ vUsage ] == ORGANIZACIJSKO_VOZILO )
 		{
 			new stringce[ 50 ];
@@ -10762,10 +10733,10 @@ GetNearestAtm(playerid)
 
     foreach(new i : iter_ATM)
     {
-        if(VectorSize(p_Pos[0] - atmInfo[i][atmPos][0], p_Pos[1] - atmInfo[i][atmPos][1], p_Pos[2] - atmInfo[i][atmPos][2]) >= maxradius) continue;
+        if(VectorSize(p_Pos[0] - AtmInfo[i][atmPos][0], p_Pos[1] - AtmInfo[i][atmPos][1], p_Pos[2] - AtmInfo[i][atmPos][2]) >= maxradius) continue;
 
         id = i;
-        maxradius = VectorSize(p_Pos[0] - atmInfo[i][atmPos][0], p_Pos[1] - atmInfo[i][atmPos][1], p_Pos[2] - atmInfo[i][atmPos][2]);
+        maxradius = VectorSize(p_Pos[0] - AtmInfo[i][atmPos][0], p_Pos[1] - AtmInfo[i][atmPos][1], p_Pos[2] - AtmInfo[i][atmPos][2]);
     }
     return id;
 }
@@ -11033,7 +11004,8 @@ GChat(color, const text[], {Float, _}:...)
 	{
 	    foreach(new i : Player)
 		{
-			if(PI[i][xAdmin] >= 1 || PI[i][xGamemaster] >= 1 || PI[i][xSpecAdmin] >= 1 || PI[i][xVIPLevel] >= 1 || PI[i][xPromoter] >= 1)
+			if(PI[i][xAdmin] >= 1 || PI[i][xGamemaster] >= 1 || PI[i][xSpecAdmin] >= 1 || PI[i][xVIPLevel] >= 1 || PI[i][xPromoter] >= 1
+				|| PI[i][xYouTuber] >= 1)
 			{
 	    		SendClientMessage(i, color, text);
 	    	}
@@ -11064,7 +11036,7 @@ GChat(color, const text[], {Float, _}:...)
 		foreach(new i : Player)
 		{
 			if(PI[i][xAdmin] >= 1 || PI[i][xGamemaster] >= 1 || PI[i][xSpecAdmin] >= 1 || PI[i][xVIPLevel] >= 1 || PI[i][xPromoter] >= 1
-				)
+				|| PI[i][xPromoter] >= 1 || PI[i][xYouTuber] >= 1)
 			{
 	    		SendClientMessage(i, color, str);
 	    	}
@@ -12388,20 +12360,12 @@ _:public UlazIzlaz( playerid )
 		{
 			if( IsPlayerInRangeOfPoint( playerid, 1.0, BusinessInfo[ f ][ bEnterX], BusinessInfo[ f ][ bEnterY], BusinessInfo[ f ][ bEnterZ] ) ) 
 			{
-	            /*if( BusinessInfo[ f ][ bOwnerOrg ] != -1 ) 
-	            {
-	                if( BusinessInfo[ f ][ bOwnerOrg ] == PI[ playerid ][ xClan ] && BusinessInfo[ f ][ bLocked ] == 1 ) { }
-	                else return SendErrorMessage( playerid, "Ova firma je zakljucana!" );
-	            }
-				else 
-				{*/
 				if( BusinessInfo[ f ][ bLocked ] == 1 ) return SendErrorMessage( playerid, "Ova firma je zakljucana!" );
 			    else if( BusinessInfo[ f ][ bType ] == VRSTA_TRAFIKA ) return SendErrorMessage( playerid, "Ovde ne mozes uci!!" );
 		        else if( BusinessInfo[ f ][ bType ] == VRSTA_POSAO ) return SendErrorMessage( playerid, "Ovde ne mozes uci!!" );
 		        else if( BusinessInfo[ f ][ bType ] == VRSTA_RENT ) return SendErrorMessage( playerid, "Ovde ne mozes uci!!" );
 		        else if( BusinessInfo[ f ][ bType ] == VRSTA_OGLAS ) return SendErrorMessage( playerid, "Ovde ne mozes uci!!" );
 		        else if( BusinessInfo[ f ][ bType ] == VRSTA_LUTRIJA ) return SendErrorMessage( playerid, "Ovde ne mozes uci!!" );
-				//}
 
 				SMG_SetPlayerPos( playerid, BusinessInfo[ f ][ bExitX], BusinessInfo[ f ][ bExitY ], BusinessInfo[ f ][ bExitZ ] );
 	            UcitajObjekte( playerid );
@@ -13665,7 +13629,7 @@ _:public ShowDialogStats( playerid, targetid )
         strcat( DialogStrgEx, "{FFFFFF}** Opste informacije:\n" );
 	 	format( str, sizeof( str ),
 		 	"{2D6888}Datum registracije: {FFFFFF}[%s]\n{2D6888}Level: {FFFFFF}[%s]\n{2D6888}Sati igranja: {FFFFFF}[%sh]\n{2D6888}Respekti: {FFFFFF}[%d/%d]\n{2D6888}Spawn Health: {FFFFFF}[%.2f]\n\
-		 	{2D6888}Admin: {FFFFFF}[%s(A:%d)]\n{2D6888}Spec Admin: {FFFFFF}[%s]\n{2D6888}Gamemaster: {FFFFFF}[%d]\n{2D6888}VIP: {FFFFFF}[%d]\n{2D6888}Promoter: {FFFFFF}[%d]\n{2D6888}Vreme do plate: {FFFFFF}[%d min]\n",
+		 	{2D6888}Admin: {FFFFFF}[%s(A:%d)]\n{2D6888}Spec Admin: {FFFFFF}[%s]\n{2D6888}Gamemaster: {FFFFFF}[%d]\n{2D6888}VIP: {FFFFFF}[%d]\n{2D6888}Promoter: {FFFFFF}[%d]\n{2D6888}YouTuber: {FFFFFF}[%d]\n{2D6888}Vreme do plate: {FFFFFF}[%d min]\n",
 	            PI[ targetid ][ xRegDate ],
 				fNumber(PI[ targetid ][ xLevel ]),
 				fNumber(PI[ targetid ][ xOnlineSati ]),
@@ -13677,6 +13641,7 @@ _:public ShowDialogStats( playerid, targetid )
 				PI[ targetid ][ xGamemaster ],
 				PI[ targetid ][ xVIPLevel ],
 				PI[targetid][xPromoter],
+				PI[targetid][xYouTuber],
 				(60-PI[ targetid ][ xPayDay ]) );
         strcat( DialogStrgEx, str );
 
@@ -14076,9 +14041,15 @@ _:public RobZiceAtm( playerid )
 				    ATMTDControl( playerid, false );
 				    PostaviWanted( playerid, "Pokusaj pljacke bankomata", "Nepoznati", 6 );
 
-				    atmInfo[ robbingATM[ playerid ] ][ atmVremeDoRoba ] = 60;
-				    SacuvajATM( robbingATM[ playerid ] );
+				    AtmInfo[ robbingATM[ playerid ] ][ atmVremeDoRoba ] = 60;
 				    PI[ playerid ][ xPljackaVreme ] = 60;
+				    
+				    new
+				        tmpUpdate[ 128 ];
+				        
+					mysql_format( mSQL, tmpUpdate, sizeof( tmpUpdate ), "UPDATE `atms` SET `time_to_rob` = '%d' WHERE `id` = '%d'",
+					    AtmInfo[ robbingATM[ playerid ] ][ atmVremeDoRoba ], AtmInfo[ robbingATM[ playerid ] ][ atmSQLID ] );
+					mysql_tquery( mSQL, tmpUpdate );
 
 				    SendInfoMessage( playerid, "Isekli ste pogresnu zicu i oglasili alarm." );
 				}
@@ -14086,8 +14057,14 @@ _:public RobZiceAtm( playerid )
 				{
 				    SelectTextDraw( playerid, 0x2D6888FF );
 
-			     	atmInfo[ robbingATM[ playerid ] ][ atmPreseceneZice ] = true;
-					SacuvajATM( robbingATM[ playerid ] );
+			     	AtmInfo[ robbingATM[ playerid ] ][ atmPreseceneZice ] = true;
+			     	
+				    new
+				        tmpUpdate[ 128 ];
+
+					mysql_format( mSQL, tmpUpdate, sizeof( tmpUpdate ), "UPDATE `atms` SET `cutted_wire` = '%d' WHERE `id` = '%d'",
+					    AtmInfo[ robbingATM[ playerid ] ][ atmPreseceneZice ], AtmInfo[ robbingATM[ playerid ] ][ atmSQLID ] );
+					mysql_tquery( mSQL, tmpUpdate );
 
 				    SendInfoMessage( playerid, "Uspesno ste srusili odbrambeni sistem.");
 					SendInfoMessage( playerid, "Sada mozete ukrasti novac iz bankomata.");
@@ -14101,9 +14078,15 @@ _:public RobZiceAtm( playerid )
 		    KillTimer(_progressatmbar[playerid]);
 
 		    PostaviWanted( playerid, "Pokusaj pljacke bankomata", "Nepoznati", 6 );
-		    atmInfo[ robbingATM[ playerid ] ][ atmVremeDoRoba ] = 60;
-		    SacuvajATM( robbingATM[ playerid ] );
+		    AtmInfo[ robbingATM[ playerid ] ][ atmVremeDoRoba ] = 60;
 		    PI[ playerid ][ xPljackaVreme ] = 60;
+
+		    new
+		        tmpUpdate[ 128 ];
+
+			mysql_format( mSQL, tmpUpdate, sizeof( tmpUpdate ), "UPDATE `atms` SET `time_to_rob` = '%d' WHERE `id` = '%d'",
+			    AtmInfo[ robbingATM[ playerid ] ][ atmVremeDoRoba ], AtmInfo[ robbingATM[ playerid ] ][ atmSQLID ] );
+			mysql_tquery( mSQL, tmpUpdate );
 
 		    robbingATM[ playerid ] = -1;
 		    robbingATMSeconds[ playerid ] = 95;
@@ -14139,8 +14122,14 @@ _:public ProgresAtmBar( playerid )
 			    DestroyPlayerProgressBar(playerid, ATMRobBar_pTD[ playerid ] );
 			    ATMRobBar_pTD[ playerid ] = PlayerBar:INVALID_PLAYER_BAR_ID;
 
-	            atmInfo[ robbingATM[ playerid ] ][ atmProbijenBios ] = true;
-				SacuvajATM( robbingATM[ playerid ] );
+	            AtmInfo[ robbingATM[ playerid ] ][ atmProbijenBios ] = true;
+				
+			    new
+			        tmpUpdate[ 128 ];
+
+				mysql_format( mSQL, tmpUpdate, sizeof( tmpUpdate ), "UPDATE `atms` SET `broken_system` = '%d' WHERE `id` = '%d'",
+				    AtmInfo[ robbingATM[ playerid ] ][ atmProbijenBios ], AtmInfo[ robbingATM[ playerid ] ][ atmSQLID ] );
+				mysql_tquery( mSQL, tmpUpdate );
 
 			    SendInfoMessage( playerid, "Uspesno ste srusili odbrambeni sistem.");
 				SendInfoMessage( playerid, "Sada mozete prebaciti novac na vas racun.");
@@ -14160,9 +14149,15 @@ _:public ProgresAtmBar( playerid )
 
 			    PostaviWanted( playerid, "Pokusaj pljacke bankomata", "Nepoznati", 6 );
 
-			    atmInfo[ robbingATM[ playerid ] ][ atmVremeDoRoba ] = 60;
-			    SacuvajATM( robbingATM[ playerid ] );
+			    AtmInfo[ robbingATM[ playerid ] ][ atmVremeDoRoba ] = 60;
 			    PI[ playerid ][ xPljackaVreme ] = 60;
+
+			    new
+			        tmpUpdate[ 128 ];
+
+				mysql_format( mSQL, tmpUpdate, sizeof( tmpUpdate ), "UPDATE `atms` SET `time_to_rob` = '%d' WHERE `id` = '%d'",
+				    AtmInfo[ robbingATM[ playerid ] ][ atmVremeDoRoba ], AtmInfo[ robbingATM[ playerid ] ][ atmSQLID ] );
+				mysql_tquery( mSQL, tmpUpdate );
 
 			    robbingATM[ playerid ] = -1;
 
@@ -14183,9 +14178,16 @@ _:public ProgresAtmBar( playerid )
 
 	    PostaviWanted( playerid, "Pokusaj pljacke bankomata", "Nepoznati", 6 );
 
-	    atmInfo[ robbingATM[ playerid ] ][ atmVremeDoRoba ] = 60;
-	    SacuvajATM( robbingATM[ playerid ] );
+	    AtmInfo[ robbingATM[ playerid ] ][ atmVremeDoRoba ] = 60;
 	    PI[ playerid ][ xPljackaVreme ] = 60;
+
+	    new
+	        tmpUpdate[ 128 ];
+
+		mysql_format( mSQL, tmpUpdate, sizeof( tmpUpdate ), "UPDATE `atms` SET `time_to_rob` = '%d' WHERE `id` = '%d'",
+		    AtmInfo[ robbingATM[ playerid ] ][ atmVremeDoRoba ], AtmInfo[ robbingATM[ playerid ] ][ atmSQLID ] );
+		mysql_tquery( mSQL, tmpUpdate );
+
 
 	    robbingATM[ playerid ] = -1;
 
@@ -15260,8 +15262,8 @@ public OnPlayerClickPlayerTextDraw(playerid, PlayerText:playertextid)
 			{
 			    new atmid = GetNearestAtm( playerid );
 			    if( atmid == -1 ) return SendErrorMessage( playerid, "Nisi pored bankomata." );
-			    if( atmInfo[ atmid ][ atmPreseceneZice ] == true ) return SendErrorMessage( playerid, "Vec su presecene zice." );
-	            if( atmInfo[ atmid ][ atmVremeDoRoba ] != 0 ) return SendErrorMessage( playerid, "Ovaj bankomat je vec opljackan." );
+			    if( AtmInfo[ atmid ][ atmPreseceneZice ] == true ) return SendErrorMessage( playerid, "Vec su presecene zice." );
+	            if( AtmInfo[ atmid ][ atmVremeDoRoba ] != 0 ) return SendErrorMessage( playerid, "Ovaj bankomat je vec opljackan." );
 	            if( GetWeapon( playerid ) != 4 ) return SendErrorMessage( playerid, "Morate da imate noz u rukama" );
 
 	            _progressatmbar[playerid] = SetPlayerTimerEx(playerid, "RobZiceAtm", 1000, true, "i", playerid);
@@ -15277,8 +15279,8 @@ public OnPlayerClickPlayerTextDraw(playerid, PlayerText:playertextid)
 			    new atmid = GetNearestAtm( playerid );
 			    if( !LaptopRuke[ playerid ] ) return SendErrorMessage( playerid, "Nemate laptop u rukama." );
 			    if( atmid == -1 ) return SendErrorMessage( playerid, "Nisi pored bankomata." );
-			    if( atmInfo[ atmid ][ atmProbijenBios ] == true ) return SendErrorMessage( playerid, "Vec je hakovan ovaj bankomat." );
-				if( atmInfo[ atmid ][ atmVremeDoRoba ] != 0 ) return SendErrorMessage( playerid, "Ovaj bankomat je vec opljackan." );
+			    if( AtmInfo[ atmid ][ atmProbijenBios ] == true ) return SendErrorMessage( playerid, "Vec je hakovan ovaj bankomat." );
+				if( AtmInfo[ atmid ][ atmVremeDoRoba ] != 0 ) return SendErrorMessage( playerid, "Ovaj bankomat je vec opljackan." );
 
 				ATMRobBar_pTD[ playerid ] = CreatePlayerProgressBar( playerid, 229.666717, 294.118621, 195.00, 4.0, 0x2D6888FF, 100.0, BAR_DIRECTION_RIGHT);
 	            SetPlayerProgressBarValue( playerid, ATMRobBar_pTD[ playerid ], 0.0 );
@@ -15298,8 +15300,8 @@ public OnPlayerClickPlayerTextDraw(playerid, PlayerText:playertextid)
 			{
 			    new atmid = GetNearestAtm( playerid );
 			    if( atmid == -1 ) return SendErrorMessage( playerid, "Nisi pored bankomata." );
-			    if( atmInfo[ atmid ][ atmVremeDoRoba ] != 0 ) return SendErrorMessage( playerid, "Ovaj bankomat je vec opljackan." );
-				if( atmInfo[ atmid ][ atmPreseceneZice ] == true )
+			    if( AtmInfo[ atmid ][ atmVremeDoRoba ] != 0 ) return SendErrorMessage( playerid, "Ovaj bankomat je vec opljackan." );
+				if( AtmInfo[ atmid ][ atmPreseceneZice ] == true )
 				{
 				    new pokusaj = random(4);
 				    if( pokusaj == 1 )
@@ -15309,9 +15311,15 @@ public OnPlayerClickPlayerTextDraw(playerid, PlayerText:playertextid)
 				        SendInfoMessage( playerid, "Niste uspeli ukrasti novac, alarm se oglasio." );
 	                    PostaviWanted( playerid, "Pokusaj pljacke bankomata", "Nepoznati", 6 );
 
-					    atmInfo[ atmid ][ atmVremeDoRoba ] = 60;
-			    		SacuvajATM( atmid );
+					    AtmInfo[ atmid ][ atmVremeDoRoba ] = 60;
 			    		PI[ playerid ][ xPljackaVreme ] = 60;
+
+					    new
+					        tmpUpdate[ 128 ];
+
+						mysql_format( mSQL, tmpUpdate, sizeof( tmpUpdate ), "UPDATE `atms` SET `time_to_rob` = '%d' WHERE `id` = '%d'",
+						    AtmInfo[ atmid ][ atmVremeDoRoba ], AtmInfo[ atmid ][ atmSQLID ] );
+						mysql_tquery( mSQL, tmpUpdate );
 
 			    		ATMTDControl( playerid, false );
 				    }
@@ -15325,9 +15333,15 @@ public OnPlayerClickPlayerTextDraw(playerid, PlayerText:playertextid)
 					    SendInfoMessage( playerid, "Uspesno ste ukrali iz bankomata $%d.", money );
 	                    PostaviWanted( playerid, "Pljacka bankomata", "Nepoznati", 6 );
 
-					    atmInfo[ atmid ][ atmVremeDoRoba ] = 120;
-			    		SacuvajATM( atmid );
+					    AtmInfo[ atmid ][ atmVremeDoRoba ] = 120;
 			    		PI[ playerid ][ xPljackaVreme ] = 120;
+
+					    new
+					        tmpUpdate[ 128 ];
+
+						mysql_format( mSQL, tmpUpdate, sizeof( tmpUpdate ), "UPDATE `atms` SET `time_to_rob` = '%d' WHERE `id` = '%d'",
+						    AtmInfo[ atmid ][ atmVremeDoRoba ], AtmInfo[ atmid ][ atmSQLID ] );
+						mysql_tquery( mSQL, tmpUpdate );
 
 			    		ATMTDControl( playerid, false );
 
@@ -15338,7 +15352,7 @@ public OnPlayerClickPlayerTextDraw(playerid, PlayerText:playertextid)
 						mysql_tquery( mSQL, q );
 		    		}
 				}
-				else if( atmInfo[ atmid ][ atmProbijenBios ] == true )
+				else if( AtmInfo[ atmid ][ atmProbijenBios ] == true )
 				{
 					new pokusaj = random(4);
 				    if( pokusaj == 1 )
@@ -15348,9 +15362,15 @@ public OnPlayerClickPlayerTextDraw(playerid, PlayerText:playertextid)
 				        SendInfoMessage( playerid, "Niste uspeli prebaciti novac na vas racun, sistem zastite bankomata je ponovno podignut." );
 	                    PostaviWanted( playerid, "Pokusaj pljacke bankomata", "Nepoznati", 6 );
 
-					    atmInfo[ atmid ][ atmVremeDoRoba ] = 60;
-			    		SacuvajATM( atmid );
+					    AtmInfo[ atmid ][ atmVremeDoRoba ] = 60;
 			    		PI[ playerid ][ xPljackaVreme ] = 60;
+
+					    new
+					        tmpUpdate[ 128 ];
+
+						mysql_format( mSQL, tmpUpdate, sizeof( tmpUpdate ), "UPDATE `atms` SET `time_to_rob` = '%d' WHERE `id` = '%d'",
+						    AtmInfo[ atmid ][ atmVremeDoRoba ], AtmInfo[ atmid ][ atmSQLID ] );
+						mysql_tquery( mSQL, tmpUpdate );
 
 			    		ATMTDControl( playerid, false );
 				    }
@@ -15364,14 +15384,20 @@ public OnPlayerClickPlayerTextDraw(playerid, PlayerText:playertextid)
 					    SendInfoMessage( playerid, "Uspesno ste sa bankomata prebacili $%d na vas racun.", money );
 	                    PostaviWanted( playerid, "Pljacka bankomata", "Nepoznati", 6 );
 
-					    atmInfo[ atmid ][ atmVremeDoRoba ] = 120;
-			    		SacuvajATM( atmid );
+					    AtmInfo[ atmid ][ atmVremeDoRoba ] = 120;
 			    		PI[ playerid ][ xPljackaVreme ] = 120;
+
+					    new
+					        tmpUpdate[ 128 ];
+
+						mysql_format( mSQL, tmpUpdate, sizeof( tmpUpdate ), "UPDATE `atms` SET `time_to_rob` = '%d' WHERE `id` = '%d'",
+						    AtmInfo[ atmid ][ atmVremeDoRoba ], AtmInfo[ atmid ][ atmSQLID ] );
+						mysql_tquery( mSQL, tmpUpdate );
 
 						ATMTDControl( playerid, false );
 
 	                    new q[ 128 ];
-						mysql_format( mSQL, q, sizeof(q), "UPDATE `users` SET `rob_time` = '%d', `xBRacun` = '%d' WHERE `user_id` = '%d' LIMIT 1",
+						mysql_format( mSQL, q, sizeof(q), "UPDATE `users` SET `rob_time` = '%d', `bank_acc` = '%d' WHERE `user_id` = '%d' LIMIT 1",
 							PI[ playerid ][ xPljackaVreme ],
 							PI[ playerid ][ xBRacun ],
 							PI[ playerid ][ xID ] );
@@ -15648,6 +15674,7 @@ _:public ResetPlayer( playerid )
 	PI[ playerid ][ xDrzava ] = 0;
 	PI[ playerid ][ xVIPLevel ] = 0;
 	PI[playerid][xPromoter] = 0;
+	PI[playerid][xYouTuber] = 0;
 	PI[ playerid ][ xHitmenCena ] = 0;
 	PI[ playerid ][ xMarried ] = 0;
 	PI[ playerid ][ xSpecAdmin ] = 0;
@@ -15861,6 +15888,7 @@ _:public ResetPlayer( playerid )
     AdminVozilo[ playerid ] = -1;
     VipVozilo[ playerid ] = -1;
     PromoterVozilo[playerid] = -1;
+    YTVozilo[playerid] = -1;
     PosaoVozilo[ playerid ] = -1;
     PosaoTrailer[ playerid ] = -1;
     TrkaVozilo[ playerid ] = -1;
@@ -16161,7 +16189,7 @@ _:public PayDay( playerid )
 				PI[playerid][xRespekt] += 1;
 
 				static q[100];
-				mysql_format(mSQL, q, sizeof(q), "UPDATE `users` SET `xZlato` = '%d', `exp` = '%d' WHERE `user_id` = '%d'", PI[playerid][xZlato], PI[playerid][xRespekt], PI[playerid][xID]);
+				mysql_format(mSQL, q, sizeof(q), "UPDATE `users` SET `gold` = '%d', `exp` = '%d' WHERE `user_id` = '%d'", PI[playerid][xZlato], PI[playerid][xRespekt], PI[playerid][xID]);
 				mysql_tquery(mSQL, q);
 
 				SendClientMessage(playerid, 0x5BF067FF, "(AKTIVNA IGRA): {FFFFFF}Bili ste {5BF067}6h {FFFFFF}aktivni, osvojili ste {5BF067}$50.000, 50G zlata i 1RP.");
@@ -16175,7 +16203,7 @@ _:public PayDay( playerid )
 				UpdateZlatoTD(playerid);
 
 				static q[100];
-				mysql_format(mSQL, q, sizeof(q), "UPDATE `users` SET `xZlato` = '%d', `exp` = '%d' WHERE `user_id` = '%d'", PI[playerid][xZlato], PI[playerid][xRespekt], PI[playerid][xID]);
+				mysql_format(mSQL, q, sizeof(q), "UPDATE `users` SET `gold` = '%d', `exp` = '%d' WHERE `user_id` = '%d'", PI[playerid][xZlato], PI[playerid][xRespekt], PI[playerid][xID]);
 				mysql_tquery(mSQL, q);
 
 				SendClientMessage(playerid, 0x5BF067FF, "(AKTIVNA IGRA): {FFFFFF}Bili ste {5BF067}12h {FFFFFF}aktivni, osvojili ste {5BF067}$75.000, 75G zlata i 2RP.");
@@ -16189,7 +16217,7 @@ _:public PayDay( playerid )
 				UpdateZlatoTD(playerid);
 
 				static q[100];
-				mysql_format(mSQL, q, sizeof(q), "UPDATE `users` SET `xZlato` = '%d', `exp` = '%d' WHERE `user_id` = '%d'", PI[playerid][xZlato], PI[playerid][xRespekt], PI[playerid][xID]);
+				mysql_format(mSQL, q, sizeof(q), "UPDATE `users` SET `gold` = '%d', `exp` = '%d' WHERE `user_id` = '%d'", PI[playerid][xZlato], PI[playerid][xRespekt], PI[playerid][xID]);
 				mysql_tquery(mSQL, q);
 
 				SendClientMessage(playerid, 0x5BF067FF, "(AKTIVNA IGRA): {FFFFFF}Bili ste {5BF067}18h {FFFFFF}aktivni, osvojili ste {5BF067}$150.000, 150G zlata i 3RP.");
@@ -16204,13 +16232,13 @@ _:public PayDay( playerid )
 				UpdateZlatoTD(playerid);
 
 				static q[100];
-				mysql_format(mSQL, q, sizeof(q), "UPDATE `users` SET `xZlato` = '%d', `exp` = '%d' WHERE `user_id` = '%d'", PI[playerid][xZlato], PI[playerid][xRespekt], PI[playerid][xID]);
+				mysql_format(mSQL, q, sizeof(q), "UPDATE `users` SET `gold` = '%d', `exp` = '%d' WHERE `user_id` = '%d'", PI[playerid][xZlato], PI[playerid][xRespekt], PI[playerid][xID]);
 				mysql_tquery(mSQL, q);
 
 				SendClientMessage(playerid, 0x5BF067FF, "(AKTIVNA IGRA): {FFFFFF}Bili ste {5BF067}24h {FFFFFF}aktivni, osvojili ste {5BF067}$250.000, 250G zlata i 4RP.");
 			}
 		}
-		sql_user_update_integer(playerid, "xAktivnaIgra", PI[playerid][xAktivnaIgra]);
+		sql_user_update_integer(playerid, "activity_game", PI[playerid][xAktivnaIgra]);
 
 		//-------------------------------------------------------------
 
@@ -16256,6 +16284,8 @@ _:public PayDay( playerid )
 
 			if( PI[ playerid ][ xPromoter ] > 0 ) plataprom = 3000+(PI[ playerid ][ xPromoter ]*500);
 
+			if( PI[ playerid ][ xYouTuber ] > 0 ) plataprom = 3000+(PI[ playerid ][ xYouTuber ]*500);
+
 	        if( PI[ playerid ][ xSpecAdmin ] > 0 ) plataspec = 3000;
 
 	        if( PI[ playerid ][ xGamemaster ] > 0 ) plataadms = 2500+(PI[ playerid ][ xGamemaster ]*200);
@@ -16273,6 +16303,8 @@ _:public PayDay( playerid )
 			if( PI[ playerid ][ xLider ] > 0 ) dodataknaplatu = 2500+(PI[ playerid ][ xLider ]*200);
 
 			if( PI[ playerid ][ xPromoter ] > 0 ) dodataknaplatu = 2500+(PI[ playerid ][ xPromoter ]*200);
+
+			if( PI[ playerid ][ xYouTuber ] > 0 ) dodataknaplatu = 2500+(PI[ playerid ][ xYouTuber ]*200);
 
 		}
 
@@ -16671,15 +16703,22 @@ _:public Istovar(playerid, broj)
 			if(jskInfo[playerid][skill_PNovca] == 100) 
 			{
 				PI[ playerid ][ xBRacun ] += (zarada+bonus);
-				sql_user_update_integer( playerid, "xBRacun", PI[ playerid ][ xBRacun ] );
+				sql_user_update_integer( playerid, "bank_acc", PI[ playerid ][ xBRacun ] );
 			}
 			else 
 			{
 				PI[ playerid ][ xBRacun ] += (zarada+bonus);
-				sql_user_update_integer( playerid, "xBRacun", PI[ playerid ][ xBRacun ] );
+				sql_user_update_integer( playerid, "bank_acc", PI[ playerid ][ xBRacun ] );
 
 				jskInfo[playerid][skill_PNovca]++;
-				sql_updatejobskills(playerid);				
+				
+				new
+				    tmpUpdate[ 128 ];
+				    
+				mysql_format( mSQL, tmpUpdate, sizeof( tmpUpdate ), "UPDATE `job_skills` SET `skill_pnovca` = '%d' WHERE `user_id` = '%d'",
+				    jskInfo[ playerid ][ skill_PNovca ], PI[ playerid ][ xID ] );
+				mysql_tquery( mSQL, tmpUpdate );
+
 			}
 			BussinesJobMoney( POSAO_PNOVCA, ((zarada+bonus)/10) );
 			UpdateBankTD( playerid );
@@ -16759,14 +16798,20 @@ _:public Istovar(playerid, broj)
 
 			if(jskInfo[playerid][skill_Mehanicar] == 100) {
 				PI[ playerid ][ xBRacun ] += (zarada+bonus);
-				sql_user_update_integer( playerid, "xBRacun", PI[ playerid ][ xBRacun ] );
+				sql_user_update_integer( playerid, "bank_acc", PI[ playerid ][ xBRacun ] );
 			}
 			else {
 				PI[ playerid ][ xBRacun ] += (zarada+bonus);
-				sql_user_update_integer( playerid, "xBRacun", PI[ playerid ][ xBRacun ] );
+				sql_user_update_integer( playerid, "bank_acc", PI[ playerid ][ xBRacun ] );
 
 				jskInfo[playerid][skill_Mehanicar]++;
-				sql_updatejobskills(playerid);				
+				
+				new
+				    tmpUpdate[ 128 ];
+
+				mysql_format( mSQL, tmpUpdate, sizeof( tmpUpdate ), "UPDATE `job_skills` SET `skill_mehanicar` = '%d' WHERE `user_id` = '%d'",
+				    jskInfo[ playerid ][ skill_Mehanicar ], PI[ playerid ][ xID ] );
+				mysql_tquery( mSQL, tmpUpdate );
 			}
 			UpdateBankTD( playerid );
 			UpdateZlatoTD(playerid);
@@ -16978,14 +17023,14 @@ _:public SyncTime()
 
     foreach(new i : iter_ATM)
 	{
-		if( atmInfo[ i ][ atmVremeDoRoba ] != 0 )
+		if( AtmInfo[ i ][ atmVremeDoRoba ] != 0 )
 		{
-		    atmInfo[ i ][ atmVremeDoRoba ]--;
+		    AtmInfo[ i ][ atmVremeDoRoba ]--;
 
-		    if( atmInfo[ i ][ atmVremeDoRoba ] == 0 )
+		    if( AtmInfo[ i ][ atmVremeDoRoba ] == 0 )
 			{
-		        atmInfo[ i ][ atmPreseceneZice ] = false;
-		        atmInfo[ i ][ atmProbijenBios ] = false;
+		        AtmInfo[ i ][ atmPreseceneZice ] = false;
+		        AtmInfo[ i ][ atmProbijenBios ] = false;
 		    }
 		}
 	}
@@ -17299,13 +17344,13 @@ _:public SyncTime()
 			if(PI[i][xAktivnaIgra] >= 22)
 			{
 				PI[i][xAktivnaIgra] = 0;
-				sql_user_update_integer(i, "xAktivnaIgra", PI[i][xAktivnaIgra]);
+				sql_user_update_integer(i, "activity_game", PI[i][xAktivnaIgra]);
 
 				SendClientMessage(i, 0x5BF067FF, "(AKTIVNA IGRA): {FFFFFF}Ponoc je, resetovani su vam aktivni sati.");
 			}
 		}
 
-		mysql_tquery(mSQL, "UPDATE `users` SET `xAktivnaIgra` = '0'");
+		mysql_tquery(mSQL, "UPDATE `users` SET `activity_game` = '0'");
 	}
 	//---------------
 	if(tmphour == 12 && tmpminute == 0)
@@ -17545,28 +17590,6 @@ _:public Player_OneSecond(i)
 		}
 	}
 
-	/*if(!TogHud[i] && PlayerLogged[i] && Spectate[i] == -1)
-	{
-		if( GetPlayerInterior( i ) == 0 && GetPlayerVirtualWorld( i ) == 0 )
-		{
-			new stringzone[ MAX_ZONE_NAME ], zona[34];
-			GetPlayer2DZone(i, zona, 34);
-
-	        format( stringzone, sizeof( stringzone ), "%s", zona );
-	        PlayerTextDrawSetString( i, Ingame_pTD[i][1], stringzone );
-	        PlayerTextDrawShow( i, Ingame_pTD[i][1] );
-		}
-		else
-		{
-	       	PlayerTextDrawSetString( i, Ingame_pTD[i][1], "_" );
-	       	PlayerTextDrawShow( i, Ingame_pTD[i][1] );
-		}
-	}
-	else
-	{
-       	PlayerTextDrawHide( i, Ingame_pTD[i][1] );
-	}*/
-
     if( IsPlayerInAnyVehicle( i ) && GetPlayerState( i ) == PLAYER_STATE_DRIVER )
 	{
         occupied[ GetPlayerVehicleID( i ) ] = true;
@@ -17648,13 +17671,13 @@ _:public Player_OneSecond(i)
 		{
 			SetPlayerChatBubble( i, "[ VIP ]", 0xAA333300, 40.0, 10000);
 		}
-		else if( PI[ i ][ xPromoter ] >= 1 && PI[ i ][ xPromoter ] < 4 )
+		else if( PI[ i ][ xPromoter ] >= 1 )
 		{
 			SetPlayerChatBubble( i, "[ PROMOTER ]", 0xAEFAA2FF, 40.0, 10000);
 		}
-		else if( PI[i][xPromoter] > 3)
+		else if( PI[ i ][ xYouTuber ] >= 1 )
 		{
-			SetPlayerChatBubble( i, "[ YOUTUBER ]", 0xAEFAA2FF, 40.0, 10000);
+			SetPlayerChatBubble( i, "[ YOUTUBER ]", 0xDB2C2CFF, 40.0, 10000);
 		}
 		else if( PI[ i ][ xLevel ] == 1 )
 		{
@@ -17704,26 +17727,6 @@ _:public Player_OneSecond(i)
 		Boombox[ i ] = IPI;
 		StopAudioStreamForPlayer(i);
 	}
-
-	/*#if XMAS_MOD == 1
-
-		new year, month, day;
-		getdate( year, month, day );
-
-		if(month == 12)
-		{
-			new str[100], tmphour, tmpminute, tmpsecond;
-			gettimeEx(tmphour, tmpminute, tmpsecond);
-			FixHour(tmphour);
-			tmphour = shifthour;
-
-			format(str, sizeof(str), "~y~new_year_-_(2020)~n~~w~d:_~y~%02d_~w~-_h:_~y~%02d_~w~-_m:_~y~%02d_~w~-_s:_~y~%02d", 31 - day, 23 - tmphour, 59 - tmpminute, 59 - tmpsecond);
-		 	if(!TogHud[i] && PlayerLogged[i] && Spectate[i] == -1) PlayerTextDrawSetString(i, Ingame_pTD[i][40], str), PlayerTextDrawShow(i, Ingame_pTD[i][40]);
-		}
-		else PlayerTextDrawHide(i, Ingame_pTD[i][40]);
-
-	#endif*/
-
 	return 1;
 }
 //------------------------------------------------------------------------------
@@ -18359,7 +18362,17 @@ public OnPlayerEditDynamicObject(playerid, objectid, response, Float:x, Float:y,
     		KontInfo[ i ][ koObjRot ][ 1 ] = ry;
     		KontInfo[ i ][ koObjRot ][ 2 ] = rz;
 			KontInfo[ i ][ koObjID ] = CreateDynamicObject(1345, x, y, z, rx, ry, rz);
-			SacuvajKont( i );
+			
+			new
+			    tmpUpdate[ 225 ];
+			    
+			mysql_format( mSQL, tmpUpdate, sizeof( tmpUpdate ),
+			    "UPDATE `containers` SET `pos_x` = '%f', `pos_y` = '%f', `pos_z` = '%f', `pos_rx` = '%f', `pos_ry` = '%f', `pos_rz` = '%f'\
+				WHERE `id` = '%d'",
+            KontInfo[ i ][ koObjPos ][ 0 ], KontInfo[ i ][ koObjPos ][ 1 ], KontInfo[ i ][ koObjPos ][ 2 ],
+			KontInfo[ i ][ koObjRot ][ 0 ], KontInfo[ i ][ koObjRot ][ 1 ], KontInfo[ i ][ koObjRot ][ 2 ],
+		 	KontInfo[ i ][ koSQLID ]);
+		 	mysql_tquery( mSQL, tmpUpdate );
 
 			EditKontejnera[ playerid ] = -1;
 			return 1;
@@ -18367,23 +18380,34 @@ public OnPlayerEditDynamicObject(playerid, objectid, response, Float:x, Float:y,
 		if( EditATM[ playerid ] != -1 )
 		{
 		    new i = EditATM[ playerid ];
-		   	DestroyDynamicObject( atmInfo[ i ][ atmObject ] );
+		   	DestroyDynamicObject( AtmInfo[ i ][ atmObject ] );
 
-		   	atmInfo[ i ][ atmPos ][ 0 ] = x;
-    		atmInfo[ i ][ atmPos ][ 1 ] = y;
-    		atmInfo[ i ][ atmPos ][ 2 ] = z;
-    		atmInfo[ i ][ atmPos ][ 3 ] = rx;
-    		atmInfo[ i ][ atmPos ][ 4 ] = ry;
-    		atmInfo[ i ][ atmPos ][ 5 ] = rz;
-    		atmInfo[ i ][ atmPreseceneZice ] = false;
-			atmInfo[ i ][ atmProbijenBios ] = false;
-			atmInfo[ i ][ atmVremeDoRoba ] = 0;
-			atmInfo[ i ][ atmObject ] = CreateDynamicObject(2942, x, y, z, rx, ry, rz);
-			SacuvajATM( i );
+		   	AtmInfo[ i ][ atmPos ][ 0 ] = x;
+    		AtmInfo[ i ][ atmPos ][ 1 ] = y;
+    		AtmInfo[ i ][ atmPos ][ 2 ] = z;
+    		AtmInfo[ i ][ atmPos ][ 3 ] = rx;
+    		AtmInfo[ i ][ atmPos ][ 4 ] = ry;
+    		AtmInfo[ i ][ atmPos ][ 5 ] = rz;
+    		AtmInfo[ i ][ atmPreseceneZice ] = false;
+			AtmInfo[ i ][ atmProbijenBios ] = false;
+			AtmInfo[ i ][ atmVremeDoRoba ] = 0;
+			AtmInfo[ i ][ atmObject ] = CreateDynamicObject(2942, x, y, z, rx, ry, rz);
+			
+			new
+				tmpUpdate[ 330 ];
 
-			atmInfo[ i ][ atmText3D ] = CreateDynamic3DTextLabel( "ATM\n\n\
+			mysql_format( mSQL, tmpUpdate, sizeof( tmpUpdate ),
+			    "UPDATE `atms` SET `pos_x` = '%f', `pos_y` = '%f', `pos_z` = '%f', `pos_rx` = '%f', `pos_ry` = '%f', `pos_rz` = '%f',\
+						`cutted_wire` = '%d', `broken_system` = '%d', `time_to_rob` = '%d'\
+				WHERE `id` = '%d'",
+				AtmInfo[ i ][ atmPos ][ 0 ], AtmInfo[ i ][ atmPos ][ 1 ], AtmInfo[ i ][ atmPos ][ 2 ], AtmInfo[ i ][ atmPos ][ 3 ], AtmInfo[ i ][ atmPos ][ 4 ], AtmInfo[ i ][ atmPos ][ 5 ],
+				AtmInfo[ i ][ atmPreseceneZice ], AtmInfo[ i ][ atmProbijenBios ], AtmInfo[ i ][ atmVremeDoRoba ], AtmInfo[ i ][ atmSQLID ] );
+
+			mysql_tquery( mSQL, tmpUpdate );
+
+			AtmInfo[ i ][ atmText3D ] = CreateDynamic3DTextLabel( "ATM\n\n\
 																   Da koristite bankomat kucajte {FFFFFF}\"/atm\"\n\
-																   {2D6888}Da opljackate bankomat kucajte {FFFFFF}\"/robatm\"", 0x2D6888FF, atmInfo[ i ][atmPos][ 0 ], atmInfo[ i ][atmPos][ 1 ], atmInfo[ i ][atmPos][ 2 ], 10.0, IPI, IVI, 0, -1, -1 );
+																   {2D6888}Da opljackate bankomat kucajte {FFFFFF}\"/robatm\"", 0x2D6888FF, AtmInfo[ i ][atmPos][ 0 ], AtmInfo[ i ][atmPos][ 1 ], AtmInfo[ i ][atmPos][ 2 ], 10.0, IPI, IVI, 0, -1, -1 );
 
 			EditATM[ playerid ] = -1;
 			return 1;
@@ -18982,15 +19006,12 @@ _:public showTopList(playerid, list)
 	{
 		case 0:
 		{
-			//level
-			new rows, 
-		    	fields, 
-		    	p_name[ 24 ], 
-		    	last_login[ 22 ], 
-		    	levell, 
-		    	is_online;
-
-		    cache_get_data( rows, fields, mSQL );
+			new
+			    rows = cache_num_rows(),
+			    p_name[ 24 ],
+			    last_login[ 22 ],
+			    levell,
+			    is_online;
 
 		    if( rows )
 			{
@@ -18999,13 +19020,13 @@ _:public showTopList(playerid, list)
 
 		        for( new i = 0; i < rows; i++ )
 				{
-		            levell = cache_get_field_content_int( i, "level" );
-		            is_online = cache_get_field_content_int( i, "isonline" );
-		            cache_get_field_content( i, "p_name", p_name, mSQL, 24 );
+		            cache_get_value_name_int( i, "level", levell );
+		            cache_get_value_name_int( i, "isonline", is_online );
+		            cache_get_value_name( i, "p_name", p_name, 24 );
 
 		            if( is_online == 0 )
 					{
-						cache_get_field_content( i, "last_login", last_login, mSQL, 22 );
+						cache_get_value_name( i, "last_login", last_login, 22 );
 
 						format( globalstring, 150, "{FFFFFF}%s\t%d\t{FF0000}%s\n", p_name, levell, last_login );
 						strcat( DialogStrgEx, globalstring );
@@ -19026,14 +19047,12 @@ _:public showTopList(playerid, list)
 		case 1:
 		{
 			//sati igre
-			new rows, 
-		    	fields, 
+			new
+				rows = cache_num_rows(),
 		    	p_name[ 24 ], 
 		    	last_login[ 22 ], 
 		    	hourss, 
 		    	is_online;
-
-		    cache_get_data( rows, fields, mSQL );
 
 		    if( rows )
 			{
@@ -19042,13 +19061,13 @@ _:public showTopList(playerid, list)
 
 		        for( new i = 0; i < rows; i++ )
 				{
-		            hourss = cache_get_field_content_int( i, "xOnlineSati" );
-		            is_online = cache_get_field_content_int( i, "isonline" );
-		            cache_get_field_content( i, "p_name", p_name, mSQL, 24 );
+    				cache_get_value_name_int( i, "online_hours", hourss );
+    				cache_get_value_name_int( i, "isonline", is_online );
+		            cache_get_value_name( i, "p_name", p_name, 24 );
 
 		            if( is_online == 0 )
 					{
-						cache_get_field_content( i, "last_login", last_login, mSQL, 22 );
+						cache_get_value_name( i, "last_login", last_login, 22 );
 
 						format( globalstring, 150, "{FFFFFF}%s\t%sh\t{FF0000}%s\n", p_name, fNumber(hourss), last_login );
 						strcat( DialogStrgEx, globalstring );
@@ -19069,15 +19088,13 @@ _:public showTopList(playerid, list)
 		case 2:
 		{
 			//money
-			new rows, 
-		    	fields, 
+			new
+				rows = cache_num_rows(),
 		    	p_name[ 24 ], 
 		    	last_login[ 22 ], 
 		    	cashh,  
 		    	bankk, 
 		    	is_online;
-
-		    cache_get_data( rows, fields, mSQL );
 
 		    if( rows )
 			{
@@ -19086,14 +19103,14 @@ _:public showTopList(playerid, list)
 
 		        for( new i = 0; i < rows; i++ )
 				{
-		            cashh = cache_get_field_content_int( i, "money" );
-		            bankk = cache_get_field_content_int( i, "xBRacun" );
-		            is_online = cache_get_field_content_int( i, "isonline" );
-		            cache_get_field_content( i, "p_name", p_name, mSQL, 24 );
+		            cache_get_value_name_int( i, "money", cashh );
+		            cache_get_value_name_int( i, "bank_acc", bankk );
+		            cache_get_value_name_int( i, "isonline", is_online );
+		            cache_get_value_name( i, "p_name", p_name, 24 );
 
 		            if( is_online == 0 )
 					{
-						cache_get_field_content( i, "last_login", last_login, mSQL, 22 );
+						cache_get_value_name( i, "last_login", last_login, 22 );
 
 						format( globalstring, 150, "{FFFFFF}%s\t$%s\t{FF0000}%s\n", p_name, fNumber(cashh+bankk), last_login );
 						strcat( DialogStrgEx, globalstring );
@@ -19114,14 +19131,12 @@ _:public showTopList(playerid, list)
 		case 3:
 		{
 			//gold
-			new rows, 
-		    	fields, 
+			new
+				rows = cache_num_rows(),
 		    	p_name[ 24 ], 
 		    	last_login[ 22 ], 
 		    	cashh,
 		    	is_online;
-
-		    cache_get_data( rows, fields, mSQL );
 
 		    if( rows )
 			{
@@ -19130,13 +19145,13 @@ _:public showTopList(playerid, list)
 
 		        for( new i = 0; i < rows; i++ )
 				{
-		            cashh = cache_get_field_content_int( i, "xZlato" );
-		            is_online = cache_get_field_content_int( i, "isonline" );
-		            cache_get_field_content( i, "p_name", p_name, mSQL, 24 );
+		            cache_get_value_name_int( i, "gold", cashh );
+		            cache_get_value_name_int( i, "isonline", is_online );
+		            cache_get_value_name( i, "p_name", p_name, 24 );
 
 		            if( is_online == 0 )
 					{
-						cache_get_field_content( i, "last_login", last_login, mSQL, 22 );
+						cache_get_value_name( i, "last_login", last_login, 22 );
 
 						format( globalstring, 150, "{FFFFFF}%s\t%sg\t{FF0000}%s\n", p_name, fNumber(cashh), last_login );
 						strcat( DialogStrgEx, globalstring );
@@ -19157,14 +19172,12 @@ _:public showTopList(playerid, list)
 		case 4:
 		{
 			//dm
-			new rows, 
-		    	fields, 
+			new
+				rows = cache_num_rows(),
 		    	p_name[ 24 ], 
 		    	last_login[ 22 ], 
 		    	hourss, 
 		    	is_online;
-
-		    cache_get_data( rows, fields, mSQL );
 
 		    if( rows )
 			{
@@ -19173,13 +19186,13 @@ _:public showTopList(playerid, list)
 
 		        for( new i = 0; i < rows; i++ )
 				{
-		            hourss = cache_get_field_content_int( i, "dm_event_kills" );
-		            is_online = cache_get_field_content_int( i, "isonline" );
-		            cache_get_field_content( i, "p_name", p_name, mSQL, 24 );
+		            cache_get_value_name_int( i, "dm_event_kills", hourss );
+		            cache_get_value_name_int( i, "isonline", is_online );
+		            cache_get_value_name( i, "p_name", p_name, 24 );
 
 		            if( is_online == 0 )
 					{
-						cache_get_field_content( i, "last_login", last_login, mSQL, 22 );
+						cache_get_value_name( i, "last_login", last_login, 22 );
 
 						format( globalstring, 150, "{FFFFFF}%s\t%d\t{FF0000}%s\n", p_name, hourss, last_login );
 						strcat( DialogStrgEx, globalstring );
@@ -19200,14 +19213,12 @@ _:public showTopList(playerid, list)
 		case 5:
 		{
 			//tdm
-			new rows, 
-		    	fields, 
+			new
+		 		rows = cache_num_rows(),
 		    	p_name[ 24 ], 
 		    	last_login[ 22 ], 
 		    	hourss, 
 		    	is_online;
-
-		    cache_get_data( rows, fields, mSQL );
 
 		    if( rows )
 			{
@@ -19216,13 +19227,13 @@ _:public showTopList(playerid, list)
 
 		        for( new i = 0; i < rows; i++ )
 				{
-		            hourss = cache_get_field_content_int( i, "cstdm_score" );
-		            is_online = cache_get_field_content_int( i, "isonline" );
-		            cache_get_field_content( i, "p_name", p_name, mSQL, 24 );
+		            cache_get_value_name_int( i, "cstdm_score", hourss );
+		            cache_get_value_name_int( i, "isonline", is_online );
+		            cache_get_value_name( i, "p_name", p_name, 24 );
 
 		            if( is_online == 0 )
 					{
-						cache_get_field_content( i, "last_login", last_login, mSQL, 22 );
+						cache_get_value_name( i, "last_login", last_login, 22 );
 
 						format( globalstring, 150, "{FFFFFF}%s\t%d\t{FF0000}%s\n", p_name, hourss, last_login );
 						strcat( DialogStrgEx, globalstring );
@@ -19243,14 +19254,12 @@ _:public showTopList(playerid, list)
 		case 6:
 		{
 			//event
-			new rows, 
-		    	fields, 
+			new
+				rows = cache_num_rows(),
 		    	p_name[ 24 ], 
 		    	last_login[ 22 ], 
 		    	hourss, 
 		    	is_online;
-
-		    cache_get_data( rows, fields, mSQL );
 
 		    if( rows )
 			{
@@ -19259,13 +19268,13 @@ _:public showTopList(playerid, list)
 
 		        for( new i = 0; i < rows; i++ )
 				{
-		            hourss = cache_get_field_content_int( i, "event_first_place" );
-		            is_online = cache_get_field_content_int( i, "isonline" );
-		            cache_get_field_content( i, "p_name", p_name, mSQL, 24 );
+		            cache_get_value_name_int( i, "event_first_place", hourss );
+		            cache_get_value_name_int( i, "isonline", is_online );
+		            cache_get_value_name( i, "p_name", p_name, 24 );
 
 		            if( is_online == 0 )
 					{
-						cache_get_field_content( i, "last_login", last_login, mSQL, 22 );
+						cache_get_value_name( i, "last_login", last_login, 22 );
 
 						format( globalstring, 150, "{FFFFFF}%s\t%d\t{FF0000}%s\n", p_name, hourss, last_login );
 						strcat( DialogStrgEx, globalstring );
@@ -19286,15 +19295,13 @@ _:public showTopList(playerid, list)
 		case 7:
 		{
 			//poklon
-			new rows, 
-		    	fields, 
+			new
+				rows = cache_num_rows(),
 		    	p_name[ 24 ], 
 		    	last_login[ 22 ], 
 		    	hourss, 
 		    	is_online;
-
-		    cache_get_data( rows, fields, mSQL );
-
+		    	
 		    if( rows )
 			{
 		        strdel( DialogStrgEx, 0, sizeof( DialogStrgEx ) );
@@ -19302,13 +19309,13 @@ _:public showTopList(playerid, list)
 
 		        for( new i = 0; i < rows; i++ )
 				{
-		            hourss = cache_get_field_content_int( i, "gift" );
-		            is_online = cache_get_field_content_int( i, "isonline" );
-		            cache_get_field_content( i, "p_name", p_name, mSQL, 24 );
+		            cache_get_value_name_int( i, "gift", hourss );
+		            cache_get_value_name_int( i, "isonline", is_online );
+		            cache_get_value_name( i, "p_name", p_name, 24 );
 
 		            if( is_online == 0 )
 					{
-						cache_get_field_content( i, "last_login", last_login, mSQL, 22 );
+						cache_get_value_name( i, "last_login", last_login, 22 );
 
 						format( globalstring, 150, "{FFFFFF}%s\t%d\t{FF0000}%s\n", p_name, hourss, last_login );
 						strcat( DialogStrgEx, globalstring );
@@ -19332,28 +19339,31 @@ _:public showTopList(playerid, list)
 //------------------------------------------------------------------------------
 _:public mSQL_CreateATM( createID )
 {
-	static q[300];
-    mysql_format( mSQL, q, sizeof( q ),
+	static
+		tmpStructure[ 280 ];
+		
+    mysql_format( mSQL, tmpStructure, sizeof( tmpStructure ),
 
-		"INSERT INTO `atms` ( atmPos1, atmPos2, atmPos3, atmPos4, atmPos5, atmPos6, atmPreseceneZice, atmProbijenBios, atmVremeDoRoba ) \
-	 	VALUES( '%f', '%f', '%f', '%f', '%f', '%f', '0', '0', '0' )",
+	 	"INSERT INTO `atms` (pos_x, pos_y, pos_z, pos_rx, pos_ry, pos_rz, cutted_wire, broken_system, time_to_rob)\
+	 	VALUES('%f','%f','%f','%f','%f','%f','0','0','0')",
 
-        atmInfo[ createID ][ atmPos ][ 0 ], atmInfo[ createID ][ atmPos ][ 1 ], atmInfo[ createID ][ atmPos ][ 2 ],
-        atmInfo[ createID ][ atmPos ][ 3 ], atmInfo[ createID ][ atmPos ][ 4 ], atmInfo[ createID ][ atmPos ][ 5 ] );
+        AtmInfo[ createID ][ atmPos ][ 0 ], AtmInfo[ createID ][ atmPos ][ 1 ], AtmInfo[ createID ][ atmPos ][ 2 ],
+        AtmInfo[ createID ][ atmPos ][ 3 ], AtmInfo[ createID ][ atmPos ][ 4 ], AtmInfo[ createID ][ atmPos ][ 5 ] );
 
-    mysql_pquery( mSQL, q, "OnATMCreated", "i", createID );
+    mysql_pquery( mSQL, tmpStructure, "OnATMCreated", "i", createID );
 	return 1;
 }
 _:public OnATMCreated( createID )
 {
-	atmInfo[ createID ][ atmSQLID ] = cache_insert_id();
+	AtmInfo[ createID ][ atmSQLID ] = cache_insert_id();
 	return 1;
 }
 // --
 _:public OnATMsLoad( )
 {
-	new rows, fields, thisID;
-    cache_get_data( rows, fields, mSQL );
+	new
+	    rows = cache_num_rows(),
+	    thisID;
 
 	if( rows )
 	{
@@ -19361,55 +19371,41 @@ _:public OnATMsLoad( )
 		{
 			thisID = Iter_Free(iter_ATM);
 
-            atmInfo[ thisID ][ atmSQLID ] 			= cache_get_field_content_int( i, "atmSQLID" );
-            atmInfo[ thisID ][ atmPos ][ 0 ] 		= cache_get_field_content_float( i, "atmPos1" );
-            atmInfo[ thisID ][ atmPos ][ 1 ] 		= cache_get_field_content_float( i, "atmPos2" );
-            atmInfo[ thisID ][ atmPos ][ 2 ] 		= cache_get_field_content_float( i, "atmPos3" );
-            atmInfo[ thisID ][ atmPos ][ 3 ] 		= cache_get_field_content_float( i, "atmPos4" );
-            atmInfo[ thisID ][ atmPos ][ 4 ] 		= cache_get_field_content_float( i, "atmPos5" );
-            atmInfo[ thisID ][ atmPos ][ 5 ] 		= cache_get_field_content_float( i, "atmPos6" );
-            atmInfo[ thisID ][ atmPreseceneZice ] 	= bool:cache_get_field_content_int( i, "atmPreseceneZice" );
-            atmInfo[ thisID ][ atmProbijenBios ] 	= bool:cache_get_field_content_int( i, "atmProbijenBios" );
-            atmInfo[ thisID ][ atmVremeDoRoba ]		= cache_get_field_content_int( i, "atmVremeDoRoba" );
+            cache_get_value_name_int( i, "id", AtmInfo[ thisID ][ atmSQLID ] );
+            cache_get_value_name_float( i, "pos_x", AtmInfo[ thisID ][ atmPos ][ 0 ] );
+            cache_get_value_name_float( i, "pos_y", AtmInfo[ thisID ][ atmPos ][ 1 ] );
+            cache_get_value_name_float( i, "pos_z", AtmInfo[ thisID ][ atmPos ][ 2 ] );
+            cache_get_value_name_float( i, "pos_rx", AtmInfo[ thisID ][ atmPos ][ 3 ] );
+            cache_get_value_name_float( i, "pos_ry", AtmInfo[ thisID ][ atmPos ][ 4 ] );
+            cache_get_value_name_float( i, "pos_rz", AtmInfo[ thisID ][ atmPos ][ 5 ] );
+            cache_get_value_name_bool( i, "cutted_wire", AtmInfo[ thisID ][ atmPreseceneZice ] );
+            cache_get_value_name_bool( i, "broken_system", AtmInfo[ thisID ][ atmProbijenBios ] );
+            cache_get_value_name_int( i, "time_to_rob", AtmInfo[ thisID ][ atmVremeDoRoba ] );
 
-        	atmInfo[ thisID ][ atmObject ] = CreateDynamicObject(2942, atmInfo[ thisID ][ atmPos ][ 0 ], atmInfo[ thisID ][ atmPos ][ 1 ], atmInfo[ thisID ][ atmPos ][ 2 ], atmInfo[ thisID ][ atmPos ][ 3 ], atmInfo[ thisID ][ atmPos ][ 4 ], atmInfo[ thisID ][ atmPos ][ 5 ] );
-			atmInfo[ thisID ][ atmText3D ] = CreateDynamic3DTextLabel( "ATM\n\n\
+        	AtmInfo[ thisID ][ atmObject ] = CreateDynamicObject(2942, AtmInfo[ thisID ][ atmPos ][ 0 ], AtmInfo[ thisID ][ atmPos ][ 1 ], AtmInfo[ thisID ][ atmPos ][ 2 ], AtmInfo[ thisID ][ atmPos ][ 3 ], AtmInfo[ thisID ][ atmPos ][ 4 ], AtmInfo[ thisID ][ atmPos ][ 5 ] );
+			AtmInfo[ thisID ][ atmText3D ] = CreateDynamic3DTextLabel( "ATM\n\n\
 																		Da koristite bankomat kucajte {FFFFFF}\"/atm\"\n\
-																		{2D6888}Da opljackate bankomat kucajte {FFFFFF}\"/robatm\"", 0x2D6888FF, atmInfo[ thisID ][atmPos][ 0 ], atmInfo[ thisID ][atmPos][ 1 ], atmInfo[ thisID ][atmPos][ 2 ], 10.0, IPI, IVI, 0, -1, -1 );
+																		{2D6888}Da opljackate bankomat kucajte {FFFFFF}\"/robatm\"", 0x2D6888FF, AtmInfo[ thisID ][atmPos][ 0 ], AtmInfo[ thisID ][atmPos][ 1 ], AtmInfo[ thisID ][atmPos][ 2 ], 10.0, IPI, IVI, 0, -1, -1 );
 
 			Iter_Add(iter_ATM, thisID);
 		}
 
 	}
-	printf("(PB) SQL: Ucitao - Bankomati(%d)", rows);
-    return 1;
-}
-// --
-_:public SacuvajATM( id )
-{
-    static q[400];
-	mysql_format(mSQL, q, sizeof(q),
-	    "UPDATE `atms` SET `atmPos1` = '%f', `atmPos2` = '%f', `atmPos3` = '%f', `atmPos4` = '%f', `atmPos5` = '%f', `atmPos6` = '%f',\
-							`atmPreseceneZice` = '%d', `atmProbijenBios` = '%d', `atmVremeDoRoba` = '%d'\
-		WHERE `atmSQLID` = '%d'",
-
-		atmInfo[id][atmPos][0], atmInfo[id][atmPos][1], atmInfo[id][atmPos][2], atmInfo[id][atmPos][3], atmInfo[id][atmPos][4], atmInfo[id][atmPos][5],
-		atmInfo[id][atmPreseceneZice], atmInfo[id][atmProbijenBios], atmInfo[id][atmVremeDoRoba], atmInfo[id][atmSQLID]);
-
-	mysql_tquery(mSQL, q);
+	printf("(SQL - tmpStructure): Ucitao - Bankomati(%d)", rows);
     return 1;
 }
 //------------------------------------------------------------------------------
 _:public mSQL_CreateContainer( createID )
 {
-	static q[ 300 ];
-    mysql_format( mSQL, q, sizeof( q ), "INSERT INTO `containers` ( koObjPos1, koObjPos2, koObjPos3, koObjRot1, koObjRot2, koObjRot3 )\
-		VALUES( '%f', '%f', '%f', '%f', '%f', '%f')",
-
-        KontInfo[ createID ][ koObjPos ][ 0 ], KontInfo[ createID ][ koObjPos ][ 1 ], KontInfo[ createID ][ koObjPos ][ 2 ],
-        KontInfo[ createID ][ koObjRot ][ 0 ], KontInfo[ createID ][ koObjRot ][ 1 ], KontInfo[ createID ][ koObjRot ][ 2 ] );
-
-    mysql_pquery( mSQL, q, "OnContainerCreated", "i", createID );
+	static
+	    tmpStructure[ 225 ];
+	    
+	mysql_format( mSQL, tmpStructure, sizeof( tmpStructure ), "INSERT INTO `containers` (pos_x, pos_y, pos_z, pos_rx, pos_ry, pos_rz)\
+	    VALUES('%f','%f','%f','%f','%f','%f')",
+     	KontInfo[ createID ][ koObjPos ][ 0 ], KontInfo[ createID ][ koObjPos ][ 1 ], KontInfo[ createID ][ koObjPos ][ 2 ],
+      	KontInfo[ createID ][ koObjRot ][ 0 ], KontInfo[ createID ][ koObjRot ][ 1 ], KontInfo[ createID ][ koObjRot ][ 2 ] );
+	mysql_pquery( mSQL, tmpStructure, "OnContainerCreated", "i", createID );
+	
 	return 1;
 }
 _:public OnContainerCreated( createID )
@@ -19420,8 +19416,9 @@ _:public OnContainerCreated( createID )
 //--
 _:public OnContainersLoad( )
 {
-    new rows, fields, thisID;
-    cache_get_data( rows, fields, mSQL );
+    new
+        rows = cache_num_rows(),
+        thisID;
 
 	if( rows )
 	{
@@ -19429,13 +19426,13 @@ _:public OnContainersLoad( )
 		{
 			thisID = Iter_Free(iter_Kont);
 
-            KontInfo[ thisID ][ koSQLID ] 			= cache_get_field_content_int( i, "koSQLID" );
-            KontInfo[ thisID ][ koObjPos ][ 0 ] 	= cache_get_field_content_float( i, "koObjPos1" );
-            KontInfo[ thisID ][ koObjPos ][ 1 ] 	= cache_get_field_content_float( i, "koObjPos2" );
-            KontInfo[ thisID ][ koObjPos ][ 2 ] 	= cache_get_field_content_float( i, "koObjPos3" );
-            KontInfo[ thisID ][ koObjRot ][ 0 ] 	= cache_get_field_content_float( i, "koObjRot1" );
-            KontInfo[ thisID ][ koObjRot ][ 1 ] 	= cache_get_field_content_float( i, "koObjRot2" );
-            KontInfo[ thisID ][ koObjRot ][ 2 ] 	= cache_get_field_content_float( i, "koObjRot3" );
+            cache_get_value_name_int( i, "id", KontInfo[ thisID ][ koSQLID ] );
+            cache_get_value_name_float( i, "pos_x", KontInfo[ thisID ][ koObjPos ][ 0 ] );
+            cache_get_value_name_float( i, "pos_y", KontInfo[ thisID ][ koObjPos ][ 1 ] );
+            cache_get_value_name_float( i, "pos_z", KontInfo[ thisID ][ koObjPos ][ 2 ] );
+            cache_get_value_name_float( i, "pos_rx", KontInfo[ thisID ][ koObjRot ][ 0 ] );
+            cache_get_value_name_float( i, "pos_ry", KontInfo[ thisID ][ koObjRot ][ 1 ] );
+            cache_get_value_name_float( i, "pos_rz", KontInfo[ thisID ][ koObjRot ][ 2 ] );
 
 			KontInfo[ thisID ][ koObjID ] = CreateDynamicObject(1345, KontInfo[ thisID ][ koObjPos ][ 0 ], KontInfo[ thisID ][ koObjPos ][ 1 ], KontInfo[ thisID ][ koObjPos ][ 2 ], KontInfo[ thisID ][ koObjRot ][ 0 ], KontInfo[ thisID ][ koObjRot ][ 1 ], KontInfo[ thisID ][ koObjRot ][ 2 ] );
     		ServerInfo[ BrojKontejnera ]++;
@@ -19443,20 +19440,7 @@ _:public OnContainersLoad( )
     		Iter_Add(iter_Kont, thisID);
 		}
 	}
-	printf("(PB) SQL: Ucitao - Kontejneri(%d)", rows);
-    return 1;
-}
-// --
-_:public SacuvajKont( id )
-{
-    static q[250];
-	mysql_format(mSQL, q, sizeof(q),
-	    "UPDATE `containers` SET `koObjPos1` = '%f', `koObjPos2` = '%f', `koObjPos3` = '%f', `koObjRot1` = '%f', `koObjRot2` = '%f', `koObjRot3` = '%f'\
-		WHERE `koSQLID` = '%d'",
-
-		KontInfo[id][koObjPos][0], KontInfo[id][koObjPos][1], KontInfo[id][koObjPos][2], KontInfo[id][koObjRot][0], KontInfo[id][koObjRot][1], KontInfo[id][koObjRot][2], KontInfo[id][koSQLID]);
-
-	mysql_tquery(mSQL, q);
+	printf("(SQL - tmpStructure): Ucitao - Kontejneri(%d)", rows);
     return 1;
 }
 //------------------------------------------------------------------------------
@@ -19481,8 +19465,10 @@ _:public OnPropertyCreated( createID )
 // --
 _:public OnPropertysLoad( )
 {
-	new rows, fields, im, string[250];
-    cache_get_data( rows, fields, mSQL );
+    new
+        rows = cache_num_rows(),
+        im,
+        string[ 250 ];
 
 	if( rows )
 	{
@@ -19490,45 +19476,45 @@ _:public OnPropertysLoad( )
 		{
 		    im = Iter_Free(iter_Imovina);
 
-            II[ im ][ iSQLID ] 						= cache_get_field_content_int( i, "iSQLID" );
-            II[ im ][ iOwned ] 						= cache_get_field_content_int( i, "iOwned" );
-            II[ im ][ iOnAuction ] 					= bool:cache_get_field_content_int( i, "iOnAuction" );
-            II[ im ][ iOwnerSQLID ] 				= cache_get_field_content_int( i, "iOwnerSQLID" );
-            II[ im ][ iUsage ] 						= cache_get_field_content_int( i, "iUsage" );
-            II[ im ][ iEnter ][0] 					= cache_get_field_content_float( i, "iEnter1" );
-            II[ im ][ iEnter ][1] 					= cache_get_field_content_float( i, "iEnter2" );
-            II[ im ][ iEnter ][2] 					= cache_get_field_content_float( i, "iEnter3" );
-            II[ im ][ iExit ][0] 					= cache_get_field_content_float( i, "iExit1" );
-            II[ im ][ iExit ][1] 					= cache_get_field_content_float( i, "iExit2" );
-            II[ im ][ iExit ][2] 					= cache_get_field_content_float( i, "iExit3" );
-            II[ im ][ iPrice ] 						= cache_get_field_content_int( i, "iPrice" );
-            II[ im ][ iLocked ] 					= cache_get_field_content_int( i, "iLocked" );
-            II[ im ][ iInterior ] 					= cache_get_field_content_int( i, "iInterior" );
-            II[ im ][ iVW ] 						= cache_get_field_content_int( i, "iVW" );
-            II[ im ][ iVrsta ] 						= cache_get_field_content_int( i, "iVrsta" );
-            II[ im ][ iOruzje ][ 0 ] 				= cache_get_field_content_int( i, "iOruzje1" );
-            II[ im ][ iOruzje ][ 1 ] 				= cache_get_field_content_int( i, "iOruzje2" );
-            II[ im ][ iOruzje ][ 2 ] 				= cache_get_field_content_int( i, "iOruzje3" );
-            II[ im ][ iOruzje ][ 3 ] 				= cache_get_field_content_int( i, "iOruzje4" );
-            II[ im ][ iMunicija ][ 0 ] 				= cache_get_field_content_int( i, "iMunicija1" );
-            II[ im ][ iMunicija ][ 1 ] 				= cache_get_field_content_int( i, "iMunicija2" );
-            II[ im ][ iMunicija ][ 2 ] 				= cache_get_field_content_int( i, "iMunicija3" );
-            II[ im ][ iMunicija ][ 3 ] 				= cache_get_field_content_int( i, "iMunicija4" );
-            II[ im ][ iDrugAmmount ] 				= cache_get_field_content_int( i, "iDrugAmmount" );
-            II[ im ][ iDoorLevel ] 					= cache_get_field_content_int( i, "iDoorLevel" );
-            II[ im ][ iAlarm ] 						= cache_get_field_content_int( i, "iAlarm" );
-            II[ im ][ iLockLevel ] 					= cache_get_field_content_int( i, "iLockLevel" );
-            II[ im ][ iTime ] 						= cache_get_field_content_int( i, "iTime" );
-            II[ im ][ iLevel ] 						= cache_get_field_content_int( i, "iLevel" );
-            II[ im ][ iNeaktivnost ] 				= cache_get_field_content_int( i, "iNeaktivnost" );
-            II[ im ][ iRentable ] 					= cache_get_field_content_int( i, "iRentable" );
-            II[ im ][ iRentPrice ] 					= cache_get_field_content_int( i, "iRentPrice" );
-            II[ im ][ iRentovano ] 					= cache_get_field_content_int( i, "iRentovano" );
-            II[ im ][ iMoney ] 						= cache_get_field_content_int( i, "iMoney" );
-            II[ im ][ iMats ] 						= cache_get_field_content_int( i, "iMats" );
+            cache_get_value_name_int( i, "iSQLID", II[ im ][ iSQLID ] );
+            cache_get_value_name_int( i, "iOwned", II[ im ][ iOwned ] );
+            cache_get_value_name_bool( i, "iOnAuction", II[ im ][ iOnAuction ] );
+            cache_get_value_name_int( i, "iOwnerSQLID", II[ im ][ iOwnerSQLID ] );
+            cache_get_value_name_int( i, "iUsage", II[ im ][ iUsage ] );
+            cache_get_value_name_float( i, "iEnter1", II[ im ][ iEnter ][ 0 ] );
+            cache_get_value_name_float( i, "iEnter2", II[ im ][ iEnter ][ 1 ] );
+            cache_get_value_name_float( i, "iEnter3", II[ im ][ iEnter ][ 2 ] );
+            cache_get_value_name_float( i, "iExit1", II[ im ][ iExit ][ 0 ] );
+            cache_get_value_name_float( i, "iExit2", II[ im ][ iExit ][ 1 ] );
+            cache_get_value_name_float( i, "iExit3", II[ im ][ iExit ][ 2 ] );
+            cache_get_value_name_int( i, "iPrice", II[ im ][ iPrice ] );
+            cache_get_value_name_int( i, "iLocked", II[ im ][ iLocked ] );
+            cache_get_value_name_int( i, "iInterior", II[ im ][ iInterior ] );
+            cache_get_value_name_int( i, "iVW", II[ im ][ iVW ] );
+            cache_get_value_name_int( i, "iVrsta", II[ im ][ iVrsta ] );
+            cache_get_value_name_int( i, "iOruzje1", II[ im ][ iOruzje ][ 0 ] );
+            cache_get_value_name_int( i, "iOruzje2", II[ im ][ iOruzje ][ 1 ] );
+            cache_get_value_name_int( i, "iOruzje3", II[ im ][ iOruzje ][ 2 ] );
+            cache_get_value_name_int( i, "iOruzje4", II[ im ][ iOruzje ][ 3 ] );
+            cache_get_value_name_int( i, "iMunicija1", II[ im ][ iMunicija ][ 0 ] );
+            cache_get_value_name_int( i, "iMunicija2", II[ im ][ iMunicija ][ 1 ] );
+            cache_get_value_name_int( i, "iMunicija3", II[ im ][ iMunicija ][ 2 ] );
+            cache_get_value_name_int( i, "iMunicija4", II[ im ][ iMunicija ][ 3 ] );
+            cache_get_value_name_int( i, "iDrugAmmount", II[ im ][ iDrugAmmount ] );
+            cache_get_value_name_int( i, "iDoorLevel", II[ im ][ iDoorLevel ] );
+            cache_get_value_name_int( i, "iAlarm", II[ im ][ iAlarm ] );
+            cache_get_value_name_int( i, "iLockLevel", II[ im ][ iLockLevel ] );
+            cache_get_value_name_int( i, "iTime", II[ im ][ iTime ] );
+            cache_get_value_name_int( i, "iLevel", II[ im ][ iLevel ] );
+            cache_get_value_name_int( i, "iNeaktivnost", II[ im ][ iNeaktivnost ] );
+            cache_get_value_name_int( i, "iRentable", II[ im ][ iRentable ] );
+            cache_get_value_name_int( i, "iRentPrice", II[ im ][ iRentPrice ] );
+            cache_get_value_name_int( i, "iRentovano", II[ im ][ iRentovano ] );
+            cache_get_value_name_int( i, "iMoney", II[ im ][ iMoney ] );
+            cache_get_value_name_int( i, "iMats", II[ im ][ iMats ] );
 
-            cache_get_field_content( i, "iOwner", II[ im ][ iOwner ], mSQL, 24 );
-            cache_get_field_content( i, "iAdress", II[ im ][ iAdress ], mSQL, 50 );
+            cache_get_value_name( i, "iOwner", II[ im ][ iOwner ], 24 );
+            cache_get_value_name( i, "iAdress", II[ im ][ iAdress ], 50 );
 
 			II[ im ][ iVW ] = im;
 
@@ -19687,7 +19673,7 @@ _:public OnPropertysLoad( )
 	        Iter_Add(iter_Imovina, im);
 		}
 	}
-	printf("(PB) SQL: Ucitao - Imovina(%d)", rows);
+	printf("(SQL - tmpStructure): Ucitao - Imovina(%d)", rows);
     return 1;
 }
 // --
@@ -20034,7 +20020,7 @@ _:public UseBackpackItem(playerid, itemid)
 				SetPlayerTimerEx(playerid, "RemoveAttachedObject", 3000, false, "ii", playerid, OBJECT_SLOT_MAIN);
 			}
 			PI[playerid][xTorba_Pizza]--;
-			sql_user_update_integer(playerid, "xTorba_Pizza", PI[playerid][xTorba_Pizza]);
+			sql_user_update_integer(playerid, "backpack_pizza", PI[playerid][xTorba_Pizza]);
 
 			ApplyAnimation( playerid, "FOOD", "EAT_Burger", 4.1, 0, 0, 0, 0, 0, 1 );
 	        SendNearbyMessage(playerid, 20.0, 0xC2A2DAFF, "* %s jede pizzu.", ImeIgraca( playerid ) );
@@ -20048,7 +20034,7 @@ _:public UseBackpackItem(playerid, itemid)
 			SendNearbyMessage(playerid, 20.0, 0xC2A2DAFF, "* %s pije sok.", ImeIgraca( playerid ) ); 
 
         	PI[playerid][xTorba_Sok]--;
-			sql_user_update_integer(playerid, "xTorba_Sok", PI[playerid][xTorba_Sok]);
+			sql_user_update_integer(playerid, "backpack_juice", PI[playerid][xTorba_Sok]);
 
 	    	SetPlayerSpecialAction( playerid, SPECIAL_ACTION_DRINK_SPRUNK );
     	}
@@ -20066,7 +20052,7 @@ _:public UseBackpackItem(playerid, itemid)
 			SendNearbyMessage(playerid, 20.0, 0xC2A2DAFF, "* %s pije pivo.", ImeIgraca( playerid ) ); 
 
         	PI[playerid][xTorba_Pivo]--;
-			sql_user_update_integer(playerid, "xTorba_Pivo", PI[playerid][xTorba_Pivo]);
+			sql_user_update_integer(playerid, "backpack_beer", PI[playerid][xTorba_Pivo]);
 
 		    SetPlayerSpecialAction( playerid, SPECIAL_ACTION_DRINK_WINE );
 		}
@@ -20083,7 +20069,7 @@ _:public UseBackpackItem(playerid, itemid)
 			}
 
         	PI[playerid][xTorba_Hambi]--;
-			sql_user_update_integer(playerid, "xTorba_Hambi", PI[playerid][xTorba_Hambi]);
+			sql_user_update_integer(playerid, "backpack_hamburger", PI[playerid][xTorba_Hambi]);
 
 			ApplyAnimation(playerid, "FOOD", "EAT_Burger", 4.1, 0, 0, 0, 0, 0, 1);
 	        SendNearbyMessage(playerid, 20.0, 0xC2A2DAFF, "* %s jede hamburger.", ImeIgraca( playerid ) ); 
@@ -20095,7 +20081,7 @@ _:public UseBackpackItem(playerid, itemid)
 		    DodajIgracuHP( playerid, 100 );
 
         	PI[playerid][xTorba_Riba]--;
-			sql_user_update_integer(playerid, "xTorba_Riba", PI[playerid][xTorba_Riba]);
+			sql_user_update_integer(playerid, "backpack_fish", PI[playerid][xTorba_Riba]);
 
 			ApplyAnimation(playerid, "VENDING", "VEND_Eat_P", 4.1, 0, 0, 0, 0, 0, 1);
 	        SendNearbyMessage(playerid, 20.0, 0xC2A2DAFF, "* %s jede ribu.", ImeIgraca( playerid ) ); 
@@ -20109,7 +20095,7 @@ _:public UseBackpackItem(playerid, itemid)
 
 		    LaptopRuke[ playerid ] = true;
         	PI[playerid][xTorba_Laptop] = false;
-			sql_user_update_integer(playerid, "xTorba_Laptop", PI[playerid][xTorba_Laptop]);
+			sql_user_update_integer(playerid, "backpack_laptop", PI[playerid][xTorba_Laptop]);
 
 		    ApplyAnimation( playerid, "CARRY", "crry_prtial", 4.1, 0, 1, 1, 1, 1, 1 );
 		    SendClientMessage( playerid, ZUTA, "(TORBA): Izvadio si laptop iz torbe, ako ga ne vratite nazad izgubicete ga." );
@@ -20122,7 +20108,7 @@ _:public UseBackpackItem(playerid, itemid)
 	        if( IsPlayerInAnyVehicle( playerid ) ) return SendErrorMessage( playerid, "Ne mozes da se drogiras dok si u kolima." );
 
         	PI[playerid][xTorba_Droga] -= 5;
-			sql_user_update_integer(playerid, "xTorba_Droga", PI[playerid][xTorba_Droga]);
+			sql_user_update_integer(playerid, "backpack_drug", PI[playerid][xTorba_Droga]);
 
 		    DodajIgracuArmour( playerid, 25 );
 			SetPlayerWeather( playerid, 1880);
@@ -20184,7 +20170,7 @@ _:public DropBackpackItem(playerid, itemid)
 		    if(PI[playerid][xTorba_Pizza] < 1) return SendErrorMessage(playerid, "Nemate vise pizze.");
 
             PI[playerid][xTorba_Pizza] = 0;
-            sql_user_update_integer(playerid, "xTorba_Pizza", PI[playerid][xTorba_Pizza]);
+            sql_user_update_integer(playerid, "backpack_pizza", PI[playerid][xTorba_Pizza]);
 
 	        SendNearbyMessage(playerid, 20.0, 0xC2A2DAFF, "* %s baca pizzu u kontejner.", ImeIgraca(playerid));
     	}
@@ -20193,7 +20179,7 @@ _:public DropBackpackItem(playerid, itemid)
 		    if(PI[playerid][xTorba_Sok] < 1) return SendErrorMessage(playerid, "Nemate vise soka.");
 
             PI[playerid][xTorba_Sok] = 0;
-            sql_user_update_integer(playerid, "xTorba_Sok", PI[playerid][xTorba_Sok]);
+            sql_user_update_integer(playerid, "backpack_juice", PI[playerid][xTorba_Sok]);
 
 	        SendNearbyMessage(playerid, 20.0, 0xC2A2DAFF, "* %s baca sok u kontejner.", ImeIgraca(playerid));
     	}
@@ -20202,7 +20188,7 @@ _:public DropBackpackItem(playerid, itemid)
 		    if(PI[playerid][xTorba_Pivo] < 1) return SendErrorMessage(playerid, "Nemate vise pivo.");
 
             PI[playerid][xTorba_Pivo] = 0;
-            sql_user_update_integer(playerid, "xTorba_Pivo", PI[playerid][xTorba_Pivo]);
+            sql_user_update_integer(playerid, "backpack_beer", PI[playerid][xTorba_Pivo]);
 
 	        SendNearbyMessage(playerid, 20.0, 0xC2A2DAFF, "* %s baca pivo u kontejner.", ImeIgraca(playerid));
 		}
@@ -20211,7 +20197,7 @@ _:public DropBackpackItem(playerid, itemid)
 		    if(PI[playerid][xTorba_Hambi] < 1) return SendErrorMessage(playerid, "Nemate vise hamburgera.");
 
             PI[playerid][xTorba_Hambi] = 0;
-            sql_user_update_integer(playerid, "xTorba_Hambi", PI[playerid][xTorba_Hambi]);
+            sql_user_update_integer(playerid, "backpack_hamburger", PI[playerid][xTorba_Hambi]);
 
 	        SendNearbyMessage(playerid, 20.0, 0xC2A2DAFF, "* %s baca hamburgere u kontejner.", ImeIgraca(playerid));
     	}
@@ -20220,7 +20206,7 @@ _:public DropBackpackItem(playerid, itemid)
 		    if(PI[playerid][xTorba_Riba] < 1) return SendErrorMessage(playerid, "Nemate vise ribe.");
 
             PI[playerid][xTorba_Riba] = 0;
-            sql_user_update_integer(playerid, "xTorba_Riba", PI[playerid][xTorba_Riba]);
+            sql_user_update_integer(playerid, "backpack_fish", PI[playerid][xTorba_Riba]);
 
 	        SendNearbyMessage(playerid, 20.0, 0xC2A2DAFF, "* %s baca ribu u kontejner.", ImeIgraca(playerid));
 		}
@@ -20229,7 +20215,7 @@ _:public DropBackpackItem(playerid, itemid)
 		    if(PI[playerid][xTorba_Laptop] == false) return SendErrorMessage(playerid, "Nemate laptop.");
 
             PI[playerid][xTorba_Laptop] = false;
-            sql_user_update_integer(playerid, "xTorba_Laptop", PI[playerid][xTorba_Laptop]);
+            sql_user_update_integer(playerid, "backpack_laptop", PI[playerid][xTorba_Laptop]);
 
 	        SendNearbyMessage(playerid, 20.0, 0xC2A2DAFF, "* %s baca laptop u kontejner.", ImeIgraca(playerid));
 		}
@@ -20238,7 +20224,7 @@ _:public DropBackpackItem(playerid, itemid)
 		    if(PI[playerid][xTorba_Droga] < 1) return SendErrorMessage(playerid, "Nemate vise droge.");
 
             PI[playerid][xTorba_Droga] = 0;
-            sql_user_update_integer(playerid, "xTorba_Droga", PI[playerid][xTorba_Droga]);
+            sql_user_update_integer(playerid, "backpack_drug", PI[playerid][xTorba_Droga]);
 
 	        SendNearbyMessage(playerid, 20.0, 0xC2A2DAFF, "* %s baca kesicu praha u kontejner.", ImeIgraca(playerid));
 		}
@@ -20257,8 +20243,8 @@ _:public DropBackpackItem(playerid, itemid)
 
             PI[playerid][xTorba_Oruzje][0] = 0;
             PI[playerid][xTorba_OruzjeM][0] = 0;
-            sql_user_update_integer(playerid, "xTorba_Oruzje_1", PI[playerid][xTorba_Oruzje][0]);
-            sql_user_update_integer(playerid, "xTorba_OruzjeM_1", PI[playerid][xTorba_OruzjeM][0]);
+            sql_user_update_integer(playerid, "backpack_gs_s1", PI[playerid][xTorba_Oruzje][0]);
+            sql_user_update_integer(playerid, "backpack_am_s1", PI[playerid][xTorba_OruzjeM][0]);
 
 	        SendNearbyMessage(playerid, 20.0, 0xC2A2DAFF, "* %s baca nepoznat tezak metal u kontejner.", ImeIgraca(playerid));
 		}
@@ -20268,8 +20254,8 @@ _:public DropBackpackItem(playerid, itemid)
 
             PI[playerid][xTorba_Oruzje][1] = 0;
             PI[playerid][xTorba_OruzjeM][1] = 0;
-            sql_user_update_integer(playerid, "xTorba_Oruzje_2", PI[playerid][xTorba_Oruzje][1]);
-            sql_user_update_integer(playerid, "xTorba_OruzjeM_2", PI[playerid][xTorba_OruzjeM][1]);
+            sql_user_update_integer(playerid, "backpack_gs_s2", PI[playerid][xTorba_Oruzje][1]);
+            sql_user_update_integer(playerid, "backpack_am_s2", PI[playerid][xTorba_OruzjeM][1]);
 
 	        SendNearbyMessage(playerid, 20.0, 0xC2A2DAFF, "* %s baca nepoznat tezak metal u kontejner.", ImeIgraca(playerid));
 		}
@@ -20279,8 +20265,8 @@ _:public DropBackpackItem(playerid, itemid)
 
             PI[playerid][xTorba_Oruzje][2] = 0;
             PI[playerid][xTorba_OruzjeM][2] = 0;
-            sql_user_update_integer(playerid, "xTorba_Oruzje_3", PI[playerid][xTorba_Oruzje][2]);
-            sql_user_update_integer(playerid, "xTorba_OruzjeM_3", PI[playerid][xTorba_OruzjeM][2]);
+            sql_user_update_integer(playerid, "backpack_gs_s3", PI[playerid][xTorba_Oruzje][2]);
+            sql_user_update_integer(playerid, "backpack_am_s3", PI[playerid][xTorba_OruzjeM][2]);
 
 	        SendNearbyMessage(playerid, 20.0, 0xC2A2DAFF, "* %s baca nepoznat tezak metal u kontejner.", ImeIgraca(playerid));
 		}
@@ -20290,31 +20276,31 @@ _:public DropBackpackItem(playerid, itemid)
 //------------------------------------------------------------------------------
 _:public OnServerStatsLoad( )
 {
-    new rows, fields;
-    cache_get_data( rows, fields, mSQL );
+    new
+        rows = cache_num_rows();
 
 	if( rows )
 	{
- 		ServerInfo[ RegistrovanihKorisnika ] 		= cache_get_field_content_int( 0, "RegistrovanihKorisnika" );
-   		ServerInfo[ BanovanihKorisnika ] 			= cache_get_field_content_int( 0, "BanovanihKorisnika" );
-     	ServerInfo[ KikovanihKorisnika ] 			= cache_get_field_content_int( 0, "KikovanihKorisnika" );
-      	ServerInfo[ BrojWarnova ] 					= cache_get_field_content_int( 0, "BrojWarnova" );
-      	ServerInfo[ BrojPosetaServeru ] 			= cache_get_field_content_int( 0, "BrojPosetaServeru" );
-      	ServerInfo[ HappyHours ] 					= cache_get_field_content_int( 0, "HappyHours" );
-      	ServerInfo[ HappyHoursLvl ] 				= cache_get_field_content_int( 0, "HappyHoursLvl" );
-      	ServerInfo[ HappyJobs ] 					= cache_get_field_content_int( 0, "HappyJobs" );
-      	ServerInfo[ PocetniLevel ] 					= cache_get_field_content_int( 0, "PocetniLevel" );
-      	ServerInfo[ PocetniNovaca ] 				= cache_get_field_content_int( 0, "PocetniNovaca" );
-      	ServerInfo[ KupovinaVozila ] 				= bool:cache_get_field_content_int( 0, "KupovinaVozila" );
-      	ServerInfo[ Report ] 						= bool:cache_get_field_content_int( 0, "Report" );
-      	ServerInfo[ Pitanja ] 						= bool:cache_get_field_content_int( 0, "Pitanja" );
-      	ServerInfo[ RekordServera ] 				= cache_get_field_content_int( 0, "RekordServera" );
-      	ServerInfo[ BankaNovac ] 					= cache_get_field_content_int( 0, "BankaNovac" );
-      	ServerInfo[ Oglasi ] 						= bool:cache_get_field_content_int( 0, "Oglasi" );
-      	ServerInfo[ Registracija ] 					= bool:cache_get_field_content_int( 0, "Registracija" );
-      	ServerInfo[ ReactTime ] 					= cache_get_field_content_int( 0, "ReactTime" );
+		cache_get_value_name_int( 0, "RegistrovanihKorisnika", ServerInfo[ RegistrovanihKorisnika ] );
+		cache_get_value_name_int( 0, "BanovanihKorisnika", ServerInfo[ BanovanihKorisnika ] );
+		cache_get_value_name_int( 0, "KikovanihKorisnika", ServerInfo[ KikovanihKorisnika ] );
+		cache_get_value_name_int( 0, "BrojWarnova", ServerInfo[ BrojWarnova ] );
+		cache_get_value_name_int( 0, "BrojPosetaServeru", ServerInfo[ BrojPosetaServeru ] );
+		cache_get_value_name_int( 0, "HappyHours", ServerInfo[ HappyHours ] );
+		cache_get_value_name_int( 0, "HappyHoursLvl", ServerInfo[ HappyHoursLvl ] );
+		cache_get_value_name_int( 0, "HappyJobs", ServerInfo[ HappyJobs ] );
+		cache_get_value_name_int( 0, "PocetniLevel", ServerInfo[ PocetniLevel ] );
+		cache_get_value_name_int( 0, "PocetniNovaca", ServerInfo[ PocetniNovaca ] );
+		cache_get_value_name_bool( 0, "KupovinaVozila", ServerInfo[ KupovinaVozila ] );
+		cache_get_value_name_bool( 0, "Report", ServerInfo[ Report ] );
+		cache_get_value_name_bool( 0, "Pitanja", ServerInfo[ Pitanja ] );
+		cache_get_value_name_int( 0, "RekordServera", ServerInfo[ RekordServera ] );
+		cache_get_value_name_int( 0, "BankaNovac", ServerInfo[ BankaNovac ] );
+		cache_get_value_name_bool( 0, "Oglasi", ServerInfo[ Oglasi ] );
+		cache_get_value_name_bool( 0, "Registracija", ServerInfo[ Registracija ] );
+		cache_get_value_name_int( 0, "ReactTime", ServerInfo[ ReactTime ] );
 
-      	cache_get_field_content( 0, "ReactName", ServerInfo[ ReactName ], mSQL, MAX_PLAYER_NAME );
+      	cache_get_value_name( 0, "ReactName", ServerInfo[ ReactName ], MAX_PLAYER_NAME );
 
       	//
 
@@ -20324,9 +20310,9 @@ _:public OnServerStatsLoad( )
 		format( str, sizeof( str ), "(SEF)\nTrenutno u sefu ima {FFFFFF}(%d/300.000$)", ServerInfo[ BankaNovac ] );
 		CreateDynamic3DTextLabel(str, 0x2D6888FF, 1607.1238,-1019.2515,-28.6981, 10.0);
     	str[0] = EOS;
-	  	print("(PB) SQL: Ucitao - Server Stats (ON)");
+	  	print("(SQL - tmpStructure): Ucitao - Server Stats (ON)");
 	}
-	else print("(PB) SQL: Ucitao - Server Stats (OFF) [nema row-a ili table] - OnGameModeExit STARTED!!"), SendRconCommand("exit");
+	else print("(SQL - tmpStructure): Ucitao - Server Stats (OFF) [nema row-a ili table] - OnGameModeExit STARTED!!"), SendRconCommand("exit");
 	return 1;
 }
 
@@ -20530,7 +20516,8 @@ _:public CreatePickupsAnd3Ds()
 
 	//vip vehicle
 	Create3DandP( "{4282C1}VIP - Vozilo\nDa spawnate VIP vozilo kucajte {FFFFFF}\"/vipveh\"\n\n\
-					{4282C1}Promoter - Vozilo\nDa spawnate Promoter vozilo kucajte {FFFFFF}\"/promoterveh\" {4282C1}ili {FFFFFF}\"/pveh\"\n\n", 873.9756, -1663.4427, 13.5469, -1, -1, 2485, 10.0);
+					{4282C1}Promoter - Vozilo\nDa spawnate Promoter vozilo kucajte {FFFFFF}\"/promoterveh\" {4282C1}ili {FFFFFF}\"/pveh\"\n\n\
+					{4282C1}YouTuber - Vozilo\nDa spawnate YT vozilo kucajte {FFFFFF}\"/ytveh\"", 873.9756, -1663.4427, 13.5469, -1, -1, 2485, 10.0);
 
 	//kurve
 	CreateDynamic3DTextLabel( "{D4B5FF}Kurva\n{FFFFFF}Denise\n\n{D4B5FF}Da krenete kucajte {FFFFFF}\"/blowjob\"", -1, -2436.4424, 995.2935, -20.5350, 3.0, IPI, IVI, 1, -1, -1 );
@@ -20737,18 +20724,20 @@ SendAltChatMessage(playerid, const message[])
 
 _:public Mysql_Connect()
 {
-	mSQL = mysql_connect( MYSQL_HOST, MYSQL_USER, MYSQL_DB, MYSQL_PASS, 3306, true, 4 );
+	new
+		MySQLOpt: option_id = mysql_init_options();
+		
+	mysql_set_option( option_id, AUTO_RECONNECT, true );
 
-	if( mysql_errno( mSQL ) != 0 )
-	{
-		printf("(PB) SQL: Failed connection to %s@%s -> %s", MYSQL_USER, MYSQL_HOST, MYSQL_DB);
-		SendRconCommand("password zajebosemysql");
-		return 1;
+	mSQL = mysql_connect( MYSQL_HOST, MYSQL_USER, MYSQL_PASS, MYSQL_DB, option_id );
+	
+	if( mSQL == MYSQL_INVALID_HANDLE || mysql_errno(mSQL) != 0 ) {
+	    return printf( "(SQL - tmpStructure): Konekcija sa [%s@%s -> %s] je neuspesna.", MYSQL_USER, MYSQL_HOST, MYSQL_DB );
 	}
-	else
-	{
-		printf("(PB) SQL: Successed connection to %s@%s -> %s", MYSQL_USER, MYSQL_HOST, MYSQL_DB);
-		return 1;
+	else {
+	    printf( "(SQL - tmpStructure): Konekcija sa [%s@%s -> %s] je uspesna.", MYSQL_USER, MYSQL_HOST, MYSQL_DB );
+	    mysql_tquery( mSQL, "UPDATE `users` SET `isonline` = 0 WHERE `user_id` > 0" );
+	    return true;
 	}
 }
 
@@ -20780,15 +20769,15 @@ _:public sql_user_update( playerid )
     mysql_format( mSQL, query, sizeof( query ), "%s, `property_id_1` = '%d', `property_id_2` = '%d', `property_id_3` = '%d'",
 		query, PI[ playerid ][ xPropertySqlID ][ 0 ], PI[ playerid ][ xPropertySqlID ][ 1 ], PI[ playerid ][ xPropertySqlID ][ 2 ] );
 
-    mysql_format( mSQL, query, sizeof( query ), "%s, `phone_credit` = '%d', `jail_type` = '%d', `jail_time` = '%d', `xBRacun` = '%d', `credit_rest` = '%d', `credit_amount` = '%d', `credit_installment` = '%d'",
+    mysql_format( mSQL, query, sizeof( query ), "%s, `phone_credit` = '%d', `jail_type` = '%d', `jail_time` = '%d', `bank_acc` = '%d', `credit_rest` = '%d', `credit_amount` = '%d', `credit_installment` = '%d'",
 	    query, PI[ playerid ][ xTelefonBon ], PI[ playerid ][ xZatvor ], PI[ playerid ][ xZatvorVreme ],
 		PI[ playerid ][ xBRacun ], PI[ playerid ][ xPreostaloZaOtplatu ], PI[ playerid ][ xIznosKredita ], PI[ playerid ][ xIznosRate ] );
 
-	mysql_format( mSQL, query, sizeof( query ), "%s, `xOnlineSati` = '%d', `mute` = '%d', `org_contract` = '%d', `vip_level` = '%d', `promoter_level`='%d', `org_punishment` = '%d', `staff_min` = '%d'",
+	mysql_format( mSQL, query, sizeof( query ), "%s, `online_hours` = '%d', `mute` = '%d', `org_contract` = '%d', `vip_level` = '%d', `promoter_level`='%d', `youtuber`='%d', `org_punishment` = '%d', `staff_min` = '%d'",
 	    query, PI[ playerid ][ xOnlineSati ], PI[ playerid ][ xMute ], PI[ playerid ][ xOrgUgovor ],
-		PI[ playerid ][ xVIPLevel ], PI[playerid][xPromoter], PI[ playerid ][ xKazneniUgovor ], PI[ playerid ][ xStaffMin ] );
+		PI[ playerid ][ xVIPLevel ], PI[playerid][xPromoter], PI[playerid][xYouTuber], PI[ playerid ][ xKazneniUgovor ], PI[ playerid ][ xStaffMin ] );
 
-	mysql_format( mSQL, query, sizeof( query ), "%s, `rent_id` = '%d', `vip_time` = '%f', `xTDColor` = '%d' WHERE `user_id` = '%d' LIMIT 1",
+	mysql_format( mSQL, query, sizeof( query ), "%s, `rent_id` = '%d', `vip_time` = '%f', `td_color` = '%d' WHERE `user_id` = '%d' LIMIT 1",
 	    query, PI[ playerid ][ xRentID ], PI[ playerid ][ xVipTime ], PI[ playerid ][ xTDColor ],
 		PI[ playerid ][ xID ] );
 
@@ -20895,9 +20884,9 @@ _:public sql_user_update_clothes( playerid )
 
 _:public selectPunishmentsbyName( playerid, player_name[] )
 {
-    new rows, fields;
-    cache_get_data( rows, fields, mSQL );
-
+	new
+	    rows = cache_num_rows();
+	    
     if( !rows )
 	{
         SendErrorMessage( playerid, "Ovaj igrac nije kaznjavan ili ne postoji u bazi podataka." );
@@ -20909,8 +20898,9 @@ _:public selectPunishmentsbyName( playerid, player_name[] )
         new P_Counter = 0, string_sz[ 128 ];
 
         for( new i = 0; i < rows; i ++ ) {
-
-			format( string_sz, sizeof( string_sz ), "%d. Punishment ID - %d\n", P_Counter+1, cache_get_field_content_int( i, "p_id" ) );
+			new player_ids;
+			cache_get_value_name_int( i, "p_id", player_ids );
+			format( string_sz, sizeof( string_sz ), "%d. Punishment ID - %d\n", P_Counter+1, player_ids );
             strcat( DialogStrgEx, string_sz );
             P_Counter++;
         }
@@ -20929,28 +20919,31 @@ _:public selectPunishmentsbyName( playerid, player_name[] )
 
 _:public selectPunishmentbyID( playerid, punishment_id )
 {
-    new rows, fields;
-    cache_get_data( rows, fields, mSQL );
-
+	new
+	    rows = cache_num_rows();
+	    
     if( !rows )
 	{
         SendErrorMessage( playerid, "Kazna ID %d, ne postoji u bazi podataka.", punishment_id );
     }
     else
 	{
-        new p_jail_min		= 	cache_get_field_content_int(0, "p_jail_min");
-	    new p_money_fine	= 	cache_get_field_content_int(0, "p_money_fine");
+	    new p_jail_min,
+	        p_money_fine,
+	        p_reason[ 64 ],
+			admin_name[ MAX_PLAYER_NAME ],
+			kaznjen[ MAX_PLAYER_NAME ],
+			d_naslov[ 64 ];
+			
+        cache_get_value_name_int(0, "p_jail_min", p_jail_min);
+	    cache_get_value_name_int(0, "p_money_fine", p_money_fine);
 
-		new p_reason[ 64 ];
-		cache_get_field_content( 0, "p_reason", p_reason, mSQL, 64 );
+		cache_get_value_name( 0, "p_reason", p_reason, 64 );
 
-		new admin_name[ MAX_PLAYER_NAME ];
-		cache_get_field_content( 0, "admin_name", admin_name, mSQL, MAX_PLAYER_NAME );
+		cache_get_value_name( 0, "admin_name", admin_name, MAX_PLAYER_NAME );
 
-		new kaznjen[ MAX_PLAYER_NAME ];
-		cache_get_field_content( 0, "kaznjen", kaznjen, mSQL, MAX_PLAYER_NAME );
+		cache_get_value_name( 0, "kaznjen", kaznjen, MAX_PLAYER_NAME );
 
-        new d_naslov[ 64 ];
 		format( d_naslov, sizeof( d_naslov ), "{FFFFFF}Punishment {2D6888}#%d", punishment_id );
 
 	    strdel( sDStrg, 0, sizeof( sDStrg ));
@@ -21487,73 +21480,92 @@ _:public park_vehicleCheckID( playerid, v_vehicle_id )
 
 _:public OnPlayerVehiclesLoad( playerid )
 {
-    new rows, fields, vehicleid;
-    cache_get_data( rows, fields, mSQL );
-
+	static rows;
+	new vehicleid, v_model, Float:v_pos[4], v_col1, v_col2;
+	cache_get_row_count( rows );
+	
 	if( rows )
 	{
 		for( new i = 0; i < rows; i ++ )
 		{
             if( ServerInfo[ BrojKreiranihVozila ] > MaxBrojKreiranih ) return SendClientMessage( playerid, ANTICHEAT, "(ANTICHEAT): Nemoguce je trenutno kreirati vasa vozila, limit vozila na serveru je dosegnut.");
+            
+			cache_get_value_name_int( i, "v_model", v_model );
+			cache_get_value_name_float( i, "v_pos_x", v_pos[ 0 ] );
+			cache_get_value_name_float( i, "v_pos_y", v_pos[ 1 ] );
+			cache_get_value_name_float( i, "v_pos_z", v_pos[ 2 ] );
+			cache_get_value_name_float( i, "v_pos_a", v_pos[ 3 ] );
+			cache_get_value_name_int( i, "v_color_1", v_col1 );
+			cache_get_value_name_int( i, "v_color_2", v_col2 );
+			
+			vehicleid = SMG_CreateVehicle( v_model, v_pos[ 0 ], v_pos[ 1 ], v_pos[ 2 ]+1, v_pos[ 3 ], v_col1, v_col2, 300000 );
+			
+			VehicleInfo[ vehicleid ][ vModel ] = v_model;
+			VehicleInfo[ vehicleid ][ vLokacijaX ] = v_pos[ 0 ];
+			VehicleInfo[ vehicleid ][ vLokacijaY ] = v_pos[ 1 ];
+			VehicleInfo[ vehicleid ][ vLokacijaZ ] = v_pos[ 2 ];
+			VehicleInfo[ vehicleid ][ vLokacijaA ] = v_pos[ 3 ];
+			VehicleInfo[ vehicleid ][ vColor1 ] = v_col1;
+			VehicleInfo[ vehicleid ][ vColor2 ] = v_col2;
 
-            vehicleid = SMG_CreateVehicle( cache_get_field_content_int( i, "v_model" ),
-											cache_get_field_content_float( i, "v_pos_x" ),
-											cache_get_field_content_float( i, "v_pos_y" ),
-											cache_get_field_content_float( i, "v_pos_z" )+1.0,
-											cache_get_field_content_float( i, "v_pos_a" ),
-											cache_get_field_content_int( i, "v_color_1" ),
-											cache_get_field_content_int( i, "v_color_2" ), 300000 );
-
-            VehicleInfo[ vehicleid ][ vSqlID ] = cache_get_field_content_int( i, "veh_id" );
-			VehicleInfo[ vehicleid ][ vOwner_sqlID ] = cache_get_field_content_int( i, "owner_sqlID" );
+            cache_get_value_name_int( i, "veh_id", VehicleInfo[ vehicleid ][ vSqlID ] );
+			cache_get_value_name_int( i, "owner_sqlID", VehicleInfo[ vehicleid ][ vOwner_sqlID ] );
 			strmid( VehicleInfo[ vehicleid ][ vOwner ], ImeIgraca( playerid ), 0, strlen( ImeIgraca( playerid ) ), 24);
-			VehicleInfo[ vehicleid ][ vPrice ] = cache_get_field_content_int( i, "v_price" );
-			VehicleInfo[ vehicleid ][ vLocked ] = cache_get_field_content_int( i, "v_locked" );
-			VehicleInfo[ vehicleid ][ vLokacijaX ] = cache_get_field_content_float( i, "v_pos_x" );
-			VehicleInfo[ vehicleid ][ vLokacijaY ] = cache_get_field_content_float( i, "v_pos_y" );
-			VehicleInfo[ vehicleid ][ vLokacijaZ ] = cache_get_field_content_float( i, "v_pos_z" );
-			VehicleInfo[ vehicleid ][ vLokacijaA ] = cache_get_field_content_float( i, "v_pos_a" );
-			VehicleInfo[ vehicleid ][ vVirtualWorld ] = cache_get_field_content_int( i, "v_virtualw" );
-			VehicleInfo[ vehicleid ][ vInterior ] = cache_get_field_content_int( i, "v_interior" );
-			VehicleInfo[ vehicleid ][ vUsage ] = cache_get_field_content_int( i, "v_usage" );
-			VehicleInfo[ vehicleid ][ vOrganizationSQLID ] = cache_get_field_content_int( i, "v_organization" );
+			
+		 	cache_get_value_name_int( i, "v_price", VehicleInfo[ vehicleid ][ vPrice ] );
+		 	cache_get_value_name_int( i, "v_locked", VehicleInfo[ vehicleid ][ vLocked ] );
+	  		cache_get_value_name_float( i, "v_pos_x", VehicleInfo[ vehicleid ][ vLokacijaX ] );
+		 	cache_get_value_name_float( i, "v_pos_y", VehicleInfo[ vehicleid ][ vLokacijaY ] );
+		 	cache_get_value_name_float( i, "v_pos_z", VehicleInfo[ vehicleid ][ vLokacijaZ ] );
+		 	cache_get_value_name_float( i, "v_pos_a", VehicleInfo[ vehicleid ][ vLokacijaA ] );
+		 	
+		 	cache_get_value_name_int( i, "v_virtualw", VehicleInfo[ vehicleid ][ vVirtualWorld ] );
+		 	cache_get_value_name_int( i, "v_interior", VehicleInfo[ vehicleid ][ vInterior ] );
+		 	cache_get_value_name_int( i, "v_usage", VehicleInfo[ vehicleid ][ vUsage ] );
+			
+		 	cache_get_value_name_int( i, "v_organization", VehicleInfo[ vehicleid ][ vOrganizationSQLID ] );
 			VehicleInfo[ vehicleid ][ vOrganization ] = -1;
-			VehicleInfo[ vehicleid ][ vColor1 ] = cache_get_field_content_int( i, "v_color_1" );
-			VehicleInfo[ vehicleid ][ vColor2 ]  = cache_get_field_content_int( i, "v_color_2" );
-			VehicleInfo[ vehicleid ][ vModel ] = cache_get_field_content_int( i, "v_model" );
-			VehicleInfo[ vehicleid ][ vTeh ] = cache_get_field_content_int( i, "v_teh" );
-			VehicleInfo[ vehicleid ][ vReg ] = cache_get_field_content_int( i, "v_reg" );
-			VehicleInfo[ vehicleid ][ vRegVreme ] = cache_get_field_content_int( i, "v_reg_vreme" );
-			cache_get_field_content( i, "v_tablice", VehicleInfo[ vehicleid ][ vTablice ], mSQL, 16 );
-			VehicleInfo[ vehicleid ][ vOsiguranje ] = cache_get_field_content_int( i, "v_insurance" );
-			VehicleInfo[ vehicleid ][ vLock ] = cache_get_field_content_int( i, "v_lock" );
-			VehicleInfo[ vehicleid ][ vAlarm ] = cache_get_field_content_int( i, "v_alarm" );
-			VehicleInfo[ vehicleid ][ vNeon ] = cache_get_field_content_int( i, "v_neon" );
-		    VehicleInfo[ vehicleid ][ vTuned ] = cache_get_field_content_int( i, "v_tuned" );
-			VehicleInfo[ vehicleid ][ vImobilizator ] = cache_get_field_content_int( i, "v_imobilizator" );
-			VehicleInfo[ vehicleid ][ vSpoiler ] = cache_get_field_content_int( i, "v_spoiler" );
-			VehicleInfo[ vehicleid ][ vHood ] = cache_get_field_content_int( i, "v_hood" );
-			VehicleInfo[ vehicleid ][ vRoof ] = cache_get_field_content_int( i, "v_roof" );
-			VehicleInfo[ vehicleid ][ vSkirt ] = cache_get_field_content_int( i, "v_skirt" );
-			VehicleInfo[ vehicleid ][ vLamps ] = cache_get_field_content_int( i, "v_lamps" );
-			VehicleInfo[ vehicleid ][ vNitro ] = cache_get_field_content_int( i, "v_nitro" );
-			VehicleInfo[ vehicleid ][ vExhaust ] = cache_get_field_content_int( i, "v_exhaust" );
-			VehicleInfo[ vehicleid ][ vWheels ] = cache_get_field_content_int( i, "v_wheels" );
-			VehicleInfo[ vehicleid ][ vStereo ] = cache_get_field_content_int( i, "v_stereo" );
-			VehicleInfo[ vehicleid ][ vHydraulics ] = cache_get_field_content_int( i, "v_hydraulics" );
-			VehicleInfo[ vehicleid ][ vFrontBumper ] = cache_get_field_content_int( i, "v_front_bumper" );
-			VehicleInfo[ vehicleid ][ vRearBumper ] = cache_get_field_content_int( i, "v_rear_bumper" );
-			VehicleInfo[ vehicleid ][ vVents ] = cache_get_field_content_int( i, "v_vents" );
-			VehicleInfo[ vehicleid ][ vPaintJob ] = cache_get_field_content_int( i, "v_paintjob" );
-			VehicleInfo[ vehicleid ][ vDrugAmmount ] = cache_get_field_content_int( i, "v_drug_ammount" );
-			VehicleInfo[ vehicleid ][ vMaterijali ] = cache_get_field_content_int( i, "v_mats" );
-			VehicleInfo[ vehicleid ][ vMelee ] = cache_get_field_content_int( i, "v_weapon_melee" );
-			VehicleInfo[ vehicleid ][ vWeap1 ] = cache_get_field_content_int( i, "v_weapon_slot_1" );
-			VehicleInfo[ vehicleid ][ vAmmo1 ] = cache_get_field_content_int( i, "v_weapon_ammo_1" );
-			VehicleInfo[ vehicleid ][ vWeap2 ] = cache_get_field_content_int( i, "v_weapon_slot_2" );
-			VehicleInfo[ vehicleid ][ vAmmo2 ] = cache_get_field_content_int( i, "v_weapon_ammo_2" );
-			VehicleInfo[ vehicleid ][ vKilometri ] = cache_get_field_content_int( i, "v_kilometri" );
-			VehicleInfo[ vehicleid ][ vMetri ] = cache_get_field_content_int( i, "v_metri" );
+			
+			cache_get_value_name_int( i, "v_color_1", VehicleInfo[ vehicleid ][ vColor1 ] );
+		  	cache_get_value_name_int( i, "v_color_2", VehicleInfo[ vehicleid ][ vColor2 ] );
+			cache_get_value_name_int( i, "v_model", VehicleInfo[ vehicleid ][ vModel ] );
+			cache_get_value_name_int( i, "v_teh", VehicleInfo[ vehicleid ][ vTeh ] );
+			cache_get_value_name_int( i, "v_reg", VehicleInfo[ vehicleid ][ vReg ] );
+			cache_get_value_name_int( i, "v_reg_vreme", VehicleInfo[ vehicleid ][ vRegVreme ] );
+			
+			cache_get_value_name( i, "v_tablice", VehicleInfo[ vehicleid ][ vTablice ], 16 );
+			
+			cache_get_value_name_int( i, "v_insurance", VehicleInfo[ vehicleid ][ vOsiguranje ] );
+			cache_get_value_name_int( i, "v_lock", VehicleInfo[ vehicleid ][ vLock ] );
+			cache_get_value_name_int( i, "v_alarm", VehicleInfo[ vehicleid ][ vAlarm ] );
+			cache_get_value_name_int( i, "v_neon", VehicleInfo[ vehicleid ][ vNeon ] );
+			cache_get_value_name_int( i, "v_tuned", VehicleInfo[ vehicleid ][ vTuned ] );
+			cache_get_value_name_int( i, "v_imobilizator", VehicleInfo[ vehicleid ][ vImobilizator ] );
+			cache_get_value_name_int( i, "v_spoiler", VehicleInfo[ vehicleid ][ vSpoiler ] );
+			cache_get_value_name_int( i, "v_hood", VehicleInfo[ vehicleid ][ vHood ] );
+			cache_get_value_name_int( i, "v_roof", VehicleInfo[ vehicleid ][ vRoof ] );
+			cache_get_value_name_int( i, "v_skirt", VehicleInfo[ vehicleid ][ vSkirt ] );
+			cache_get_value_name_int( i, "v_lamps", VehicleInfo[ vehicleid ][ vLamps ] );
+			cache_get_value_name_int( i, "v_nitro", VehicleInfo[ vehicleid ][ vNitro ] );
+			cache_get_value_name_int( i, "v_exhaust", VehicleInfo[ vehicleid ][ vExhaust ] );
+			cache_get_value_name_int( i, "v_wheels", VehicleInfo[ vehicleid ][ vWheels ] );
+			cache_get_value_name_int( i, "v_stereo", VehicleInfo[ vehicleid ][ vStereo ] );
+			cache_get_value_name_int( i, "v_hydraulics", VehicleInfo[ vehicleid ][ vHydraulics ] );
+			cache_get_value_name_int( i, "v_front_bumper", VehicleInfo[ vehicleid ][ vFrontBumper ] );
+			cache_get_value_name_int( i, "v_rear_bumper", VehicleInfo[ vehicleid ][ vRearBumper ] );
+			cache_get_value_name_int( i, "v_vents", VehicleInfo[ vehicleid ][ vVents ] );
+			cache_get_value_name_int( i, "v_paintjob", VehicleInfo[ vehicleid ][ vPaintJob ] );
+			
+			cache_get_value_name_int( i, "v_drug_ammount", VehicleInfo[ vehicleid ][ vDrugAmmount ] );
+			cache_get_value_name_int( i, "v_mats", VehicleInfo[ vehicleid ][ vMaterijali ] );
+			cache_get_value_name_int( i, "v_weapon_melee", VehicleInfo[ vehicleid ][ vMelee ] );
+			cache_get_value_name_int( i, "v_weapon_slot_1", VehicleInfo[ vehicleid ][ vWeap1 ] );
+			cache_get_value_name_int( i, "v_weapon_ammo_1", VehicleInfo[ vehicleid ][ vAmmo1 ] );
+			cache_get_value_name_int( i, "v_weapon_slot_2", VehicleInfo[ vehicleid ][ vWeap2 ] );
+			cache_get_value_name_int( i, "v_weapon_ammo_2", VehicleInfo[ vehicleid ][ vAmmo2 ] );
+			cache_get_value_name_int( i, "v_kilometri", VehicleInfo[ vehicleid ][ vKilometri ] );
+			cache_get_value_name_int( i, "v_metri", VehicleInfo[ vehicleid ][ vMetri ] );
+			
 			VehicleInfo[ vehicleid ][ v_owner_id ] = playerid;
 
 			LinkVehicleToInterior( vehicleid, VehicleInfo[ vehicleid ][ vInterior ] );
@@ -21593,34 +21605,55 @@ _:public OnPlayerVehiclesLoad( playerid )
 
 _:public OnVehiclesLoad( playerid, targetid, moneyauc )
 {
-	new rows, fields, vehicleid;
-    cache_get_data( rows, fields, mSQL );
-
+	static
+		rows;
+	new
+	    vehicleid,
+	    v_model,
+	    Float:v_pos[4],
+	    v_col1,
+	    v_col2;
+	    
+    cache_get_row_count( rows );
+    
 	if( rows )
 	{
 		for( new i = 0; i < rows; i ++ )
 		{
-            vehicleid = SMG_CreateVehicle( cache_get_field_content_int( i, "v_model" ),
-											cache_get_field_content_float( i, "v_pos_x" ),
-											cache_get_field_content_float( i, "v_pos_y" ),
-											cache_get_field_content_float( i, "v_pos_z" )+1.0,
-											cache_get_field_content_float( i, "v_pos_a" ),
-											cache_get_field_content_int( i, "v_color_1" ),
-											cache_get_field_content_int( i, "v_color_2" ), 300000 );
+			cache_get_value_name_int( i, "v_model", v_model );
+			cache_get_value_name_float( i, "v_pos_x", v_pos[ 0 ] );
+			cache_get_value_name_float( i, "v_pos_y", v_pos[ 1 ] );
+			cache_get_value_name_float( i, "v_pos_z", v_pos[ 2 ] );
+			cache_get_value_name_float( i, "v_pos_a", v_pos[ 3 ] );
+			cache_get_value_name_int( i, "v_color_1", v_col1 );
+			cache_get_value_name_int( i, "v_color_2", v_col2 );
+			
+			vehicleid = SMG_CreateVehicle( v_model, v_pos[ 0 ], v_pos[ 1 ], v_pos[ 2 ]+1, v_pos[ 3 ], v_col1, v_col2, 300000 );
 
-            VehicleInfo[ vehicleid ][ vSqlID ] = cache_get_field_content_int( i, "veh_id" );
-			VehicleInfo[ vehicleid ][ vOwner_sqlID ] = cache_get_field_content_int( i, "owner_sqlID" );
+			VehicleInfo[ vehicleid ][ vModel ] = v_model;
+			VehicleInfo[ vehicleid ][ vLokacijaX ] = v_pos[ 0 ];
+			VehicleInfo[ vehicleid ][ vLokacijaY ] = v_pos[ 1 ];
+			VehicleInfo[ vehicleid ][ vLokacijaZ ] = v_pos[ 2 ];
+			VehicleInfo[ vehicleid ][ vLokacijaA ] = v_pos[ 3 ];
+			VehicleInfo[ vehicleid ][ vColor1 ] = v_col1;
+			VehicleInfo[ vehicleid ][ vColor2 ] = v_col2;
+
+			cache_get_value_name_int( i, "veh_id", VehicleInfo[ vehicleid ][ vSqlID ] );
+		 	cache_get_value_name_int( i, "owner_sqlID", VehicleInfo[ vehicleid ][ vOwner_sqlID ] );
+		 	
 			strmid( VehicleInfo[ vehicleid ][ vOwner ], "Drzava", 0, strlen( "Drzava" ), 24);
-			VehicleInfo[ vehicleid ][ vPrice ] = cache_get_field_content_int( i, "v_price" );
-			VehicleInfo[ vehicleid ][ vLocked ] = cache_get_field_content_int( i, "v_locked" );
-			VehicleInfo[ vehicleid ][ vLokacijaX ] = cache_get_field_content_float( i, "v_pos_x" );
-			VehicleInfo[ vehicleid ][ vLokacijaY ] = cache_get_field_content_float( i, "v_pos_y" );
-			VehicleInfo[ vehicleid ][ vLokacijaZ ] = cache_get_field_content_float( i, "v_pos_z" );
-			VehicleInfo[ vehicleid ][ vLokacijaA ] = cache_get_field_content_float( i, "v_pos_a" );
-			VehicleInfo[ vehicleid ][ vVirtualWorld ] = cache_get_field_content_int( i, "v_virtualw" );
-			VehicleInfo[ vehicleid ][ vInterior ] = cache_get_field_content_int( i, "v_interior" );
-			VehicleInfo[ vehicleid ][ vUsage ] = cache_get_field_content_int( i, "v_usage" );
-			VehicleInfo[ vehicleid ][ vOrganizationSQLID ] = cache_get_field_content_int( i, "v_organization" );
+			
+			cache_get_value_name_int( i, "v_price", VehicleInfo[ vehicleid ][ vPrice ] );
+			cache_get_value_name_int( i, "v_locked", VehicleInfo[ vehicleid ][ vLocked ] );
+			cache_get_value_name_float( i, "v_pos_x", VehicleInfo[ vehicleid ][ vLokacijaX ] );
+			cache_get_value_name_float( i, "v_pos_y", VehicleInfo[ vehicleid ][ vLokacijaY ] );
+			cache_get_value_name_float( i, "v_pos_z", VehicleInfo[ vehicleid ][ vLokacijaZ ] );
+			cache_get_value_name_float( i, "v_pos_a", VehicleInfo[ vehicleid ][ vLokacijaA ] );
+			cache_get_value_name_int( i, "v_virtualw", VehicleInfo[ vehicleid ][ vVirtualWorld ] );
+			cache_get_value_name_int( i, "v_interior", VehicleInfo[ vehicleid ][ vInterior ] );
+			cache_get_value_name_int( i, "v_usage", VehicleInfo[ vehicleid ][ vUsage ] );
+			cache_get_value_name_int( i, "v_organization", VehicleInfo[ vehicleid ][ vOrganizationSQLID ] );
+			
 			VehicleInfo[ vehicleid ][ vOrganization ] = -1;
 
 			if( VehicleInfo[ vehicleid ][ vOrganizationSQLID ] != 0 )
@@ -21635,42 +21668,46 @@ _:public OnVehiclesLoad( playerid, targetid, moneyauc )
 			    }
 			}
 
-			VehicleInfo[ vehicleid ][ vColor1 ] = cache_get_field_content_int( i, "v_color_1" );
-			VehicleInfo[ vehicleid ][ vColor2 ]  = cache_get_field_content_int( i, "v_color_2" );
-			VehicleInfo[ vehicleid ][ vModel ] = cache_get_field_content_int( i, "v_model" );
-			VehicleInfo[ vehicleid ][ vTeh ] = cache_get_field_content_int( i, "v_teh" );
-			VehicleInfo[ vehicleid ][ vReg ] = cache_get_field_content_int( i, "v_reg" );
-			VehicleInfo[ vehicleid ][ vRegVreme ] = cache_get_field_content_int( i, "v_reg_vreme" );
-			cache_get_field_content( i, "v_tablice", VehicleInfo[ vehicleid ][ vTablice ], mSQL, 16 );
-			VehicleInfo[ vehicleid ][ vOsiguranje ] = cache_get_field_content_int( i, "v_insurance" );
-			VehicleInfo[ vehicleid ][ vLock ] = cache_get_field_content_int( i, "v_lock" );
-			VehicleInfo[ vehicleid ][ vAlarm ] = cache_get_field_content_int( i, "v_alarm" );
-			VehicleInfo[ vehicleid ][ vNeon ] = cache_get_field_content_int( i, "v_neon" );
-		    VehicleInfo[ vehicleid ][ vTuned ] = cache_get_field_content_int( i, "v_tuned" );
-			VehicleInfo[ vehicleid ][ vImobilizator ] = cache_get_field_content_int( i, "v_imobilizator" );
-			VehicleInfo[ vehicleid ][ vSpoiler ] = cache_get_field_content_int( i, "v_spoiler" );
-			VehicleInfo[ vehicleid ][ vHood ] = cache_get_field_content_int( i, "v_hood" );
-			VehicleInfo[ vehicleid ][ vRoof ] = cache_get_field_content_int( i, "v_roof" );
-			VehicleInfo[ vehicleid ][ vSkirt ] = cache_get_field_content_int( i, "v_skirt" );
-			VehicleInfo[ vehicleid ][ vLamps ] = cache_get_field_content_int( i, "v_lamps" );
-			VehicleInfo[ vehicleid ][ vNitro ] = cache_get_field_content_int( i, "v_nitro" );
-			VehicleInfo[ vehicleid ][ vExhaust ] = cache_get_field_content_int( i, "v_exhaust" );
-			VehicleInfo[ vehicleid ][ vWheels ] = cache_get_field_content_int( i, "v_wheels" );
-			VehicleInfo[ vehicleid ][ vStereo ] = cache_get_field_content_int( i, "v_stereo" );
-			VehicleInfo[ vehicleid ][ vHydraulics ] = cache_get_field_content_int( i, "v_hydraulics" );
-			VehicleInfo[ vehicleid ][ vFrontBumper ] = cache_get_field_content_int( i, "v_front_bumper" );
-			VehicleInfo[ vehicleid ][ vRearBumper ] = cache_get_field_content_int( i, "v_rear_bumper" );
-			VehicleInfo[ vehicleid ][ vVents ] = cache_get_field_content_int( i, "v_vents" );
-			VehicleInfo[ vehicleid ][ vPaintJob ] = cache_get_field_content_int( i, "v_paintjob" );
-			VehicleInfo[ vehicleid ][ vDrugAmmount ] = cache_get_field_content_int( i, "v_drug_ammount" );
-			VehicleInfo[ vehicleid ][ vMaterijali ] = cache_get_field_content_int( i, "v_mats" );
-			VehicleInfo[ vehicleid ][ vMelee ] = cache_get_field_content_int( i, "v_weapon_melee" );
-			VehicleInfo[ vehicleid ][ vWeap1 ] = cache_get_field_content_int( i, "v_weapon_slot_1" );
-			VehicleInfo[ vehicleid ][ vAmmo1 ] = cache_get_field_content_int( i, "v_weapon_ammo_1" );
-			VehicleInfo[ vehicleid ][ vWeap2 ] = cache_get_field_content_int( i, "v_weapon_slot_2" );
-			VehicleInfo[ vehicleid ][ vAmmo2 ] = cache_get_field_content_int( i, "v_weapon_ammo_2" );
-			VehicleInfo[ vehicleid ][ vKilometri ] = cache_get_field_content_int( i, "v_kilometri" );
-			VehicleInfo[ vehicleid ][ vMetri ] = cache_get_field_content_int( i, "v_metri" );
+			cache_get_value_name_int( i, "v_color_1", VehicleInfo[ vehicleid ][ vColor1 ] );
+			cache_get_value_name_int( i, "v_color_2", VehicleInfo[ vehicleid ][ vColor2 ] );
+		 	cache_get_value_name_int( i, "v_model", VehicleInfo[ vehicleid ][ vModel ] );
+		 	cache_get_value_name_int( i, "v_teh", VehicleInfo[ vehicleid ][ vTeh ] );
+		 	cache_get_value_name_int( i, "v_reg", VehicleInfo[ vehicleid ][ vReg ] );
+		 	cache_get_value_name_int( i, "v_reg_vreme", VehicleInfo[ vehicleid ][ vRegVreme ] );
+			
+			cache_get_value_name( i, "v_tablice", VehicleInfo[ vehicleid ][ vTablice ], 16 );
+			
+			cache_get_value_name_int( i, "v_insurance", VehicleInfo[ vehicleid ][ vOsiguranje ] );
+			cache_get_value_name_int( i, "v_lock", VehicleInfo[ vehicleid ][ vLock ] );
+			cache_get_value_name_int( i, "v_alarm", VehicleInfo[ vehicleid ][ vAlarm ] );
+			cache_get_value_name_int( i, "v_neon", VehicleInfo[ vehicleid ][ vNeon ] );
+			cache_get_value_name_int( i, "v_tuned", VehicleInfo[ vehicleid ][ vTuned ] );
+			cache_get_value_name_int( i, "v_imobilizator", VehicleInfo[ vehicleid ][ vImobilizator ] );
+			cache_get_value_name_int( i, "v_spoiler", VehicleInfo[ vehicleid ][ vSpoiler ] );
+			cache_get_value_name_int( i, "v_hood", VehicleInfo[ vehicleid ][ vHood ] );
+			cache_get_value_name_int( i, "v_roof", VehicleInfo[ vehicleid ][ vRoof ] );
+			cache_get_value_name_int( i, "v_skirt", VehicleInfo[ vehicleid ][ vSkirt ] );
+			cache_get_value_name_int( i, "v_lamps", VehicleInfo[ vehicleid ][ vLamps ] );
+			cache_get_value_name_int( i, "v_nitro", VehicleInfo[ vehicleid ][ vNitro ] );
+			cache_get_value_name_int( i, "v_exhaust", VehicleInfo[ vehicleid ][ vExhaust ] );
+			cache_get_value_name_int( i, "v_wheels", VehicleInfo[ vehicleid ][ vWheels ] );
+			cache_get_value_name_int( i, "v_stereo", VehicleInfo[ vehicleid ][ vStereo ] );
+			cache_get_value_name_int( i, "v_hydraulics", VehicleInfo[ vehicleid ][ vHydraulics ] );
+			cache_get_value_name_int( i, "v_front_bumper", VehicleInfo[ vehicleid ][ vFrontBumper ] );
+			cache_get_value_name_int( i, "v_rear_bumper", VehicleInfo[ vehicleid ][ vRearBumper ] );
+			cache_get_value_name_int( i, "v_vents", VehicleInfo[ vehicleid ][ vVents ] );
+			cache_get_value_name_int( i, "v_paintjob", VehicleInfo[ vehicleid ][ vPaintJob ] );
+			cache_get_value_name_int( i, "v_drug_ammount", VehicleInfo[ vehicleid ][ vDrugAmmount ] );
+			cache_get_value_name_int( i, "v_mats", VehicleInfo[ vehicleid ][ vMaterijali ] );
+			
+			cache_get_value_name_int( i, "v_weapon_melee", VehicleInfo[ vehicleid ][ vMelee ] );
+			cache_get_value_name_int( i, "v_weapon_slot_1", VehicleInfo[ vehicleid ][ vWeap1 ] );
+			cache_get_value_name_int( i, "v_weapon_ammo_1", VehicleInfo[ vehicleid ][ vAmmo1 ] );
+			cache_get_value_name_int( i, "v_weapon_slot_2", VehicleInfo[ vehicleid ][ vWeap2 ] );
+			cache_get_value_name_int( i, "v_weapon_ammo_2", VehicleInfo[ vehicleid ][ vAmmo2 ] );
+			cache_get_value_name_int( i, "v_kilometri", VehicleInfo[ vehicleid ][ vKilometri ] );
+			cache_get_value_name_int( i, "v_metri", VehicleInfo[ vehicleid ][ vMetri ] );
+			 
 			VehicleInfo[ vehicleid ][ v_owner_id ] = -1;
 
 			LinkVehicleToInterior( vehicleid, VehicleInfo[ vehicleid ][ vInterior ] );
@@ -21700,7 +21737,7 @@ _:public OnVehiclesLoad( playerid, targetid, moneyauc )
 	{
 		if( playerid != 1001 ) SendInfoMessage( playerid, "Pogresan basesqlID(nepostoji)." );
 	}
-	printf("(PB) SQL: Ucitao - Vozila(%d)", rows);
+	printf("(SQL - tmpStructure): Ucitao - Vozila(%d)", rows);
 	return 1;
 }
 
@@ -21744,41 +21781,42 @@ _:public OnBussinesCreated( bussinesID )
 
 _:public OnGatesLoad( )
 {
-	new rows, fields, gateID;
-    cache_get_data( rows, fields, mSQL );
-
+	new
+	    rows = cache_num_rows(),
+	    gateID;
+	    
 	if( rows )
 	{
 		for( new i = 0; i < rows; i ++ )
 		{
 			gateID = Iter_Free(iter_Gate);
 
-            GateData[ gateID ][ gatebaseID ] = cache_get_field_content_int( i, "gateid" );
-			cache_get_field_content( i, "gateowner", GateData[ gateID ][ gateOwner ], mSQL, MAX_PLAYER_NAME );
+			cache_get_value_name_int( i, "id", GateData[ gateID ][ gatebaseID ] );
+			cache_get_value_name( i, "owner", GateData[ gateID ][ gateOwner ], MAX_PLAYER_NAME );
 
-			GateData[ gateID ][ gateModel ] = cache_get_field_content_int( i, "gatemodel" );
-			GateData[ gateID ][ gateFor ] = cache_get_field_content_int( i, "gatefor" );
-			GateData[ gateID ][ gateOrgID ] = cache_get_field_content_int( i, "gateorg" );
-			GateData[ gateID ][ gateSpeed ] = cache_get_field_content_float( i, "gatespeed" );
-			GateData[ gateID ][ gateRadius ] = cache_get_field_content_float( i, "gateradius" );
-			GateData[ gateID ][ gateTime ] = cache_get_field_content_int( i, "gatetime" );
+			cache_get_value_name_int( i, "model", GateData[ gateID ][ gateModel ] );
+			cache_get_value_name_int( i, "for", GateData[ gateID ][ gateFor ] );
+			cache_get_value_name_int( i, "org", GateData[ gateID ][ gateOrgID ] );
+			cache_get_value_name_float( i, "speed", GateData[ gateID ][ gateSpeed ] );
+			cache_get_value_name_float( i, "radius", GateData[ gateID ][ gateRadius ] );
+			cache_get_value_name_int( i, "time", GateData[ gateID ][ gateTime ] );
 
-			GateData[ gateID ][ gatePos ][ 0 ] = cache_get_field_content_float( i, "gatepos_1" );
-			GateData[ gateID ][ gatePos ][ 1 ] = cache_get_field_content_float( i, "gatepos_2" );
-			GateData[ gateID ][ gatePos ][ 2 ] = cache_get_field_content_float( i, "gatepos_3" );
-			GateData[ gateID ][ gatePos ][ 3 ] = cache_get_field_content_float( i, "gatepos_4" );
-			GateData[ gateID ][ gatePos ][ 4 ] = cache_get_field_content_float( i, "gatepos_5" );
-			GateData[ gateID ][ gatePos ][ 5 ] = cache_get_field_content_float( i, "gatepos_6" );
+			cache_get_value_name_float( i, "pos_x", GateData[ gateID ][ gatePos ][ 0 ] );
+			cache_get_value_name_float( i, "pos_y", GateData[ gateID ][ gatePos ][ 1 ] );
+			cache_get_value_name_float( i, "pos_z", GateData[ gateID ][ gatePos ][ 2 ] );
+			cache_get_value_name_float( i, "pos_rx", GateData[ gateID ][ gatePos ][ 3 ] );
+			cache_get_value_name_float( i, "pos_ry", GateData[ gateID ][ gatePos ][ 4 ] );
+			cache_get_value_name_float( i, "pos_rz", GateData[ gateID ][ gatePos ][ 5 ] );
 
-			GateData[ gateID ][ gateInterior ] = cache_get_field_content_int( i, "gateint" );
-			GateData[ gateID ][ gateWorld ] = cache_get_field_content_int( i, "gatevw" );
+			cache_get_value_name_int( i, "interior", GateData[ gateID ][ gateInterior ] );
+			cache_get_value_name_int( i, "vw", GateData[ gateID ][ gateWorld ] );
 
-			GateData[ gateID ][ gateMove ][ 0 ] = cache_get_field_content_float( i, "gatemove_1" );
-			GateData[ gateID ][ gateMove ][ 1 ] = cache_get_field_content_float( i, "gatemove_2" );
-			GateData[ gateID ][ gateMove ][ 2 ] = cache_get_field_content_float( i, "gatemove_3" );
-			GateData[ gateID ][ gateMove ][ 3 ] = cache_get_field_content_float( i, "gatemove_4" );
-			GateData[ gateID ][ gateMove ][ 4 ] = cache_get_field_content_float( i, "gatemove_5" );
-			GateData[ gateID ][ gateMove ][ 5 ] = cache_get_field_content_float( i, "gatemove_6" );
+			cache_get_value_name_float( i, "move_x", GateData[ gateID ][ gateMove ][ 0 ] );
+			cache_get_value_name_float( i, "move_y", GateData[ gateID ][ gateMove ][ 1 ] );
+			cache_get_value_name_float( i, "move_z", GateData[ gateID ][ gateMove ][ 2 ] );
+			cache_get_value_name_float( i, "move_rx", GateData[ gateID ][ gateMove ][ 3 ] );
+			cache_get_value_name_float( i, "move_ry", GateData[ gateID ][ gateMove ][ 4 ] );
+			cache_get_value_name_float( i, "move_rz", GateData[ gateID ][ gateMove ][ 5 ] );
 
             GateData[ gateID ][ gateOpened ] = false;
 	        GateData[ gateID ][ gateObject ] = CreateDynamicObject( GateData[ gateID ][ gateModel ], GateData[ gateID ][ gatePos ][ 0 ], GateData[ gateID ][ gatePos ][ 1 ], GateData[ gateID ][ gatePos ][ 2 ], GateData[ gateID ][ gatePos ][ 3 ], GateData[ gateID ][ gatePos ][ 4 ], GateData[ gateID ][ gatePos ][ 5 ], GateData[ gateID ][ gateWorld ], GateData[ gateID ][ gateInterior ] );
@@ -21786,24 +21824,23 @@ _:public OnGatesLoad( )
 	        Iter_Add(iter_Gate, gateID);
 		}
 	}
-	printf("(PB) SQL: Ucitao - Kapije(%d)", rows);
+	printf("(SQL - tmpStructure): Ucitao - Kapije(%d)", rows);
     return 1;
 }
 
 _:public sql_create_gate( g )
 {
-	new query[ 1024 ];
-    mysql_format( mSQL, query, sizeof( query ), "INSERT INTO `gates` ( gateowner, gatemodel, gatefor, gateorg, gatespeed, gateradius, gatetime, \
-					gatepos_1, gatepos_2, gatepos_3, gatepos_4, gatepos_5, gatepos_6, gateint, gatevw, gatemove_1, \
-					gatemove_2, gatemove_3, gatemove_4, gatemove_5, gatemove_6)" );
-    mysql_format( mSQL, query, sizeof( query ),	"%s VALUES( '%e', '%d', '%d', '%d', '%f', '%f', '%d', '%f', '%f', '%f', '%f', '%f', '%f', '%d', '%d', '%f', '%f', '%f', '%f', '%f', '%f' )",
-        query, GateData[ g ][ gateOwner ],
-      	GateData[ g ][ gateModel ], GateData[ g ][ gateFor ], GateData[ g ][ gateOrgID ], GateData[ g ][ gateSpeed ], GateData[ g ][ gateRadius ],
+	static
+	    tmpStructure[ 825 ];
+	    
+	mysql_format( mSQL, tmpStructure, sizeof( tmpStructure ), "INSERT INTO `gates` (owner, model, for, org, speed, radius, time,\
+					pos_x, pos_y, pos_z, pos_rx, pos_ry, pos_rz, interior, vw, move_x, move_y, move_z, move_rx, move_ry, move_rz)");
+	mysql_format( mSQL, tmpStructure, sizeof( tmpStructure ), "%s VALUES ('%e','%d','%d','%d','%f','%f','%d','%f','%f','%f','%f','%f','%f','%d','%d','%f','%f','%f','%f','%f','%f')",
+		tmpStructure, GateData[ g ][ gateOwner ], GateData[ g ][ gateModel ], GateData[ g ][ gateFor ], GateData[ g ][ gateOrgID ], GateData[ g ][ gateSpeed ], GateData[ g ][ gateRadius ],
 		GateData[ g ][ gateTime ], GateData[ g ][ gatePos ][ 0 ], GateData[ g ][ gatePos ][ 1 ], GateData[ g ][ gatePos ][ 2 ], GateData[ g ][ gatePos ][ 3 ],
 		GateData[ g ][ gatePos ][ 4 ], GateData[ g ][ gatePos ][ 5 ], GateData[ g ][ gateInterior ], GateData[ g ][ gateWorld ], GateData[ g ][ gateMove ][ 0 ],
 		GateData[ g ][ gateMove ][ 1 ], GateData[ g ][ gateMove ][ 2 ], GateData[ g ][ gateMove ][ 3 ], GateData[ g ][ gateMove ][ 4 ], GateData[ g ][ gateMove ][ 5 ] );
-	mysql_pquery( mSQL, query, "OnGateCreated", "i", g );
-
+    mysql_pquery( mSQL, tmpStructure, "OnGateCreated", "i", g );
 	Iter_Add(iter_Gate, g);
 	return 1;
 }
@@ -21870,8 +21907,9 @@ _:public OnOrganizationCreated( OrgID )
 
 _:public OnBussinesLoad( )
 {
-	new rows, fields, f;
-    cache_get_data( rows, fields, mSQL );
+    new
+        rows = cache_num_rows(),
+        f;
 
 	if( rows )
 	{
@@ -21879,56 +21917,53 @@ _:public OnBussinesLoad( )
 		{
 		    f = Iter_Free(iter_Bizz);
 
-		    BusinessInfo[ f ][ b_ID ] = cache_get_field_content_int( i, "bussines_id" );
-			BusinessInfo[ f ][ bOwner_sqlID ] = cache_get_field_content_int( i, "b_owner_sqlID" );
-			BusinessInfo[ f ][ bOnAuction ] = bool:cache_get_field_content_int( i, "bOnAuction" );
-			BusinessInfo[ f ][ bPrice ] = cache_get_field_content_int( i, "b_price" );
-			BusinessInfo[ f ][ bType ] = cache_get_field_content_int( i, "b_type" );
-			BusinessInfo[ f ][ bLocked ] = cache_get_field_content_int( i, "b_locked" );
-			BusinessInfo[ f ][ bMoney ] = cache_get_field_content_int( i, "b_money" );
-			BusinessInfo[ f ][ bEnterX ] = cache_get_field_content_float( i, "b_enter_x" );
-			BusinessInfo[ f ][ bEnterY ] = cache_get_field_content_float( i, "b_enter_y" );
-			BusinessInfo[ f ][ bEnterZ ] = cache_get_field_content_float( i, "b_enter_z" );
-			BusinessInfo[ f ][ bExitX ] = cache_get_field_content_float( i, "b_exit_x" );
-			BusinessInfo[ f ][ bExitY ] = cache_get_field_content_float( i, "b_exit_y" );
-			BusinessInfo[ f ][ bExitZ ] = cache_get_field_content_float( i, "b_exit_z" );
-			BusinessInfo[ f ][ bInt ] = cache_get_field_content_int( i, "b_enter_int" );
-			BusinessInfo[ f ][ bVW ] = cache_get_field_content_int( i, "b_enter_vw" );
-			BusinessInfo[ f ][ bInInt ] = cache_get_field_content_int( i, "b_exit_int" );
-			BusinessInfo[ f ][ bInVW ] = cache_get_field_content_int( i, "b_exit_vw" );
-			BusinessInfo[ f ][ bLevel ] = cache_get_field_content_int( i, "b_level" );
-			BusinessInfo[ f ][ bJobID ] = cache_get_field_content_int( i, "b_jobID" );
-			BusinessInfo[ f ][ bNeaktivnost ] = cache_get_field_content_int( i, "b_neaktivnost" );
-			BusinessInfo[ f ][ bFacture ] = cache_get_field_content_int( i, "b_facture" );
+			cache_get_value_name_int( i, "bussines_id", BusinessInfo[ f ][ b_ID ] );
+			cache_get_value_name_int( i, "b_owner_sqlID", BusinessInfo[ f ][ bOwner_sqlID ] );
+			cache_get_value_name_bool( i, "bOnAuction", BusinessInfo[ f ][ bOnAuction ] );
+			cache_get_value_name_int( i, "b_price", BusinessInfo[ f ][ bPrice ] );
+			cache_get_value_name_int( i, "b_type", BusinessInfo[ f ][ bType ] );
+			cache_get_value_name_int( i, "b_locked", BusinessInfo[ f ][ bLocked ] );
+			cache_get_value_name_int( i, "b_money", BusinessInfo[ f ][ bMoney ] );
+			cache_get_value_name_float( i, "b_enter_x", BusinessInfo[ f ][ bEnterX ] );
+			cache_get_value_name_float( i, "b_enter_y", BusinessInfo[ f ][ bEnterY ] );
+			cache_get_value_name_float( i, "b_enter_z", BusinessInfo[ f ][ bEnterZ ] );
+			cache_get_value_name_float( i, "b_exit_x", BusinessInfo[ f ][ bExitX ] );
+			cache_get_value_name_float( i, "b_exit_y", BusinessInfo[ f ][ bExitY ] );
+			cache_get_value_name_float( i, "b_exit_z", BusinessInfo[ f ][ bExitZ ] );
+			cache_get_value_name_int( i, "b_enter_int", BusinessInfo[ f ][ bInt ] );
+			cache_get_value_name_int( i, "b_enter_vw", BusinessInfo[ f ][ bVW ] );
+			cache_get_value_name_int( i, "b_exit_int", BusinessInfo[ f ][ bInInt ] );
+			cache_get_value_name_int( i, "b_exit_vw", BusinessInfo[ f ][ bInVW ] );
+			cache_get_value_name_int( i, "b_level", BusinessInfo[ f ][ bLevel ] );
+			cache_get_value_name_int( i, "b_jobID", BusinessInfo[ f ][ bJobID ] );
+			cache_get_value_name_int( i, "b_neaktivnost", BusinessInfo[ f ][ bNeaktivnost ] );
+			cache_get_value_name_int( i, "b_facture", BusinessInfo[ f ][ bFacture ] );
+			 
 			BusinessInfo[ f ][ bOwnerOrg ] = -1;
 
-			cache_get_field_content( i, "b_name", BusinessInfo[ f ][ bName ], mSQL, 64 );
-			cache_get_field_content( i, "bOwner", BusinessInfo[ f ][ bOwner ], mSQL, 24 );
+			cache_get_value_name( i, "b_name", BusinessInfo[ f ][ bName ], 64 );
+			cache_get_value_name( i, "bOwner", BusinessInfo[ f ][ bOwner ], 24 );
 
-			new string[ 250 ];
+			new string[ 425 ];
 		    if( BusinessInfo[ f ][ bOwner_sqlID ] == -1 )
 			{
 		        if( !BusinessInfo[ f ][ bOnAuction ] )
 				{
 					format(string,sizeof(string),
-						"(FIRMA - [%d])\n\
-						{B72C40}Ime: {FFFFFF}%s\n\
-						{B72C40}Cena: {FFFFFF}$%d\n\
-						{B72C40}Vrsta: {FFFFFF}%s\n\
-						{B72C40}Level: {FFFFFF}%d\n\
-						{B72C40}Adresa: {FFFFFF}%s\n\
-						{B72C40}[ /kupifirmu ]", f, BusinessInfo[ f ][ bName ], BusinessInfo[ f ][ bPrice ], getBussinesType( f ), BusinessInfo[ f ][ bLevel ], UliceFirme( f ) );
+					    "Firma na prodaju [ID: %d]\n\n\
+					    {F3B70A}Ime firme: {FFFFFF}(%s) | {F3B70A}Cena: {FFFFFF}($%d)\n\
+					    {F3B70A}Vrsta firme: {FFFFFF}(%s) | {F3B70A}Level: {FFFFFF}(%d)\n\
+						{F3B70A}Lokacija: {FFFFFF}(%s)\n\n\
+						( /kupifirmu )", f, BusinessInfo[ f ][ bName ], BusinessInfo[ f ][ bPrice ], getBussinesType( f ), BusinessInfo[ f ][ bLevel ], UliceFirme( f ) );
 				}
 				else
 				{
 					format(string,sizeof(string),
-						"(FIRMA - [%d])\n\
-						{B72C40}Ime: {FFFFFF}%s\n\
-						{B72C40}Cena: {FFFFFF}$%d\n\
-						{B72C40}Vrsta: {FFFFFF}%s\n\
-						{B72C40}Level: {FFFFFF}%d\n\
-						{B72C40}Adresa: {FFFFFF}%s\n\
-						{B72C40}[ {00FF00}NA AUKCIJI {B72C40}]", f, BusinessInfo[ f ][ bName ], BusinessInfo[ f ][ bPrice ], getBussinesType( f ), BusinessInfo[ f ][ bLevel ], UliceFirme( f ) );
+						"Firma na aukciji [ID: %d]\n\n\
+						{F3B70A}Ime firme: {FFFFFF}(%s) | {F3B70A}Cena: {FFFFFF}($%d)\n\
+						{F3B70A}Vrsta firme: {FFFFFF}(%s) | {F3B70A}Level: {FFFFFF}(%d)\n\
+						{F3B70A}Lokacija: {FFFFFF}(%s)\n\n\
+						NA AUKCIJI", f, BusinessInfo[ f ][ bName ], BusinessInfo[ f ][ bPrice ], getBussinesType( f ), BusinessInfo[ f ][ bLevel ], UliceFirme( f ) );
 				}
 
 			}
@@ -21951,7 +21986,7 @@ _:public OnBussinesLoad( )
 			Iter_Add(iter_Bizz, f);
 		}
 	}
-	printf("(PB) SQL: Ucitao - Firme(%d)", rows);
+	printf("(SQL - tmpStructure): Ucitao - Firme(%d)", rows);
 	CreateBizzIcons();
     return 1;
 }
@@ -22036,34 +22071,39 @@ _:public GZone_Refresh( id )
 
 _:public OnGangZonesLoad()
 {
-    new rows, fields, gangzID, OrgID = -1, string[ 150 ];
-    cache_get_data( rows, fields, mSQL );
+    new
+        rows = cache_num_rows(),
+        gangzID,
+		OrgID = -1,
+		string[ 150 ];
+		
 	if( rows )
 	{
         for( new i = 0; i < rows; i ++ )
 		{
             gangzID = Iter_Free(iter_gZone);
 
-			gZoneInfo[ gangzID ][ gZone_ID ] = cache_get_field_content_int( i, "gzone_id" );
-            gZoneInfo[ gangzID ][ gZoneTaken ] = cache_get_field_content_int( i, "taken" );
-		    gZoneInfo[ gangzID ][ gZoneTakeable ] = cache_get_field_content_int( i, "takeable" );
-		    gZoneInfo[ gangzID ][ gZoneGangSQLID ] = cache_get_field_content_int( i, "gang_id" );
-		    gZoneInfo[ gangzID ][ gZoneTime ] = cache_get_field_content_int( i, "time" );
+			cache_get_value_name_int( i, "gzone_id", gZoneInfo[ gangzID ][ gZone_ID ] );
+			cache_get_value_name_int( i, "taken", gZoneInfo[ gangzID ][ gZoneTaken ] );
+			cache_get_value_name_int( i, "takeable", gZoneInfo[ gangzID ][ gZoneTakeable ] );
+			cache_get_value_name_int( i, "gang_id", gZoneInfo[ gangzID ][ gZoneGangSQLID ] );
+			cache_get_value_name_int( i, "time", gZoneInfo[ gangzID ][ gZoneTime ] );
 
-			gZoneInfo[ gangzID ][ gZoneMaxX ] = cache_get_field_content_float( i, "max_x");
-		    gZoneInfo[ gangzID ][ gZoneMinX ] = cache_get_field_content_float( i, "min_x");
-		    gZoneInfo[ gangzID ][ gZoneMaxY ] = cache_get_field_content_float( i, "max_y");
-		    gZoneInfo[ gangzID ][ gZoneMinY ] = cache_get_field_content_float( i, "min_y");
+			cache_get_value_name_float( i, "max_x", gZoneInfo[ gangzID ][ gZoneMaxX ] );
+			cache_get_value_name_float( i, "min_x", gZoneInfo[ gangzID ][ gZoneMinX ] );
+			cache_get_value_name_float( i, "max_y", gZoneInfo[ gangzID ][ gZoneMaxY ] );
+			cache_get_value_name_float( i, "min_y", gZoneInfo[ gangzID ][ gZoneMinY ] );
 
-		    cache_get_field_content( i, "color", gZoneInfo[ gangzID ][ gZoneColor ], mSQL, 24 );
+		    cache_get_value_name( i, "color", gZoneInfo[ gangzID ][ gZoneColor ], 24 );
 
-		    gZoneInfo[ gangzID ][ gZonePickup_X ] = cache_get_field_content_float( i, "pickup_pos_x");
-		    gZoneInfo[ gangzID ][ gZonePickup_Y ] = cache_get_field_content_float( i, "pickup_pos_y");
-		    gZoneInfo[ gangzID ][ gZonePickup_Z ] = cache_get_field_content_float( i, "pickup_pos_z");
+			cache_get_value_name_float( i, "pickup_pos_x", gZoneInfo[ gangzID ][ gZonePickup_X ] );
+			cache_get_value_name_float( i, "pickup_pos_y", gZoneInfo[ gangzID ][ gZonePickup_Y ] );
+			cache_get_value_name_float( i, "pickup_pos_z", gZoneInfo[ gangzID ][ gZonePickup_Z ] );
 
-		    gZoneInfo[gangzID][gZoneIsSpecial] = cache_get_field_content_int(i, "is_special");
+			cache_get_value_name_int(i, "is_special", gZoneInfo[gangzID][ gZoneIsSpecial ] );
 
 		    gZoneInfo[ gangzID ][ gZoneGangID ] = -1;
+		    
 		    OrgID = -1;
 
 		    for( new j = 1; j < MAX_ORG; j++) 
@@ -22135,14 +22175,16 @@ _:public OnGangZonesLoad()
             Iter_Add(iter_gZone, gangzID);
         }
     }
-	printf("(PB) SQL: Ucitao - Teritorije(%d)", rows);
+	printf("(SQL - tmpStructure): Ucitao - Teritorije(%d)", rows);
     return 1;
 }
 
 _:public OnOrganizationsLoad( )
 {
-	new rows, fields, OrgID, OrgCounter = 1;
-    cache_get_data( rows, fields, mSQL );
+    new
+        rows = cache_num_rows(),
+        OrgID,
+        OrgCounter = 1;
 
 	if( rows )
 	{
@@ -22150,85 +22192,92 @@ _:public OnOrganizationsLoad( )
 		{
 			OrgID = OrgCounter;
 
-            org_info[ OrgID ][ oID ] = cache_get_field_content_int( i, "org_id" );
-            cache_get_field_content( i, "name", org_info[ OrgID ][ oName ], mSQL, ORG_IME );
-			cache_get_field_content( i, "prefix", org_info[ OrgID ][ oPreFix ], mSQL, 5 );
-			cache_get_field_content( i, "color", org_info[ OrgID ][ oColor ], mSQL, 7 );
+            cache_get_value_name_int( i, "org_id", org_info[ OrgID ][ oID ] );
+            
+            cache_get_value_name( i, "name", org_info[ OrgID ][ oName ], ORG_IME );
+			cache_get_value_name( i, "prefix", org_info[ OrgID ][ oPreFix ], 5 );
+			cache_get_value_name( i, "color", org_info[ OrgID ][ oColor ], 7 );
 
-			org_info[ OrgID ][ oTip ]  = cache_get_field_content_int( i, "type" );
-			org_info[ OrgID ][ oSuspended ] = cache_get_field_content_int( i, "suspended" );
-			org_info[ OrgID ][ oMaxClanova ] = cache_get_field_content_int( i, "max_members" );
+			cache_get_value_name_int( i, "type", org_info[ OrgID ][ oTip ] );
+			cache_get_value_name_int( i, "suspended", org_info[ OrgID ][ oSuspended ] );
+			cache_get_value_name_int( i, "max_members", org_info[ OrgID ][ oMaxClanova ] );
+			  
 		    org_info[ OrgID ][ oUbacenihClanova ] = 0;
 
-		    org_info[ OrgID ][ oSkin1 ] = cache_get_field_content_int( i, "male_skin_1" );
-			org_info[ OrgID ][ oSkin2 ] = cache_get_field_content_int( i, "male_skin_2" );
-			org_info[ OrgID ][ oSkin3 ] = cache_get_field_content_int( i, "male_skin_3" );
-			org_info[ OrgID ][ oSkin4 ] = cache_get_field_content_int( i, "male_skin_4" );
-			org_info[ OrgID ][ oSkin5 ] = cache_get_field_content_int( i, "male_skin_5" );
-			org_info[ OrgID ][ oSkin6 ] = cache_get_field_content_int( i, "male_skin_6" );
+		    cache_get_value_name_int( i, "male_skin_1", org_info[ OrgID ][ oSkin1 ] );
+			cache_get_value_name_int( i, "male_skin_2", org_info[ OrgID ][ oSkin2 ] );
+			cache_get_value_name_int( i, "male_skin_3", org_info[ OrgID ][ oSkin3 ] );
+			cache_get_value_name_int( i, "male_skin_4", org_info[ OrgID ][ oSkin4 ] );
+			cache_get_value_name_int( i, "male_skin_5", org_info[ OrgID ][ oSkin5 ] );
+			cache_get_value_name_int( i, "male_skin_6", org_info[ OrgID ][ oSkin6 ] );
 
-			org_info[ OrgID ][ oZSkin1 ] = cache_get_field_content_int( i, "female_skin_1" );
-			org_info[ OrgID ][ oZSkin2 ] = cache_get_field_content_int( i, "female_skin_2" );
-			org_info[ OrgID ][ oZSkin3 ] = cache_get_field_content_int( i, "female_skin_3" );
-			org_info[ OrgID ][ oZSkin4 ] = cache_get_field_content_int( i, "female_skin_4" );
-			org_info[ OrgID ][ oZSkin5 ] = cache_get_field_content_int( i, "female_skin_5" );
-			org_info[ OrgID ][ oZSkin6 ] = cache_get_field_content_int( i, "female_skin_6" );
+			cache_get_value_name_int( i, "female_skin_1", org_info[ OrgID ][ oZSkin1 ] );
+			cache_get_value_name_int( i, "female_skin_2", org_info[ OrgID ][ oZSkin2 ] );
+			cache_get_value_name_int( i, "female_skin_3", org_info[ OrgID ][ oZSkin3 ] );
+			cache_get_value_name_int( i, "female_skin_4", org_info[ OrgID ][ oZSkin4 ] );
+			cache_get_value_name_int( i, "female_skin_5", org_info[ OrgID ][ oZSkin5 ] );
+			cache_get_value_name_int( i, "female_skin_6", org_info[ OrgID ][ oZSkin6 ] );
 
-            cache_get_field_content( i, "rank_1", org_info[ OrgID ][ oRank1 ], mSQL, ORG_RANK );
-            cache_get_field_content( i, "rank_2", org_info[ OrgID ][ oRank2 ], mSQL, ORG_RANK );
-            cache_get_field_content( i, "rank_3", org_info[ OrgID ][ oRank3 ], mSQL, ORG_RANK );
-            cache_get_field_content( i, "rank_4", org_info[ OrgID ][ oRank4 ], mSQL, ORG_RANK );
-            cache_get_field_content( i, "rank_5", org_info[ OrgID ][ oRank5 ], mSQL, ORG_RANK );
-            cache_get_field_content( i, "rank_6", org_info[ OrgID ][ oRank6 ], mSQL, ORG_RANK );
+            cache_get_value_name( i, "rank_1", org_info[ OrgID ][ oRank1 ], ORG_RANK );
+            cache_get_value_name( i, "rank_2", org_info[ OrgID ][ oRank2 ], ORG_RANK );
+            cache_get_value_name( i, "rank_3", org_info[ OrgID ][ oRank3 ], ORG_RANK );
+            cache_get_value_name( i, "rank_4", org_info[ OrgID ][ oRank4 ], ORG_RANK );
+            cache_get_value_name( i, "rank_5", org_info[ OrgID ][ oRank5 ], ORG_RANK );
+            cache_get_value_name( i, "rank_6", org_info[ OrgID ][ oRank6 ], ORG_RANK );
 
-			org_info[ OrgID ][ oPozExtX ] = cache_get_field_content_float( i, "enter_pos_x");
-			org_info[ OrgID ][ oPozExtY ] = cache_get_field_content_float( i, "enter_pos_y");
-			org_info[ OrgID ][ oPozExtZ ] = cache_get_field_content_float( i, "enter_pos_z");
+			cache_get_value_name_float( i, "enter_pos_x", org_info[ OrgID ][ oPozExtX ] );
+			cache_get_value_name_float( i, "enter_pos_y", org_info[ OrgID ][ oPozExtY ] );
+			cache_get_value_name_float( i, "enter_pos_z", org_info[ OrgID ][ oPozExtZ ] );
 
-			org_info[ OrgID ][ oPozIntX ] = cache_get_field_content_float( i, "exit_pos_x");
-			org_info[ OrgID ][ oPozIntY ] = cache_get_field_content_float( i, "exit_pos_y");
-			org_info[ OrgID ][ oPozIntZ ] = cache_get_field_content_float( i, "exit_pos_z");
+			cache_get_value_name_float( i, "exit_pos_x", org_info[ OrgID ][ oPozIntX ] );
+			cache_get_value_name_float( i, "exit_pos_y", org_info[ OrgID ][ oPozIntY ] );
+			cache_get_value_name_float( i, "exit_pos_z", org_info[ OrgID ][ oPozIntZ ] );
 
-		    org_info[ OrgID ][ oInt ] = cache_get_field_content_int( i, "interior" );
-			org_info[ OrgID ][ oVw ] = cache_get_field_content_int( i, "virtualw" );
+		    cache_get_value_name_int( i, "interior", org_info[ OrgID ][ oInt ] );
+			cache_get_value_name_int( i, "virtualw", org_info[ OrgID ][ oVw ] );
 
-			org_info[ OrgID ][ oSpawnPoint ][ 0 ] = cache_get_field_content_float( i, "spawn_point_x");
-			org_info[ OrgID ][ oSpawnPoint ][ 1 ] = cache_get_field_content_float( i, "spawn_point_y");
-			org_info[ OrgID ][ oSpawnPoint ][ 2 ] = cache_get_field_content_float( i, "spawn_point_z");
+			cache_get_value_name_float( i, "spawn_point_x", org_info[ OrgID ][ oSpawnPoint ][ 0 ] );
+			cache_get_value_name_float( i, "spawn_point_y", org_info[ OrgID ][ oSpawnPoint ][ 1 ] );
+			cache_get_value_name_float( i, "spawn_point_z", org_info[ OrgID ][ oSpawnPoint ][ 2 ] );
 
-			org_info[ OrgID ][ oDiler ][ 0 ] = cache_get_field_content_float( i, "oDilerX");
-			org_info[ OrgID ][ oDiler ][ 1 ] = cache_get_field_content_float( i, "oDilerY");
-			org_info[ OrgID ][ oDiler ][ 2 ] = cache_get_field_content_float( i, "oDilerZ");
-			org_info[ OrgID ][ oDiler ][ 3 ] = cache_get_field_content_float( i, "oDilerA");
-			org_info[ OrgID ][ oDilerCena ] = cache_get_field_content_int( i, "oDilerCena" );
+			cache_get_value_name_float( i, "oDilerX", org_info[ OrgID ][ oDiler ][ 0 ] );
+			cache_get_value_name_float( i, "oDilerY", org_info[ OrgID ][ oDiler ][ 1 ] );
+			cache_get_value_name_float( i, "oDilerZ", org_info[ OrgID ][ oDiler ][ 2 ] );
+			cache_get_value_name_float( i, "oDilerA", org_info[ OrgID ][ oDiler ][ 3 ] );
+			cache_get_value_name_int( i, "oDilerCena", org_info[ OrgID ][ oDilerCena ] );
 
-			org_info[ OrgID ][ oDutyPoint ][ 0 ] = cache_get_field_content_float( i, "duty_point_pos_x");
-			org_info[ OrgID ][ oDutyPoint ][ 1 ] = cache_get_field_content_float( i, "duty_point_pos_y");
-			org_info[ OrgID ][ oDutyPoint ][ 2 ] = cache_get_field_content_float( i, "duty_point_pos_z");
-			org_info[ OrgID ][ oDutyInt ] = cache_get_field_content_int( i, "duty_point_int" );
-			org_info[ OrgID ][ oDutyVW ] = cache_get_field_content_int( i, "duty_point_vw" );
+			cache_get_value_name_float( i, "duty_point_pos_x", org_info[ OrgID ][ oDutyPoint ][ 0 ] );
+			cache_get_value_name_float( i, "duty_point_pos_y", org_info[ OrgID ][ oDutyPoint ][ 1 ] );
+			cache_get_value_name_float( i, "duty_point_pos_z", org_info[ OrgID ][ oDutyPoint ][ 2 ] );
+			
+			cache_get_value_name_int( i, "duty_point_int", org_info[ OrgID ][ oDutyInt ] );
+			cache_get_value_name_int( i, "duty_point_vw", org_info[ OrgID ][ oDutyVW ] );
 
-			org_info[ OrgID ][ oEquipPoint ][ 0 ] = cache_get_field_content_float( i, "equip_point_pos_x");
-			org_info[ OrgID ][ oEquipPoint ][ 1 ] = cache_get_field_content_float( i, "equip_point_pos_y");
-			org_info[ OrgID ][ oEquipPoint ][ 2 ] = cache_get_field_content_float( i, "equip_point_pos_z");
-			org_info[ OrgID ][ oEquipInt ] = cache_get_field_content_int( i, "equip_point_int" );
-			org_info[ OrgID ][ oEquipVW ] = cache_get_field_content_int( i, "equip_point_vw" );
+			cache_get_value_name_float( i, "equip_point_pos_x", org_info[ OrgID ][ oEquipPoint ][ 0 ] );
+			cache_get_value_name_float( i, "equip_point_pos_y", org_info[ OrgID ][ oEquipPoint ][ 1 ] );
+			cache_get_value_name_float( i, "equip_point_pos_z", org_info[ OrgID ][ oEquipPoint ][ 2 ] );
+			
+			cache_get_value_name_int( i, "equip_point_int", org_info[ OrgID ][ oEquipInt ] );
+			cache_get_value_name_int( i, "equip_point_vw", org_info[ OrgID ][ oEquipVW ] );
 
-		    org_info[ OrgID ][ oSavez ] = cache_get_field_content_int( i, "savez" );
+		    cache_get_value_name_int( i, "savez", org_info[ OrgID ][ oSavez ] );
 
-			org_info[ OrgID ][ oSafePos ][ 0 ] = cache_get_field_content_float( i, "safe_pos_x");
-			org_info[ OrgID ][ oSafePos ][ 1 ] = cache_get_field_content_float( i, "safe_pos_y");
-			org_info[ OrgID ][ oSafePos ][ 2 ] = cache_get_field_content_float( i, "safe_pos_z");
-			org_info[ OrgID ][ oSafeMoney ] = cache_get_field_content_int( i, "safe_money" );
-			org_info[ OrgID ][ oSafeDrugAmmount ] = cache_get_field_content_int( i, "safe_drug_amount" );
-			org_info[ OrgID ][ oSafeMats ] = cache_get_field_content_int( i, "safe_mats" );
+			cache_get_value_name_float( i, "safe_pos_x", org_info[ OrgID ][ oSafePos ][ 0 ] );
+			cache_get_value_name_float( i, "safe_pos_y", org_info[ OrgID ][ oSafePos ][ 1 ] );
+			cache_get_value_name_float( i, "safe_pos_z", org_info[ OrgID ][ oSafePos ][ 2 ] );
+			
+			cache_get_value_name_int( i, "safe_money", org_info[ OrgID ][ oSafeMoney ] );
+			cache_get_value_name_int( i, "safe_drug_amount", org_info[ OrgID ][ oSafeDrugAmmount ] );
+			cache_get_value_name_int( i, "safe_mats", org_info[ OrgID ][ oSafeMats ] );
 
-			org_info[ OrgID ][ oPortX ] = cache_get_field_content_float( i, "oPortX");
-			org_info[ OrgID ][ oPortY ] = cache_get_field_content_float( i, "oPortY");
-			org_info[ OrgID ][ oPortZ ] = cache_get_field_content_float( i, "oPortZ");
-			org_info[ OrgID ][ oPortA ] = cache_get_field_content_float( i, "oPortA");
+			cache_get_value_name_float( i, "oPortX", org_info[ OrgID ][ oPortX ] );
+			cache_get_value_name_float( i, "oPortY", org_info[ OrgID ][ oPortY ] );
+			cache_get_value_name_float( i, "oPortZ", org_info[ OrgID ][ oPortZ ] );
+			cache_get_value_name_float( i, "oPortA", org_info[ OrgID ][ oPortA ] );
 
-			new sql_biznis = cache_get_field_content_int( i, "ent_bussines" );
+			new sql_biznis;
+    		cache_get_value_name_int( i, "ent_bussines", sql_biznis );
+    		
             org_info[ OrgID ][ oEntFromBussines ] = -1;
             org_info[ OrgID ][ oBussinesID ] = -1;
 
@@ -22250,7 +22299,7 @@ _:public OnOrganizationsLoad( )
 			else
 			{
 				sql_biznis = 0;
-				sql_biznis = cache_get_field_content_int( i, "owned_business" );
+				cache_get_value_name_int( i, "owned_business", sql_biznis );
 				if( sql_biznis != 0 )
 				{
 				    foreach(new z : iter_Bizz)
@@ -22337,7 +22386,7 @@ _:public OnOrganizationsLoad( )
 														ON org_members.memb_sqlID = users.user_id", "OnOrgMembersLoad" );
 		}
 	}
-	printf("(PB) SQL: Ucitao - Organizacije(%d)", rows);
+	printf("(SQL - tmpStructure): Ucitao - Organizacije(%d)", rows);
 
 	//
 
@@ -22347,14 +22396,16 @@ _:public OnOrganizationsLoad( )
 
 _:public OnOrgMembersLoad( )
 {
-	new rows, fields, OrgID = -1, Counter[ MAX_ORG ], sqlID = 0;
-    cache_get_data( rows, fields, mSQL );
+	new
+		rows = cache_num_rows(),
+		OrgID = -1, Counter[ MAX_ORG ],
+		sqlID = 0;
 
 	if( rows )
 	{
 		for( new i = 0; i < rows; i ++ )
 		{
-		    sqlID = cache_get_field_content_int( i, "org_id" );
+		    cache_get_value_name_int( i, "org_id" , sqlID );
 
 		    OrgID = -1;
 		    for( new id = 1; id < MAX_ORG; id++)
@@ -22368,9 +22419,9 @@ _:public OnOrgMembersLoad( )
 
             if( OrgID != -1 )
 			{
-		        org_members_info[ OrgID ][ Counter[ OrgID ] ][ o_m_type ] = cache_get_field_content_int( i, "memb_type" );
-		        org_members_info[ OrgID ][ Counter[ OrgID ] ][ o_m_sqlID ] = cache_get_field_content_int( i, "memb_sqlID" );
-	    		cache_get_field_content( i, "p_name", org_members_info[ OrgID ][ Counter[ OrgID ] ][ o_m_Name ], mSQL, MAX_PLAYER_NAME );
+		        cache_get_value_name_int( i, "memb_type", org_members_info[ OrgID ][ Counter[ OrgID ] ][ o_m_type ] );
+   				cache_get_value_name_int( i, "memb_sqlID", org_members_info[ OrgID ][ Counter[ OrgID ] ][ o_m_sqlID ] );
+	    		cache_get_value_name( i, "p_name", org_members_info[ OrgID ][ Counter[ OrgID ] ][ o_m_Name ], MAX_PLAYER_NAME );
 
 	    		if( org_members_info[ OrgID ][ Counter[ OrgID ] ][ o_m_type ] == 0 ) org_info[ OrgID ][ oUbacenihClanova ]++;
 	    		Counter[ OrgID ]++;
@@ -22383,140 +22434,151 @@ _:public OnAccountLoad( playerid )
 {
     Login_TDControl(playerid, false);
 
-	PI[ playerid ][ xID ]					= 	cache_get_field_content_int(0, "user_id");
+	cache_get_value_name_int(0, "user_id", PI[ playerid ][ xID ]);
 
-	cache_get_field_content( 0, "password", PI[ playerid ][ xLozinka ], mSQL, 255 );
-	cache_get_field_content( 0, "email", PI[ playerid ][ xMail ], mSQL, 50 );
+	cache_get_value_name( 0, "password", PI[ playerid ][ xLozinka ], 255 );
+	cache_get_value_name( 0, "email", PI[ playerid ][ xMail ], 50 );
 
-	PI[ playerid ][ xRegistrovan ]			= 	cache_get_field_content_int(0, "registered");
-	PI[ playerid ][ xPol ]					= 	cache_get_field_content_int(0, "sex");
-	PI[ playerid ][ xGodine ]				= 	cache_get_field_content_int(0, "age");
-	PI[ playerid ][ xNovac ]				= 	cache_get_field_content_int(0, "money");
-	PI[ playerid ][ xLevel ]				= 	cache_get_field_content_int(0, "level");
-	PI[ playerid ][ xRespekt ]				= 	cache_get_field_content_int(0, "exp");
-	PI[ playerid ][ xPoboljsanja ]			= 	cache_get_field_content_int(0, "upgrades");
-	PI[ playerid ][ xPayDay ]				= 	cache_get_field_content_int(0, "payday");
-	PI[ playerid ][ xCSTDMScore ]			= 	cache_get_field_content_int(0, "cstdm_score");
-	PI[ playerid ][ xAdmin ]				= 	cache_get_field_content_int(0, "admin_lvl");
-	PI[ playerid ][ xSkin ]					= 	cache_get_field_content_int(0, "skin_id");
-	PI[ playerid ][ xSpawn ]				= 	cache_get_field_content_int(0, "spawn");
-	PI[ playerid ][ xLider ]				= 	cache_get_field_content_int(0, "lider");
-	PI[ playerid ][ xClan ]					= 	cache_get_field_content_int(0, "clan");
-	PI[ playerid ][ xRank ]					= 	cache_get_field_content_int(0, "rank");
+ 	cache_get_value_name_int(0, "registered", PI[ playerid ][ xRegistrovan ]);
+ 	cache_get_value_name_int(0, "sex", PI[ playerid ][ xPol ]);
+ 	cache_get_value_name_int(0, "age", PI[ playerid ][ xGodine ]);
+ 	cache_get_value_name_int(0, "money", PI[ playerid ][ xNovac ]);
+ 	cache_get_value_name_int(0, "level", PI[ playerid ][ xLevel ]);
+ 	cache_get_value_name_int(0, "exp", PI[ playerid ][ xRespekt ]);
+ 	cache_get_value_name_int(0, "upgrades", PI[ playerid ][ xPoboljsanja ]);
+ 	cache_get_value_name_int(0, "payday", PI[ playerid ][ xPayDay ]);
+ 	cache_get_value_name_int(0, "cstdm_score", PI[ playerid ][ xCSTDMScore ]);
+ 	cache_get_value_name_int(0, "admin_lvl", PI[ playerid ][ xAdmin ]);
+ 	cache_get_value_name_int(0, "skin_id", PI[ playerid ][ xSkin ]);
+ 	cache_get_value_name_int(0, "spawn", PI[ playerid ][ xSpawn ]);
+ 	cache_get_value_name_int(0, "lider", PI[ playerid ][ xLider ]);
+ 	cache_get_value_name_int(0, "clan", PI[ playerid ][ xClan ]);
+ 	cache_get_value_name_int(0, "rank", PI[ playerid ][ xRank ]);
 
-	PI[ playerid ][ xMaterijali ]			= 	cache_get_field_content_int(0, "materials");
-	PI[ playerid ][ xBussinesSqlID ]		= 	cache_get_field_content_int(0, "bussines_id");
-	PI[ playerid ][ xPosao ]				= 	cache_get_field_content_int(0, "job_id");
+ 	cache_get_value_name_int(0, "materials", PI[ playerid ][ xMaterijali ]);
+ 	cache_get_value_name_int(0, "bussines_id", PI[ playerid ][ xBussinesSqlID ]);
+ 	cache_get_value_name_int(0, "job_id", PI[ playerid ][ xPosao ]);
 
-	PI[ playerid ][ xBStil ]				= 	cache_get_field_content_int(0, "fight_style");
+	cache_get_value_name_int(0, "fight_style", PI[ playerid ][ xBStil ]);
 
-	PI[ playerid ][ xSHealth ]				= 	cache_get_field_content_float(0, "spawn_hp");
-	PI[ playerid ][ xBrojTelefona ]			= 	cache_get_field_content_int(0, "phone_number");
-	PI[ playerid ][ xVozacka ]				= 	cache_get_field_content_int(0, "vehicle_license");
-	PI[ playerid ][ xBrodska ]				= 	cache_get_field_content_int(0, "boat_license");
-	PI[ playerid ][ xLetelica ]				= 	cache_get_field_content_int(0, "air_license");
-    PI[ playerid ][ xGunLicense ]			= 	cache_get_field_content_int(0, "gun_license");
+	cache_get_value_name_float(0, "spawn_hp", PI[ playerid ][ xSHealth ]);
+	cache_get_value_name_int(0, "phone_number", PI[ playerid ][ xBrojTelefona ]);
+	cache_get_value_name_int(0, "vehicle_license", PI[ playerid ][ xVozacka ]);
+	cache_get_value_name_int(0, "boat_license", PI[ playerid ][ xBrodska ]);
+	cache_get_value_name_int(0, "air_license", PI[ playerid ][ xLetelica ]);
+	cache_get_value_name_int(0, "gun_license", PI[ playerid ][ xGunLicense ]);
 
-    PI[ playerid ][ xToolkit ]				= 	cache_get_field_content_int(0, "toolkit");
+	cache_get_value_name_int(0, "toolkit", PI[ playerid ][ xToolkit ]);
 
-    PI[ playerid ][ xPropertySqlID ][ 0 ]	= 	cache_get_field_content_int(0, "property_id_1");
-    PI[ playerid ][ xPropertySqlID ][ 1 ]	= 	cache_get_field_content_int(0, "property_id_2");
-    PI[ playerid ][ xPropertySqlID ][ 2 ]	= 	cache_get_field_content_int(0, "property_id_3");
-    PI[ playerid ][ xTelefon ]				= 	cache_get_field_content_int(0, "xTelefon");
-    PI[ playerid ][ xTelefonBon ]			= 	cache_get_field_content_int(0, "phone_credit");
-    PI[ playerid ][ xSnaga ]				= 	cache_get_field_content_int(0, "strenght");
-    PI[ playerid ][ xZatvor ]				= 	cache_get_field_content_int(0, "jail_type");
-    PI[ playerid ][ xZatvorVreme ]			= 	cache_get_field_content_int(0, "jail_time");
-    PI[ playerid ][ xWanted ]				= 	cache_get_field_content_int(0, "wanted_level");
-    PI[ playerid ][ xUhapsen ]				= 	cache_get_field_content_int(0, "arrested");
-    PI[ playerid ][ xPDUhapsio ]			= 	cache_get_field_content_int(0, "xPDUhapsio");
-    PI[ playerid ][ xPDStatsTicket ]		= 	cache_get_field_content_int(0, "xPDStatsTicket");
-    PI[ playerid ][ xPDStatsTicketMoney ]	= 	cache_get_field_content_int(0, "xPDStatsTicketMoney");
-    PI[ playerid ][ xTakenWeps ]			= 	cache_get_field_content_int(0, "xTakenWeps");
-    PI[ playerid ][ xTakenDrugs ]			= 	cache_get_field_content_int(0, "xTakenDrugs");
-    PI[ playerid ][ xAKod ]					= 	cache_get_field_content_int(0, "admin_code");
-    PI[ playerid ][ xSat ]					= 	cache_get_field_content_int(0, "watch");
-    PI[ playerid ][ xBRacun ]				= 	cache_get_field_content_int(0, "xBRacun");
-    PI[ playerid ][ xPreostaloZaOtplatu ]	= 	cache_get_field_content_int(0, "credit_rest");
-    PI[ playerid ][ xIznosKredita ]			= 	cache_get_field_content_int(0, "credit_amount");
-    PI[ playerid ][ xIznosRate ]			= 	cache_get_field_content_int(0, "credit_installment");
-    PI[ playerid ][ xOnlineSati ]			= 	cache_get_field_content_int(0, "xOnlineSati");
-    PI[ playerid ][ xGamemaster ]			= 	cache_get_field_content_int(0, "helper_level");
-    PI[ playerid ][ xWarn ]					= 	cache_get_field_content_int(0, "warn");
-    PI[ playerid ][ xMute ]					= 	cache_get_field_content_int(0, "mute");
-    PI[ playerid ][ xMarker ][ 0 ]			= 	cache_get_field_content_float(0, "marker_p1");
-    PI[ playerid ][ xMarker ][ 1 ]			= 	cache_get_field_content_float(0, "marker_p2");
-    PI[ playerid ][ xMarker ][ 2 ]			= 	cache_get_field_content_float(0, "marker_p3");
-    PI[ playerid ][ xOrgUgovor ]			= 	cache_get_field_content_int(0, "org_contract");
-	PI[ playerid ][ xGpsLevel ]				= 	cache_get_field_content_int(0, "gps_level");
-	PI[ playerid ][ xSkriptaRank ]			= 	cache_get_field_content_int(0, "spec_rank");
-	PI[ playerid ][ xDrzava ]				= 	cache_get_field_content_int(0, "country");
-	PI[ playerid ][ xVIPLevel ]				= 	cache_get_field_content_int(0, "vip_level");
-	PI[playerid][xPromoter]					=	cache_get_field_content_int(0, "promoter_level");
-	PI[ playerid ][ xHitmenCena ]			= 	cache_get_field_content_int(0, "hitman_price");
-	PI[ playerid ][ xKazneniUgovor ]		= 	cache_get_field_content_int(0, "org_punishment");
-	cache_get_field_content( 0, "offpjail", 		PI[ playerid ][ xOffPJail ], mSQL, 64 );
-	cache_get_field_content( 0, "offpprison", 		PI[ playerid ][ xOffPPrison ], mSQL, 64 );
-	cache_get_field_content( 0, "offpmute", 		PI[ playerid ][ xOffPMute ], mSQL, 64 );
-	PI[ playerid ][ xStaffMin ]				= 	cache_get_field_content_int(0, "staff_min");
-	PI[ playerid ][ xMarried ]				= 	cache_get_field_content_int(0, "married");
-	cache_get_field_content( 0, "married_to", 		PI[ playerid ][ xMarriedTo ], mSQL, 64 );
-	PI[ playerid ][ xSpecAdmin ]			= 	cache_get_field_content_int(0, "xSpecAdmin");
-	PI[ playerid ][ xBingoNumber ]			= 	cache_get_field_content_int(0, "xBingoNumber");
-	PI[ playerid ][ xBingoMoney ]			= 	cache_get_field_content_int(0, "xBingoMoney");
-	PI[ playerid ][ xSlotoviVozila ]		= 	cache_get_field_content_int(0, "vehicle_slots");
-	PI[ playerid ][ xPljackaVreme ]			= 	cache_get_field_content_int(0, "rob_time");
-	PI[ playerid ][ xLeaveJail ]			= 	cache_get_field_content_int(0, "leave_jail");
-	PI[ playerid ][ xHangarTime ]			= 	cache_get_field_content_int(0, "hangar_time");
-	PI[ playerid ][ xEvent1Mesto ]			= 	cache_get_field_content_int(0, "event_first_place");
-	PI[ playerid ][ xEvent2Mesto ]			= 	cache_get_field_content_int(0, "event_second_place");
-	PI[ playerid ][ xEvent3Mesto ]			= 	cache_get_field_content_int(0, "event_third_place");
-	PI[ playerid ][ xDMEventUbistva ]		= 	cache_get_field_content_int(0, "dm_event_kills");
-	PI[ playerid ][ xRentID ]				= 	cache_get_field_content_int(0, "rent_id");
-	PI[ playerid ][ xZlato ]				= 	cache_get_field_content_int(0, "xZlato");
-	PI[playerid][xDiamond]					=	cache_get_field_content_int(0, "xDiamond");
-	PI[ playerid ][ xRezervniKljucevi ]		= 	cache_get_field_content_int(0, "reserve_keys");
-	PI[ playerid ][ xDBO ]					= 	cache_get_field_content_int(0, "dbo");
-	PI[ playerid ][ xDBoja ]				= 	cache_get_field_content_int(0, "dbo_color");
-    PI[ playerid ][ xPBPoen ]				= 	cache_get_field_content_int(0, "xPBPoen");
-    PI[ playerid ][ xTiki ]					= 	cache_get_field_content_int(0, "xTiki");
-	PI[ playerid ][ xReactionPoen ]			= 	cache_get_field_content_int(0, "reaction_poen");
-	PI[ playerid ][ xVipTime ]				= 	cache_get_field_content_float(0, "vip_time");
-	PI[ playerid ][ xZauzimanjeVreme ]		= 	cache_get_field_content_int(0, "taking_time");
-	PI[ playerid ][ xPoklon ]				= 	cache_get_field_content_int(0, "gift");
-	PI[ playerid ][ xPaketic ]				= 	cache_get_field_content_int(0, "xPaketic");
-	PI[ playerid ][ xSvercer ]				= 	cache_get_field_content_int(0, "mats_smugl");
-	PI[ playerid ][ xRobVreme ]				= 	cache_get_field_content_int(0, "robp_time");
-	PI[ playerid ][ xAGMStats ]				= 	cache_get_field_content_int(0, "xAGMStats");
-    PI[ playerid ][ xBoombox ]				= 	bool:cache_get_field_content_int(0, "xBoombox");
-    PI[ playerid ][ xTorba_Pizza ]			= 	cache_get_field_content_int(0, "xTorba_Pizza");
-    PI[ playerid ][ xTorba_Sok ]			= 	cache_get_field_content_int(0, "xTorba_Sok");
-    PI[ playerid ][ xTorba_Pivo ]			= 	cache_get_field_content_int(0, "xTorba_Pivo");
-    PI[ playerid ][ xTorba_Hambi ]			= 	cache_get_field_content_int(0, "xTorba_Hambi");
-    PI[ playerid ][ xTorba_Riba ]			= 	cache_get_field_content_int(0, "xTorba_Riba");
-    PI[ playerid ][ xTorba_Laptop ]			= 	bool:cache_get_field_content_int(0, "xTorba_Laptop");
-    PI[ playerid ][ xTorba_Droga ]			= 	cache_get_field_content_int(0, "xTorba_Droga");
-    PI[ playerid ][ xTorba_Oruzje ][ 0 ]	= 	cache_get_field_content_int(0, "xTorba_Oruzje_1");
-    PI[ playerid ][ xTorba_Oruzje ][ 1 ]	= 	cache_get_field_content_int(0, "xTorba_Oruzje_2");
-    PI[ playerid ][ xTorba_Oruzje ][ 2 ]	= 	cache_get_field_content_int(0, "xTorba_Oruzje_3");
-    PI[ playerid ][ xTorba_OruzjeM ][ 0 ]	= 	cache_get_field_content_int(0, "xTorba_OruzjeM_1");
-    PI[ playerid ][ xTorba_OruzjeM ][ 1 ]	= 	cache_get_field_content_int(0, "xTorba_OruzjeM_2");
-    PI[ playerid ][ xTorba_OruzjeM ][ 2 ]	= 	cache_get_field_content_int(0, "xTorba_OruzjeM_3");
-    PI[ playerid ][ xTDColor ]              =   cache_get_field_content_int(0, "xTDColor");
-    PI[playerid][xFirework]					=	cache_get_field_content_int(0, "xFirework");
-    PI[playerid][xAktivnaIgra]				=	cache_get_field_content_int(0, "xAktivnaIgra");
-    PI[playerid][xBonPotvrda]				=	cache_get_field_content_int(0, "xBonPotvrda");
-    PI[playerid][xPaysPotvrda]              =   cache_get_field_content_int(0, "xPaysPotvrda");
-    PI[playerid][xVIPWarn]					=	cache_get_field_content_int(0, "xVIPWarn");
-    PI[playerid][xOglasWarn]				=	cache_get_field_content_int(0, "xOglasWarn");
-    PI[playerid][xTogLabel]					=	bool:cache_get_field_content_int(0, "xTogLabel");
+    cache_get_value_name_int(0, "property_id_1", PI[ playerid ][ xPropertySqlID ][ 0 ]);
+    cache_get_value_name_int(0, "property_id_2", PI[ playerid ][ xPropertySqlID ][ 1 ]);
+    cache_get_value_name_int(0, "property_id_3", PI[ playerid ][ xPropertySqlID ][ 2 ]);
+    
+ 	cache_get_value_name_int(0, "phone", PI[ playerid ][ xTelefon ]);
+ 	cache_get_value_name_int(0, "phone_credit", PI[ playerid ][ xTelefonBon ]);
+ 	cache_get_value_name_int(0, "strenght", PI[ playerid ][ xSnaga ]);
+ 	cache_get_value_name_int(0, "jail_type", PI[ playerid ][ xZatvor ]);
+ 	cache_get_value_name_int(0, "jail_time", PI[ playerid ][ xZatvorVreme ]);
+ 	cache_get_value_name_int(0, "wanted_level", PI[ playerid ][ xWanted ]);
+ 	cache_get_value_name_int(0, "arrested", PI[ playerid ][ xUhapsen ]);
+ 	cache_get_value_name_int(0, "pd_arrest", PI[ playerid ][ xPDUhapsio ]);
+ 	cache_get_value_name_int(0, "pd_statsticket", PI[ playerid ][ xPDStatsTicket ]);
+ 	cache_get_value_name_int(0, "pd_statsticket_money", PI[ playerid ][ xPDStatsTicketMoney ]);
+ 	cache_get_value_name_int(0, "taken_weapons", PI[ playerid ][ xTakenWeps ]);
+ 	cache_get_value_name_int(0, "taken_drugs", PI[ playerid ][ xTakenDrugs ]);
+ 	cache_get_value_name_int(0, "admin_code", PI[ playerid ][ xAKod ]);
+ 	cache_get_value_name_int(0, "watch", PI[ playerid ][ xSat ]);
+ 	cache_get_value_name_int(0, "bank_acc", PI[ playerid ][ xBRacun ]);
+ 	cache_get_value_name_int(0, "credit_rest", PI[ playerid ][ xPreostaloZaOtplatu ]);
+ 	cache_get_value_name_int(0, "credit_amount", PI[ playerid ][ xIznosKredita ]);
+ 	cache_get_value_name_int(0, "credit_installment", PI[ playerid ][ xIznosRate ]);
 
-	cache_get_field_content( 0, "gate_key", PI[ playerid ][ xKljucKapije ], mSQL, 24 );
-	cache_get_field_content( 0, "reg_date", PI[ playerid ][ xRegDate ], mSQL, 22 );
+ 	cache_get_value_name_int(0, "online_hours", PI[ playerid ][ xOnlineSati ]);
+ 	cache_get_value_name_int(0, "helper_level", PI[ playerid ][ xGamemaster ]);
+ 	cache_get_value_name_int(0, "warn", PI[ playerid ][ xWarn ]);
+ 	cache_get_value_name_int(0, "mute", PI[ playerid ][ xMute ]);
+ 	cache_get_value_name_float(0, "marker_p1", PI[ playerid ][ xMarker ][ 0 ]);
+ 	cache_get_value_name_float(0, "marker_p2", PI[ playerid ][ xMarker ][ 1 ]);
+ 	cache_get_value_name_float(0, "marker_p3", PI[ playerid ][ xMarker ][ 2 ]);
+ 	cache_get_value_name_int(0, "org_contract", PI[ playerid ][ xOrgUgovor ]);
+ 	cache_get_value_name_int(0, "gps_level", PI[ playerid ][ xGpsLevel ]);
+
+ 	cache_get_value_name_int(0, "spec_rank", PI[ playerid ][ xSkriptaRank ]);
+ 	cache_get_value_name_int(0, "country", PI[ playerid ][ xDrzava ]);
+ 	cache_get_value_name_int(0, "vip_level", PI[ playerid ][ xVIPLevel ]);
+	cache_get_value_name_int(0, "promoter_level", PI[ playerid ][ xPromoter ]);
+	cache_get_value_name_int(0, "youtuber", PI[ playerid ][ xYouTuber ]);
+ 	cache_get_value_name_int(0, "hitman_price", PI[ playerid ][ xHitmenCena ]);
+ 	cache_get_value_name_int(0, "org_punishment", PI[ playerid ][ xKazneniUgovor ]);
+	
+	cache_get_value_name( 0, "offpjail", 		PI[ playerid ][ xOffPJail ], 64 );
+	cache_get_value_name( 0, "offpprison", 		PI[ playerid ][ xOffPPrison ], 64 );
+	cache_get_value_name( 0, "offpmute", 		PI[ playerid ][ xOffPMute ], 64 );
+	
+ 	cache_get_value_name_int(0, "staff_min", PI[ playerid ][ xStaffMin ]);
+ 	cache_get_value_name_int(0, "married", PI[ playerid ][ xMarried ]);
+	
+	cache_get_value_name( 0, "married_to", 		PI[ playerid ][ xMarriedTo ], 64 );
+	
+ 	cache_get_value_name_int(0, "spec_admin", PI[ playerid ][ xSpecAdmin ]);
+ 	cache_get_value_name_int(0, "bingo_number", PI[ playerid ][ xBingoNumber ]);
+ 	cache_get_value_name_int(0, "bingo_money", PI[ playerid ][ xBingoMoney ]);
+ 	cache_get_value_name_int(0, "vehicle_slots", PI[ playerid ][ xSlotoviVozila ]);
+ 	cache_get_value_name_int(0, "rob_time", PI[ playerid ][ xPljackaVreme ]);
+ 	cache_get_value_name_int(0, "leave_jail", PI[ playerid ][ xLeaveJail ]);
+ 	cache_get_value_name_int(0, "hangar_time", PI[ playerid ][ xHangarTime ]);
+ 	cache_get_value_name_int(0, "event_first_place", PI[ playerid ][ xEvent1Mesto ]);
+ 	cache_get_value_name_int(0, "event_second_place", PI[ playerid ][ xEvent2Mesto ]);
+ 	cache_get_value_name_int(0, "event_third_place", PI[ playerid ][ xEvent3Mesto ]);
+
+	cache_get_value_name_int(0, "dm_event_kills", PI[ playerid ][ xDMEventUbistva ]);
+ 	cache_get_value_name_int(0, "rent_id", PI[ playerid ][ xRentID ]);
+ 	cache_get_value_name_int(0, "gold", PI[ playerid ][ xZlato ]);
+	cache_get_value_name_int(0, "diamond", PI[playerid][ xDiamond ]);
+ 	cache_get_value_name_int(0, "reserve_keys", PI[ playerid ][ xRezervniKljucevi ]);
+ 	cache_get_value_name_int(0, "dbo", PI[ playerid ][ xDBO ]);
+ 	cache_get_value_name_int(0, "dbo_color", PI[ playerid ][ xDBoja ]);
+ 	cache_get_value_name_int(0, "game_points", PI[ playerid ][ xPBPoen ]);
+ 	cache_get_value_name_int(0, "tikies", PI[ playerid ][ xTiki ]);
+ 	cache_get_value_name_int(0, "reaction_poen", PI[ playerid ][ xReactionPoen ]);
+ 	cache_get_value_name_float(0, "vip_time", PI[ playerid ][ xVipTime ]);
+ 	cache_get_value_name_int(0, "taking_time", PI[ playerid ][ xZauzimanjeVreme ]);
+ 	cache_get_value_name_int(0, "gift", PI[ playerid ][ xPoklon ]);
+ 	cache_get_value_name_int(0, "paket", PI[ playerid ][ xPaketic ]);
+ 	cache_get_value_name_int(0, "mats_smugl", PI[ playerid ][ xSvercer ]);
+
+ 	cache_get_value_name_int(0, "robp_time", PI[ playerid ][ xRobVreme ]);
+ 	cache_get_value_name_int(0, "agm_stats", PI[ playerid ][ xAGMStats ]);
+ 	cache_get_value_name_bool(0, "boombox", PI[ playerid ][ xBoombox ]);
+ 	cache_get_value_name_int(0, "backpack_pizza", PI[ playerid ][ xTorba_Pizza ]);
+ 	cache_get_value_name_int(0, "backpack_juice", PI[ playerid ][ xTorba_Sok ]);
+ 	cache_get_value_name_int(0, "backpack_beer", PI[ playerid ][ xTorba_Pivo ]);
+ 	cache_get_value_name_int(0, "backpack_hamburger", PI[ playerid ][ xTorba_Hambi ]);
+ 	cache_get_value_name_int(0, "backpack_fish", PI[ playerid ][ xTorba_Riba ]);
+ 	cache_get_value_name_bool(0, "backpack_laptop", PI[ playerid ][ xTorba_Laptop ]);
+ 	cache_get_value_name_int(0, "backpack_drug", PI[ playerid ][ xTorba_Droga ]);
+ 	cache_get_value_name_int(0, "backpack_gs_s1", PI[ playerid ][ xTorba_Oruzje ][ 0 ]);
+ 	cache_get_value_name_int(0, "backpack_gs_s2", PI[ playerid ][ xTorba_Oruzje ][ 1 ]);
+ 	cache_get_value_name_int(0, "backpack_gs_s3", PI[ playerid ][ xTorba_Oruzje ][ 2 ]);
+ 	cache_get_value_name_int(0, "backpack_am_s1", PI[ playerid ][ xTorba_OruzjeM ][ 0 ]);
+ 	cache_get_value_name_int(0, "backpack_am_s2", PI[ playerid ][ xTorba_OruzjeM ][ 1 ]);
+ 	cache_get_value_name_int(0, "backpack_am_s3", PI[ playerid ][ xTorba_OruzjeM ][ 2 ]);
+    
+    cache_get_value_name_int(0, "td_color", PI[ playerid ][ xTDColor ]);
+	cache_get_value_name_int(0, "firework", PI[ playerid ][ xFirework ]);
+	cache_get_value_name_int(0, "activity_game", PI[ playerid ][ xAktivnaIgra ]);
+	cache_get_value_name_int(0, "sms_confirmation", PI[ playerid ][ xBonPotvrda ]);
+    cache_get_value_name_int(0, "paysafe_confirmation", PI[ playerid ][ xPaysPotvrda ]);
+	cache_get_value_name_int(0, "vip_warn", PI[ playerid ][ xVIPWarn ]);
+	cache_get_value_name_int(0, "ad_warn", PI[ playerid ][ xOglasWarn ]);
+	cache_get_value_name_bool(0, "toggle_label", PI[ playerid ][ xTogLabel ]);
+
+	cache_get_value_name( 0, "gate_key", PI[ playerid ][ xKljucKapije ], 24 );
+	cache_get_value_name( 0, "reg_date", PI[ playerid ][ xRegDate ], 22 );
 
 	new sqlID = 0, OrgID = -1;
 
-	sqlID = cache_get_field_content_int( 0, "org_id" );
+	cache_get_value_name_int( 0, "org_id", sqlID );
 
 	if( sqlID != 0  )
 	{
@@ -22531,9 +22593,10 @@ _:public OnAccountLoad( playerid )
 
 	    if( OrgID != -1 )
 		{
-		    PI[ playerid ][ xRank ]	= cache_get_field_content_int(0, "memb_rank");
+			cache_get_value_name_int(0, "memb_rank", PI[ playerid ][ xRank ]);
 
-		    new o_type = cache_get_field_content_int( 0, "memb_type" );
+		    new o_type;
+			cache_get_value_name_int( 0, "memb_type", o_type );
 		    if( o_type == 1 ) PI[ playerid ][ xLider ] = OrgID;
 
 		    PI[ playerid ][ xClan ] = OrgID;
@@ -22841,7 +22904,7 @@ public OnGameModeInit()
 	//
 
 	Mysql_Connect();
-	mysql_log(LOG_ERROR | LOG_WARNING);
+	mysql_log(ERROR);
 
 	//
 
@@ -23044,7 +23107,7 @@ public OnGameModeInit()
 
 	//
 
-	print("(PB) "VERZIJA_MODA" by Trifun");
+	print("(MODE - tmpStructure): Started version ["VERZIJA_MODA"] on 'Windows'.");
 	print(" ");
 	return 1;
 }
@@ -23487,8 +23550,9 @@ public OnPlayerConnect(playerid)
     ServerInfo[BrojPosetaServeru]++;
 
 	if( ServerInfo[ RekordServera ] < Iter_Count(Player) )
+	{
 	    ServerInfo[ RekordServera ] = Iter_Count(Player);
-	
+	}
 
     PI[playerid][xID] = 0;
 
@@ -23529,11 +23593,9 @@ public OnPlayerConnect(playerid)
 _:public CheckPlayerBlacklist(playerid)
 {
 	new
-		rows,
-		fields,
-		str[160];
+	    rows = cache_num_rows(),
+	    str[160];
 
-	cache_get_data(rows, fields, mSQL);
 	if(rows)
 	{
 		AdminMsg(ADM_WARN, "[ADMIN] BlackListovano ime '%s' je pokusalo pristupiti serveru.", ImeIgraca(playerid));
@@ -23550,9 +23612,9 @@ _:public CheckPlayerBlacklist(playerid)
 
 _:public CheckPlayerAccount( playerid )
 {
-    new rows, fields;
-    cache_get_data( rows, fields, mSQL );
-
+	new
+	    rows = cache_num_rows();
+	    
     if( !rows )
 	{
         if( !IsRpNickname( ImeIgraca( playerid ) ) )
@@ -23575,10 +23637,10 @@ _:public CheckPlayerAccount( playerid )
     }
     else
 	{
-        cache_get_field_content( 0, "password", PI[ playerid ][ xLozinka ], mSQL, 150 );
-		PI[ playerid ][ xRegistrovan ] = cache_get_field_content_int( 0, "registered" );
-		PI[ playerid ][ xID ] = cache_get_field_content_int( 0, "user_id" );
-		PI[ playerid ][ xSkin ] = cache_get_field_content_int( 0, "skin_id" );
+        cache_get_value_name( 0, "password", PI[ playerid ][ xLozinka ], 150 );
+		cache_get_value_name_int( 0, "registered", PI[ playerid ][ xRegistrovan ] );
+		cache_get_value_name_int( 0, "user_id", PI[ playerid ][ xID ] );
+		cache_get_value_name_int( 0, "skin_id", PI[ playerid ][ xSkin ] );
 		
         if( PI[ playerid ][ xRegistrovan ] == 1 )
 		{
@@ -23604,19 +23666,19 @@ _:public CheckPlayerAccount( playerid )
 
 _:public checkPlayerJobSkills(playerid) 
 {
-	new rows, fields;
-	cache_get_data(rows, fields, mSQL);
-
+	new
+	    rows = cache_num_rows();
+	    
 	if(rows) 
 	{
-		jskInfo[playerid][skill_Mehanicar] = cache_get_field_content_int(0, "skill_mehanicar");
-		jskInfo[playerid][skill_PMunicije] = cache_get_field_content_int(0, "skill_pmunicije");
-		jskInfo[playerid][skill_Pilot] = cache_get_field_content_int(0, "skill_pilot");
-		jskInfo[playerid][skill_Rudar] = cache_get_field_content_int(0, "skill_rudar");
-		jskInfo[playerid][skill_PNovca] = cache_get_field_content_int(0, "skill_pnovca");
-		jskInfo[playerid][skill_Uber] = cache_get_field_content_int(0, "skill_uber");
-		jskInfo[playerid][skill_PNamjestaja] = cache_get_field_content_int(0, "skill_pnamjestaja");
-		jskInfo[playerid][skill_Fasader] = cache_get_field_content_int(0, "skill_fasader");
+ 		cache_get_value_name_int(0, "skill_mehanicar", jskInfo[playerid][skill_Mehanicar]);
+		cache_get_value_name_int(0, "skill_pmunicije", jskInfo[playerid][skill_PMunicije]);
+		cache_get_value_name_int(0, "skill_pilot", jskInfo[playerid][skill_Pilot]);
+		cache_get_value_name_int(0, "skill_rudar", jskInfo[playerid][skill_Rudar]);
+		cache_get_value_name_int(0, "skill_pnovca", jskInfo[playerid][skill_PNovca]);
+		cache_get_value_name_int(0, "skill_uber", jskInfo[playerid][skill_Uber]);
+		cache_get_value_name_int(0, "skill_pnamjestaja", jskInfo[playerid][skill_PNamjestaja]);
+		cache_get_value_name_int(0, "skill_fasader", jskInfo[playerid][skill_Fasader]);
 	}
 	else 
 	{
@@ -23629,51 +23691,34 @@ _:public checkPlayerJobSkills(playerid)
 	return 1;
 }
 
-_:public sql_updatejobskills(playerid) 
-{
-	new q[512];
-	mysql_format(mSQL, q, sizeof(q), "UPDATE `job_skills` SET `skill_mehanicar`='%d', `skill_pmunicije`='%d', `skill_pilot`='%d', `skill_rudar`='%d', `skill_pnovca`='%d', `skill_uber`='%d', `skill_pnamjestaja`='%d', `skill_fasader`='%d' WHERE `user_id`='%d'",
-										jskInfo[playerid][skill_Mehanicar],
-										jskInfo[playerid][skill_PMunicije],
-										jskInfo[playerid][skill_Pilot],
-										jskInfo[playerid][skill_Rudar],
-										jskInfo[playerid][skill_PNovca],
-										jskInfo[playerid][skill_Uber],
-										jskInfo[playerid][skill_PNamjestaja],
-										jskInfo[playerid][skill_Fasader],
-										PI[playerid][xID]);
-	mysql_tquery(mSQL, q);
-	return 1;
-}
-
 _:public checkPlayerQuests(playerid) 
 {
-	new rows, fields;
-	cache_get_data(rows, fields, mSQL);
-
+	new
+	    rows = cache_num_rows();
+	    
 	if(rows) 
 	{
-		questInfo[playerid][qt_EasyQuest][0] = bool:cache_get_field_content_int(0, "easy_quest_1");
-		questInfo[playerid][qt_EasyQuest][1] = bool:cache_get_field_content_int(0, "easy_quest_2");
-		questInfo[playerid][qt_EasyQuest][2] = bool:cache_get_field_content_int(0, "easy_quest_3");
-		questInfo[playerid][qt_EasyQuest][3] = bool:cache_get_field_content_int(0, "easy_quest_4");
-		questInfo[playerid][qt_EasyQuest][4] = bool:cache_get_field_content_int(0, "easy_quest_5");
-		questInfo[playerid][qt_EasyQuest][5] = bool:cache_get_field_content_int(0, "easy_quest_6");
-		questInfo[playerid][qt_EasyQuest][6] = bool:cache_get_field_content_int(0, "easy_quest_7");
-		questInfo[playerid][qt_EasyQuest][7] = bool:cache_get_field_content_int(0, "easy_quest_8");
-		questInfo[playerid][qt_EasyQuest][8] = bool:cache_get_field_content_int(0, "easy_quest_9");
-		questInfo[playerid][qt_EasyQuest][9] = bool:cache_get_field_content_int(0, "easy_quest_10");
+ 		cache_get_value_name_bool(0, "easy_quest_1", questInfo[playerid][qt_EasyQuest][0]);
+   		cache_get_value_name_bool(0, "easy_quest_2", questInfo[playerid][qt_EasyQuest][1]);
+		cache_get_value_name_bool(0, "easy_quest_3", questInfo[playerid][qt_EasyQuest][2]);
+		cache_get_value_name_bool(0, "easy_quest_4", questInfo[playerid][qt_EasyQuest][3]);
+		cache_get_value_name_bool(0, "easy_quest_5", questInfo[playerid][qt_EasyQuest][4]);
+		cache_get_value_name_bool(0, "easy_quest_6", questInfo[playerid][qt_EasyQuest][5]);
+		cache_get_value_name_bool(0, "easy_quest_7", questInfo[playerid][qt_EasyQuest][6]);
+		cache_get_value_name_bool(0, "easy_quest_8", questInfo[playerid][qt_EasyQuest][7]);
+		cache_get_value_name_bool(0, "easy_quest_9", questInfo[playerid][qt_EasyQuest][8]);
+		cache_get_value_name_bool(0, "easy_quest_10", questInfo[playerid][qt_EasyQuest][9]);
 
-		questInfo[playerid][qt_EasyRewardQuest][0] = bool:cache_get_field_content_int(0, "easy_reward_quest_1");
-		questInfo[playerid][qt_EasyRewardQuest][1] = bool:cache_get_field_content_int(0, "easy_reward_quest_2");
-		questInfo[playerid][qt_EasyRewardQuest][2] = bool:cache_get_field_content_int(0, "easy_reward_quest_3");
-		questInfo[playerid][qt_EasyRewardQuest][3] = bool:cache_get_field_content_int(0, "easy_reward_quest_4");
-		questInfo[playerid][qt_EasyRewardQuest][4] = bool:cache_get_field_content_int(0, "easy_reward_quest_5");
-		questInfo[playerid][qt_EasyRewardQuest][5] = bool:cache_get_field_content_int(0, "easy_reward_quest_6");
-		questInfo[playerid][qt_EasyRewardQuest][6] = bool:cache_get_field_content_int(0, "easy_reward_quest_7");
-		questInfo[playerid][qt_EasyRewardQuest][7] = bool:cache_get_field_content_int(0, "easy_reward_quest_8");
-		questInfo[playerid][qt_EasyRewardQuest][8] = bool:cache_get_field_content_int(0, "easy_reward_quest_9");
-		questInfo[playerid][qt_EasyRewardQuest][9] = bool:cache_get_field_content_int(0, "easy_reward_quest_10");
+		cache_get_value_name_bool(0, "easy_reward_quest_1", questInfo[playerid][qt_EasyRewardQuest][0]);
+		cache_get_value_name_bool(0, "easy_reward_quest_2", questInfo[playerid][qt_EasyRewardQuest][1]);
+		cache_get_value_name_bool(0, "easy_reward_quest_3", questInfo[playerid][qt_EasyRewardQuest][2]);
+		cache_get_value_name_bool(0, "easy_reward_quest_4", questInfo[playerid][qt_EasyRewardQuest][3]);
+		cache_get_value_name_bool(0, "easy_reward_quest_5", questInfo[playerid][qt_EasyRewardQuest][4]);
+		cache_get_value_name_bool(0, "easy_reward_quest_6", questInfo[playerid][qt_EasyRewardQuest][5]);
+		cache_get_value_name_bool(0, "easy_reward_quest_7", questInfo[playerid][qt_EasyRewardQuest][6]);
+		cache_get_value_name_bool(0, "easy_reward_quest_8", questInfo[playerid][qt_EasyRewardQuest][7]);
+		cache_get_value_name_bool(0, "easy_reward_quest_9", questInfo[playerid][qt_EasyRewardQuest][8]);
+		cache_get_value_name_bool(0, "easy_reward_quest_10", questInfo[playerid][qt_EasyRewardQuest][9]);
 	}
 	else 
 	{
@@ -23711,14 +23756,12 @@ SMG_SetPlayerSkin(playerid, skin)
 
 _:public selectQueryLeaderList( playerid )
 {
-    new rows, 
-    	fields, 
+    new
+		rows = cache_num_rows(),
     	p_name[ 24 ], 
     	last_login[ 22 ],
     	org_name[32],
     	is_online;
-
-    cache_get_data( rows, fields, mSQL );
 
     if( rows )
 	{
@@ -23727,13 +23770,13 @@ _:public selectQueryLeaderList( playerid )
 
         for( new i = 0; i < rows; i++ )
 		{
-            is_online = cache_get_field_content_int( i, "isonline" );
-            cache_get_field_content(i, "p_name", p_name, mSQL, 24);
-            cache_get_field_content(i, "name", org_name, mSQL, 32);
+            cache_get_value_name_int( i, "isonline", is_online );
+            cache_get_value_name(i, "p_name", p_name, 24);
+            cache_get_value_name(i, "name", org_name, 32);
 
             if( is_online == 0 )
 			{
-				cache_get_field_content( i, "last_login", last_login, mSQL, 22 );
+				cache_get_value_name( i, "last_login", last_login, 22 );
 
 				format( globalstring, 150, "{FFFFFF}%s\t{FF0000}%s\t%s\n", p_name, last_login, org_name );
 				strcat( DialogStrgEx, globalstring );
@@ -23755,14 +23798,12 @@ _:public selectQueryLeaderList( playerid )
 
 _:public selectQueryAdminList( playerid )
 {
-    new rows, 
-    	fields, 
+    new
+		rows = cache_num_rows(),
     	p_name[ 24 ], 
     	last_login[ 22 ], 
     	admin_lvl, 
     	is_online;
-
-    cache_get_data( rows, fields, mSQL );
 
     if( rows )
 	{
@@ -23771,13 +23812,13 @@ _:public selectQueryAdminList( playerid )
 
         for( new i = 0; i < rows; i++ )
 		{
-            admin_lvl = cache_get_field_content_int( i, "admin_lvl" );
-            is_online = cache_get_field_content_int( i, "isonline" );
-            cache_get_field_content( i, "p_name", p_name, mSQL, 24 );
+            cache_get_value_name_int( i, "admin_lvl", admin_lvl );
+            cache_get_value_name_int( i, "isonline", is_online );
+            cache_get_value_name( i, "p_name", p_name, 24 );
 
             if( is_online == 0 )
 			{
-				cache_get_field_content( i, "last_login", last_login, mSQL, 22 );
+				cache_get_value_name( i, "last_login", last_login, 22 );
 
 				format( globalstring, 150, "{FFFFFF}%s\t%s\t{FF0000}%s\t{FF0000}OffDuty\n", p_name, getAdminRankNamebyRank(admin_lvl), last_login );
 				strcat( DialogStrgEx, globalstring );
@@ -23799,13 +23840,11 @@ _:public selectQueryAdminList( playerid )
 
 _:public selectQuerySpecAdminList( playerid )
 {
-    new rows, 
-    	fields, 
+    new
+        rows = cache_num_rows(),
     	p_name[ 24 ], 
     	last_login[ 22 ], 
     	is_online;
-
-    cache_get_data( rows, fields, mSQL );
 
     if( rows )
 	{
@@ -23814,12 +23853,12 @@ _:public selectQuerySpecAdminList( playerid )
 
         for( new i = 0; i < rows; i++ )
 		{
-            is_online = cache_get_field_content_int( i, "isonline" );
-            cache_get_field_content( i, "p_name", p_name, mSQL, 24 );
+            cache_get_value_name_int( i, "isonline", is_online );
+            cache_get_value_name( i, "p_name", p_name, 24 );
 
             if( is_online == 0 )
 			{
-				cache_get_field_content( i, "last_login", last_login, mSQL, 22 );
+				cache_get_value_name( i, "last_login", last_login, 22 );
 
 				format( globalstring, 150, "{FFFFFF}%s\t{FF0000}%s\t{FF0000}OffDuty\n", p_name, last_login );
 				strcat( DialogStrgEx, globalstring );
@@ -23841,14 +23880,12 @@ _:public selectQuerySpecAdminList( playerid )
 
 _:public selectQueryGamemasterList( playerid )
 {
-    new rows, 
-    	fields, 
+    new
+		rows = cache_num_rows(),
     	p_name[ 24 ], 
     	last_login[ 22 ], 
     	helper_level,
     	is_online;
-
-    cache_get_data( rows, fields, mSQL );
 
     if( rows )
 	{
@@ -23857,13 +23894,13 @@ _:public selectQueryGamemasterList( playerid )
 
         for( new i = 0; i < rows; i ++ )
 		{
-            helper_level = cache_get_field_content_int( i, "helper_level" );
-            is_online = cache_get_field_content_int( i, "isonline" );
-            cache_get_field_content( i, "p_name", p_name, mSQL, 24 );
+            cache_get_value_name_int( i, "helper_level", helper_level );
+            cache_get_value_name_int( i, "isonline", is_online );
+            cache_get_value_name( i, "p_name", p_name, 24 );
 
 			if( is_online == 0 )
 			{
-				cache_get_field_content( i, "last_login", last_login, mSQL, 22 );
+				cache_get_value_name( i, "last_login", last_login, 22 );
 
 				format( globalstring, 150, "{FFFFFF}%s\tGM:%d\t{FF0000}%s\t{FF0000}OffDuty\n", p_name, helper_level, last_login );
 				strcat( DialogStrgEx, globalstring );
@@ -23886,14 +23923,12 @@ _:public selectQueryGamemasterList( playerid )
 
 _:public selectQueryVipList( playerid )
 {
-    new rows, 
-    	fields, 
+    new
+		rows = cache_num_rows(),
     	p_name[ 24 ], 
     	last_login[ 22 ], 
     	Vip_llc, 
     	is_online;
-
-    cache_get_data( rows, fields, mSQL );
 
     if( rows )
 	{
@@ -23902,13 +23937,13 @@ _:public selectQueryVipList( playerid )
 
         for( new i = 0; i < rows; i++)
 		{
-            Vip_llc = cache_get_field_content_int( i, "vip_level" );
-            is_online = cache_get_field_content_int( i, "isonline" );
-            cache_get_field_content( i, "p_name", p_name, mSQL, 24 );
+            cache_get_value_name_int( i, "vip_level", Vip_llc);
+            cache_get_value_name_int( i, "isonline", is_online );
+            cache_get_value_name( i, "p_name", p_name, 24 );
 
             if(is_online == 0 )
             {
-            	cache_get_field_content( i, "last_login", last_login, mSQL, 22 );
+            	cache_get_value_name( i, "last_login", last_login, 22 );
 
 				format( globalstring, sizeof( globalstring ), "{FFFFFF}%s\t%d\t{FF0000}%s\n", p_name, Vip_llc, last_login );
 				strcat( DialogStrgEx, globalstring );
@@ -23928,14 +23963,12 @@ _:public selectQueryVipList( playerid )
 
 _:public selectQueryPromoterList( playerid )
 {
-    new rows, 
-    	fields, 
+    new
+		rows = cache_num_rows(),
     	p_name[ 24 ], 
     	last_login[ 22 ],
     	is_online,
     	promo;
-
-    cache_get_data( rows, fields, mSQL );
 
     if( rows )
 	{
@@ -23944,13 +23977,13 @@ _:public selectQueryPromoterList( playerid )
 
         for( new i = 0; i < rows; i ++ )
 		{
-            promo = cache_get_field_content_int( i, "promoter_level" );
-            is_online = cache_get_field_content_int( i, "isonline" );
-            cache_get_field_content( i, "p_name", p_name, mSQL, 24 );
+            cache_get_value_name_int( i, "promoter_level", promo );
+            cache_get_value_name_int( i, "isonline", is_online );
+            cache_get_value_name( i, "p_name", p_name, 24 );
 
             if(is_online == 0 )
             {
-            	cache_get_field_content( i, "last_login", last_login, mSQL, 22 );
+            	cache_get_value_name( i, "last_login", last_login, 22 );
 
 				format( globalstring, sizeof( globalstring ), "{FFFFFF}%s\tP:%d\t{FF0000}%s\n", p_name, promo, last_login );
 				strcat( DialogStrgEx, globalstring );
@@ -23968,18 +24001,58 @@ _:public selectQueryPromoterList( playerid )
     return 1;
 }
 
+_:public selectQueryYouTuberList( playerid )
+{
+    new
+		rows = cache_num_rows(),
+    	p_name[ 24 ],
+    	last_login[ 22 ],
+    	is_online,
+    	promo;
+
+    if( rows )
+	{
+        strdel( DialogStrgEx, 0, sizeof( DialogStrgEx ) );
+        strcat( DialogStrgEx, "{FFFFFF}Name\t{FFFFFF}YouTuber\t{FFFFFF}Status\n" );
+
+        for( new i = 0; i < rows; i ++ )
+		{
+            cache_get_value_name_int( i, "youtuber", promo );
+            cache_get_value_name_int( i, "isonline", is_online );
+            cache_get_value_name( i, "p_name", p_name, 24 );
+
+            if(is_online == 0 )
+            {
+            	cache_get_value_name( i, "last_login", last_login, 22 );
+
+				format( globalstring, sizeof( globalstring ), "{FFFFFF}%s\tYT:%d\t{FF0000}%s\n", p_name, promo, last_login );
+				strcat( DialogStrgEx, globalstring );
+			}
+			else
+			{
+            	format( globalstring, sizeof( globalstring ), "{FFFFFF}[%d] %s\tYT:%d\t{00FF00}Online\n", GetPlayerIdFromName(p_name), p_name, promo );
+				strcat( DialogStrgEx, globalstring );
+			}
+		}
+		ShowPlayerDialog( playerid, 0, DIALOG_STYLE_TABLIST_HEADERS, "{FFFFFF}Lista svih YouTubera:", DialogStrgEx, "OK", "" );
+		strdel( DialogStrgEx, 0, sizeof( DialogStrgEx ) );
+    }
+    else SendErrorMessage( playerid, "Nema YouTubera." );
+    return 1;
+}
+
 _:public selectQueryVehModelList( playerid, model )
 {
-    new rows, fields;
-    cache_get_data( rows, fields, mSQL );
-
+	new
+	    rows = cache_num_rows();
+	    
     if( rows )
 	{
         strdel( DialogStrgEx, 0, sizeof( DialogStrgEx ) );
 		new autoid = -1, vehSqlID = -1;
         for( new j = 0; j < rows; j ++ )
 		{
-        	vehSqlID = cache_get_field_content_int( j, "veh_id" );
+        	cache_get_value_name_int( j, "veh_id", vehSqlID );
 			if( vehSqlID != -1 )
 			{
 	            for( new i = 1; i <= GetVehiclePoolSize(); i++ )
@@ -24010,9 +24083,9 @@ _:public selectQueryVehModelList( playerid, model )
 
 _:public OnClothesLoad( playerid )
 {
-    new rows, fields;
-    cache_get_data( rows, fields, mSQL );
-
+	new
+	    rows = cache_num_rows();
+	    
     if( !rows )
 	{
         new query[ 2048 ];
@@ -24049,57 +24122,57 @@ _:public OnClothesLoad( playerid )
     }
     else
 	{
-		clothes_info[ playerid ][ x_slot_1_model ]				= 	cache_get_field_content_int(0, "cloth_slot_1");
-		clothes_info[ playerid ][ x_slot_1_pos ][ 0 ]			= 	cache_get_field_content_float(0, "cloth_slot_1_p1");
-		clothes_info[ playerid ][ x_slot_1_pos ][ 1 ]			= 	cache_get_field_content_float(0, "cloth_slot_1_p2");
-		clothes_info[ playerid ][ x_slot_1_pos ][ 2 ]			= 	cache_get_field_content_float(0, "cloth_slot_1_p3");
-		clothes_info[ playerid ][ x_slot_1_pos ][ 3 ]			= 	cache_get_field_content_float(0, "cloth_slot_1_p4");
-		clothes_info[ playerid ][ x_slot_1_pos ][ 4 ]			= 	cache_get_field_content_float(0, "cloth_slot_1_p5");
-		clothes_info[ playerid ][ x_slot_1_pos ][ 5 ]			= 	cache_get_field_content_float(0, "cloth_slot_1_p6");
-		clothes_info[ playerid ][ x_slot_1_pos ][ 6 ]			= 	cache_get_field_content_float(0, "cloth_slot_1_p7");
-		clothes_info[ playerid ][ x_slot_1_pos ][ 7 ]			= 	cache_get_field_content_float(0, "cloth_slot_1_p8");
-		clothes_info[ playerid ][ x_slot_1_pos ][ 8 ]			= 	cache_get_field_content_float(0, "cloth_slot_1_p9");
+	 	cache_get_value_name_int(0, "cloth_slot_1", clothes_info[ playerid ][ x_slot_1_model ]);
+	 	cache_get_value_name_float(0, "cloth_slot_1_p1", clothes_info[ playerid ][ x_slot_1_pos ][ 0 ]);
+	 	cache_get_value_name_float(0, "cloth_slot_1_p2", clothes_info[ playerid ][ x_slot_1_pos ][ 1 ]);
+	 	cache_get_value_name_float(0, "cloth_slot_1_p3", clothes_info[ playerid ][ x_slot_1_pos ][ 2 ]);
+	 	cache_get_value_name_float(0, "cloth_slot_1_p4", clothes_info[ playerid ][ x_slot_1_pos ][ 3 ]);
+	 	cache_get_value_name_float(0, "cloth_slot_1_p5", clothes_info[ playerid ][ x_slot_1_pos ][ 4 ]);
+	 	cache_get_value_name_float(0, "cloth_slot_1_p6", clothes_info[ playerid ][ x_slot_1_pos ][ 5 ]);
+	 	cache_get_value_name_float(0, "cloth_slot_1_p7", clothes_info[ playerid ][ x_slot_1_pos ][ 6 ]);
+	 	cache_get_value_name_float(0, "cloth_slot_1_p8", clothes_info[ playerid ][ x_slot_1_pos ][ 7 ]);
+	 	cache_get_value_name_float(0, "cloth_slot_1_p9", clothes_info[ playerid ][ x_slot_1_pos ][ 8 ]);
 
-		clothes_info[ playerid ][ x_slot_2_model ]				= 	cache_get_field_content_int(0, "cloth_slot_2");
-		clothes_info[ playerid ][ x_slot_2_pos ][ 0 ]			= 	cache_get_field_content_float(0, "cloth_slot_2_p1");
-		clothes_info[ playerid ][ x_slot_2_pos ][ 1 ]			= 	cache_get_field_content_float(0, "cloth_slot_2_p2");
-		clothes_info[ playerid ][ x_slot_2_pos ][ 2 ]			= 	cache_get_field_content_float(0, "cloth_slot_2_p3");
-		clothes_info[ playerid ][ x_slot_2_pos ][ 3 ]			= 	cache_get_field_content_float(0, "cloth_slot_2_p4");
-		clothes_info[ playerid ][ x_slot_2_pos ][ 4 ]			= 	cache_get_field_content_float(0, "cloth_slot_2_p5");
-		clothes_info[ playerid ][ x_slot_2_pos ][ 5 ]			= 	cache_get_field_content_float(0, "cloth_slot_2_p6");
-		clothes_info[ playerid ][ x_slot_2_pos ][ 6 ]			= 	cache_get_field_content_float(0, "cloth_slot_2_p7");
-		clothes_info[ playerid ][ x_slot_2_pos ][ 7 ]			= 	cache_get_field_content_float(0, "cloth_slot_2_p8");
-		clothes_info[ playerid ][ x_slot_2_pos ][ 8 ]			= 	cache_get_field_content_float(0, "cloth_slot_2_p9");
+	 	cache_get_value_name_int(0, "cloth_slot_2", clothes_info[ playerid ][ x_slot_2_model ]);
+	 	cache_get_value_name_float(0, "cloth_slot_2_p1", clothes_info[ playerid ][ x_slot_2_pos ][ 0 ]);
+	 	cache_get_value_name_float(0, "cloth_slot_2_p2", clothes_info[ playerid ][ x_slot_2_pos ][ 1 ]);
+	 	cache_get_value_name_float(0, "cloth_slot_2_p3", clothes_info[ playerid ][ x_slot_2_pos ][ 2 ]);
+	 	cache_get_value_name_float(0, "cloth_slot_2_p4", clothes_info[ playerid ][ x_slot_2_pos ][ 3 ]);
+	 	cache_get_value_name_float(0, "cloth_slot_2_p5", clothes_info[ playerid ][ x_slot_2_pos ][ 4 ]);
+	 	cache_get_value_name_float(0, "cloth_slot_2_p6", clothes_info[ playerid ][ x_slot_2_pos ][ 5 ]);
+	 	cache_get_value_name_float(0, "cloth_slot_2_p7", clothes_info[ playerid ][ x_slot_2_pos ][ 6 ]);
+	 	cache_get_value_name_float(0, "cloth_slot_2_p8", clothes_info[ playerid ][ x_slot_2_pos ][ 7 ]);
+	 	cache_get_value_name_float(0, "cloth_slot_2_p9", clothes_info[ playerid ][ x_slot_2_pos ][ 8 ]);
 
-		clothes_info[ playerid ][ x_slot_3_model ]				= 	cache_get_field_content_int(0, "cloth_slot_3");
-		clothes_info[ playerid ][ x_slot_3_pos ][ 0 ]			= 	cache_get_field_content_float(0, "cloth_slot_3_p1");
-		clothes_info[ playerid ][ x_slot_3_pos ][ 1 ]			= 	cache_get_field_content_float(0, "cloth_slot_3_p2");
-		clothes_info[ playerid ][ x_slot_3_pos ][ 2 ]			= 	cache_get_field_content_float(0, "cloth_slot_3_p3");
-		clothes_info[ playerid ][ x_slot_3_pos ][ 3 ]			= 	cache_get_field_content_float(0, "cloth_slot_3_p4");
-		clothes_info[ playerid ][ x_slot_3_pos ][ 4 ]			= 	cache_get_field_content_float(0, "cloth_slot_3_p5");
-		clothes_info[ playerid ][ x_slot_3_pos ][ 5 ]			= 	cache_get_field_content_float(0, "cloth_slot_3_p6");
-		clothes_info[ playerid ][ x_slot_3_pos ][ 6 ]			= 	cache_get_field_content_float(0, "cloth_slot_3_p7");
-		clothes_info[ playerid ][ x_slot_3_pos ][ 7 ]			= 	cache_get_field_content_float(0, "cloth_slot_3_p8");
-		clothes_info[ playerid ][ x_slot_3_pos ][ 8 ]			= 	cache_get_field_content_float(0, "cloth_slot_3_p9");
+	 	cache_get_value_name_int(0, "cloth_slot_3", clothes_info[ playerid ][ x_slot_3_model ]);
+	 	cache_get_value_name_float(0, "cloth_slot_3_p1", clothes_info[ playerid ][ x_slot_3_pos ][ 0 ]);
+	 	cache_get_value_name_float(0, "cloth_slot_3_p2", clothes_info[ playerid ][ x_slot_3_pos ][ 1 ]);
+	 	cache_get_value_name_float(0, "cloth_slot_3_p3", clothes_info[ playerid ][ x_slot_3_pos ][ 2 ]);
+	 	cache_get_value_name_float(0, "cloth_slot_3_p4", clothes_info[ playerid ][ x_slot_3_pos ][ 3 ]);
+	 	cache_get_value_name_float(0, "cloth_slot_3_p5", clothes_info[ playerid ][ x_slot_3_pos ][ 4 ]);
+	 	cache_get_value_name_float(0, "cloth_slot_3_p6", clothes_info[ playerid ][ x_slot_3_pos ][ 5 ]);
+	 	cache_get_value_name_float(0, "cloth_slot_3_p7", clothes_info[ playerid ][ x_slot_3_pos ][ 6 ]);
+	 	cache_get_value_name_float(0, "cloth_slot_3_p8", clothes_info[ playerid ][ x_slot_3_pos ][ 7 ]);
+		cache_get_value_name_float(0, "cloth_slot_3_p9", clothes_info[ playerid ][ x_slot_3_pos ][ 8 ]);
 
-		clothes_info[ playerid ][ x_slot_4_model ]				= 	cache_get_field_content_int(0, "cloth_slot_4");
-		clothes_info[ playerid ][ x_slot_4_pos ][ 0 ]			= 	cache_get_field_content_float(0, "cloth_slot_4_p1");
-		clothes_info[ playerid ][ x_slot_4_pos ][ 1 ]			= 	cache_get_field_content_float(0, "cloth_slot_4_p2");
-		clothes_info[ playerid ][ x_slot_4_pos ][ 2 ]			= 	cache_get_field_content_float(0, "cloth_slot_4_p3");
-		clothes_info[ playerid ][ x_slot_4_pos ][ 3 ]			= 	cache_get_field_content_float(0, "cloth_slot_4_p4");
-		clothes_info[ playerid ][ x_slot_4_pos ][ 4 ]			= 	cache_get_field_content_float(0, "cloth_slot_4_p5");
-		clothes_info[ playerid ][ x_slot_4_pos ][ 5 ]			= 	cache_get_field_content_float(0, "cloth_slot_4_p6");
-		clothes_info[ playerid ][ x_slot_4_pos ][ 6 ]			= 	cache_get_field_content_float(0, "cloth_slot_4_p7");
-		clothes_info[ playerid ][ x_slot_4_pos ][ 7 ]			= 	cache_get_field_content_float(0, "cloth_slot_4_p8");
-		clothes_info[ playerid ][ x_slot_4_pos ][ 8 ]			= 	cache_get_field_content_float(0, "cloth_slot_4_p9");
+	 	cache_get_value_name_int(0, "cloth_slot_4", clothes_info[ playerid ][ x_slot_4_model ]);
+	 	cache_get_value_name_float(0, "cloth_slot_4_p1", clothes_info[ playerid ][ x_slot_4_pos ][ 0 ]);
+	 	cache_get_value_name_float(0, "cloth_slot_4_p2", clothes_info[ playerid ][ x_slot_4_pos ][ 1 ]);
+	 	cache_get_value_name_float(0, "cloth_slot_4_p3", clothes_info[ playerid ][ x_slot_4_pos ][ 2 ]);
+	 	cache_get_value_name_float(0, "cloth_slot_4_p4", clothes_info[ playerid ][ x_slot_4_pos ][ 3 ]);
+	 	cache_get_value_name_float(0, "cloth_slot_4_p5", clothes_info[ playerid ][ x_slot_4_pos ][ 4 ]);
+	 	cache_get_value_name_float(0, "cloth_slot_4_p6", clothes_info[ playerid ][ x_slot_4_pos ][ 5 ]);
+	 	cache_get_value_name_float(0, "cloth_slot_4_p7", clothes_info[ playerid ][ x_slot_4_pos ][ 6 ]);
+	 	cache_get_value_name_float(0, "cloth_slot_4_p8", clothes_info[ playerid ][ x_slot_4_pos ][ 7 ]);
+	 	cache_get_value_name_float(0, "cloth_slot_4_p9", clothes_info[ playerid ][ x_slot_4_pos ][ 8 ]);
 	}
 	return 1;
 }
 
 _:public CheckPlayerUnBan( playerid, imeigraca[] )
 {
-    new rows, fields;
-    cache_get_data( rows, fields, mSQL );
+    new
+		rows = cache_num_rows();
 
     if( !rows )
 	{
@@ -24108,13 +24181,15 @@ _:public CheckPlayerUnBan( playerid, imeigraca[] )
     else
 	{
         PI[ playerid ][ xAGMStats ]++;
-	    sql_user_update_integer( playerid, "xAGMStats", PI[ playerid ][ xAGMStats ] );
+	    sql_user_update_integer( playerid, "agm_stats", PI[ playerid ][ xAGMStats ] );
 	    ServerInfo[ BanovanihKorisnika ]--;
 
 		AdminMsg( ADM_WARN, "[ADMIN] %s je unbanovao igraca %s.", ImeIgraca( playerid ), imeigraca );
 		SCMF( playerid, -1, "Unbanovali ste igraca %s!", imeigraca );
 
-		sql_user_unban( cache_get_field_content_int( 0, "user_id" ) );
+		new user_id;
+		cache_get_value_name_int( 0, "user_id", user_id );
+		sql_user_unban( user_id );
 		WriteLog("log-unban", "Admin %s je unbanovao igraca %s", ImeIgraca( playerid ), imeigraca);
     }
 	return 1;
@@ -24122,9 +24197,9 @@ _:public CheckPlayerUnBan( playerid, imeigraca[] )
 
 _:public CheckPlayerRename( renameid, playerid, novoime[] )
 {
-    new rows, fields;
-    cache_get_data( rows, fields, mSQL );
-
+    new
+        rows = cache_num_rows();
+        
     if( rows )
 	{
 	    SendErrorMessage( playerid, "Novo ime vec postoji u bazi podataka!" );
@@ -24140,16 +24215,17 @@ _:public CheckPlayerRename( renameid, playerid, novoime[] )
 
 _:public CheckPlayerOffRank( playerid, type, imeigraca[] )
 {
-    new rows, fields;
-    cache_get_data( rows, fields, mSQL );
-
+	new
+	    rows = cache_num_rows();
+	    
     if( !rows )
 	{
 	    SendErrorMessage( playerid, "Taj igrac ne postoji u bazi podataka!");
     }
     else
 	{
-        new user_id = cache_get_field_content_int( 0, "user_id" );
+        new user_id;
+ 		cache_get_value_name_int( 0, "user_id", user_id );
 
         switch(type)
         {
@@ -24176,7 +24252,7 @@ _:public CheckPlayerOffRank( playerid, type, imeigraca[] )
 			case 3:
 			{
 			    new q[ 144 ];
-				mysql_format( mSQL, q, sizeof(q), "UPDATE `users` SET `xSpecAdmin` = '0', `spawn` = '0' WHERE `user_id` = '%d' LIMIT 1", user_id );
+				mysql_format( mSQL, q, sizeof(q), "UPDATE `users` SET `spec_admin` = '0', `spawn` = '0' WHERE `user_id` = '%d' LIMIT 1", user_id );
 		    	mysql_tquery( mSQL, q );
 
 				SCMF( playerid, CRVENA, "#OFFRANK: {FFFFFF}Smenili ste offline Spec Admina %s.", imeigraca );
@@ -24203,6 +24279,16 @@ _:public CheckPlayerOffRank( playerid, type, imeigraca[] )
 
 				WriteLog("log-smjenjivanja", "Admin %s je smenio %s sa pozicije Promotera.", ImeIgraca( playerid ), imeigraca);
 			}
+			case 6:
+			{
+			    new q[ 144 ];
+				mysql_format( mSQL, q, sizeof(q), "UPDATE `users` SET `youtuber` = '0', `spawn` = '0' WHERE `user_id` = '%d' LIMIT 1", user_id );
+		    	mysql_tquery( mSQL, q );
+
+				SCMF( playerid, CRVENA, "#OFFRANK: {FFFFFF}Smenili ste offline YouTubera %s.", imeigraca );
+
+				WriteLog("log-smjenjivanja", "Admin %s je smenio %s sa pozicije YouTubera.", ImeIgraca( playerid ), imeigraca);
+			}
 		}
 	}
     return 1;
@@ -24210,16 +24296,17 @@ _:public CheckPlayerOffRank( playerid, type, imeigraca[] )
 
 _:public CheckPlayerOffJandP( playerid, type, const imeigraca[], vreme, const razlog[] )
 {
-    new rows, fields;
-    cache_get_data( rows, fields, mSQL );
-
+	new
+	    rows = cache_num_rows();
+	    
     if( !rows ) 
     {
         SendErrorMessage( playerid, "Taj igrac ne postoji u bazi podataka!");
     }
     else {
 
-        new user_id = cache_get_field_content_int( 0, "user_id" );
+        new user_id;
+		cache_get_value_name_int( 0, "user_id", user_id );
 
 		switch(type)
 		{
@@ -24230,7 +24317,7 @@ _:public CheckPlayerOffJandP( playerid, type, const imeigraca[], vreme, const ra
 		    	mysql_tquery( mSQL, q );
 
 		    	PI[ playerid ][ xAGMStats ]++;
-			    sql_user_update_integer( playerid, "xAGMStats", PI[ playerid ][ xAGMStats ] );
+			    sql_user_update_integer( playerid, "agm_stats", PI[ playerid ][ xAGMStats ] );
 
 				SCMF( playerid, 0xFF6347FF, "#OFFJAIL: Postavili ste offline igraca %s u zatvor na %d minuta. Razlog: %s", imeigraca, vreme, razlog );
 
@@ -24243,7 +24330,7 @@ _:public CheckPlayerOffJandP( playerid, type, const imeigraca[], vreme, const ra
 		    	mysql_tquery( mSQL, q );
 
 		    	PI[ playerid ][ xAGMStats ]++;
-		    	sql_user_update_integer( playerid, "xAGMStats", PI[ playerid ][ xAGMStats ] );
+		    	sql_user_update_integer( playerid, "agm_stats", PI[ playerid ][ xAGMStats ] );
 
 				SCMF( playerid, 0xFF6347FF, "#OFFJAIL: Postavili ste offline igraca %s u prison na %d sati. Razlog: %s", imeigraca, (vreme/60), razlog );
 
@@ -24266,19 +24353,25 @@ _:public CheckPlayerOffJandP( playerid, type, const imeigraca[], vreme, const ra
 
 _:public CheckPlayerRemoveAcc( playerid, imeigraca[] )
 {
-    new rows, fields;
-    cache_get_data( rows, fields, mSQL );
-
+	new
+	    rows = cache_num_rows();
+	    
     if( !rows ) 
     {
         SendErrorMessage( playerid, "Taj igrac ne postoji u bazi podataka!");
     }
     else {
 
-        new property_id_1 = cache_get_field_content_int( 0, "property_id_1" );
-        new property_id_2 = cache_get_field_content_int( 0, "property_id_2" );
-        new property_id_3 = cache_get_field_content_int( 0, "property_id_3" );
-        new bussines_id = cache_get_field_content_int( 0, "bussines_id" );
+        new
+			property_id_1,
+			property_id_2,
+			property_id_3,
+			bussines_id;
+			
+        cache_get_value_name_int( 0, "property_id_1", property_id_1 );
+        cache_get_value_name_int( 0, "property_id_2", property_id_2 );
+        cache_get_value_name_int( 0, "property_id_3", property_id_3 );
+        cache_get_value_name_int( 0, "bussines_id", bussines_id );
 
         if( property_id_1 != -1 && strcmp( imeigraca, II[ property_id_1 ][ iOwner ], true) == 0)
 		{
@@ -24359,25 +24452,26 @@ _:public CheckPlayerRemoveAcc( playerid, imeigraca[] )
 
 _:public CheckPlayerRemoveVehAcc( playerid, imeigraca[] )
 {
-    new rows, fields;
-    cache_get_data( rows, fields, mSQL );
-
+	new
+	    rows = cache_num_rows();
+	    
     if( !rows )
 	{
         SendErrorMessage( playerid, "Taj igrac ne postoji u bazi podataka.");
     }
     else
 	{
-        new user_id = cache_get_field_content_int( 0, "user_id" );
+        new user_id;
+		cache_get_value_name_int( 0, "user_id", user_id );
 
         new mail_e[ 50 ];
-		cache_get_field_content( 0, "email", mail_e, mSQL, 50 );
+		cache_get_value_name( 0, "email", mail_e, 50 );
 
 		new veh_id, veh_model;
 		for( new i = 0; i < rows; i ++ ) 
 		{
-            veh_id = cache_get_field_content_int( i, "veh_id" );
-            veh_model = cache_get_field_content_int( i, "v_model" );
+            cache_get_value_name_int( i, "veh_id", veh_id );
+            cache_get_value_name_int( i, "v_model", veh_model );
 
 			if( veh_id > 0 && veh_model >= 400)
 			{
@@ -24398,16 +24492,17 @@ _:public CheckPlayerRemoveVehAcc( playerid, imeigraca[] )
 
 _:public CheckPlayerRemoveStats( playerid, vrsta, const imeigraca[] )
 {
-    new rows, fields;
-    cache_get_data( rows, fields, mSQL );
-
+	new
+	    rows = cache_num_rows();
+	    
     if( !rows )
     {
         SendErrorMessage( playerid, "Taj igrac ne postoji u bazi podataka!");
     }
     else 
     {
-        new user_id = cache_get_field_content_int( 0, "user_id" );
+        new user_id;
+		cache_get_value_name_int( 0, "user_id", user_id );
 
 	    new q[ 128 ];
 		switch( vrsta )
@@ -24455,9 +24550,9 @@ _:public CheckPlayerRemoveStats( playerid, vrsta, const imeigraca[] )
 
 _:public CheckPlayerChangePW( playerid, imeigraca[] )
 {
-    new rows, fields;
-    cache_get_data( rows, fields, mSQL );
-
+	new
+	    rows = cache_num_rows();
+	    
     if( !rows )
     {
         SendErrorMessage( playerid, "Taj igrac ne postoji u bazi podataka!");
@@ -24465,8 +24560,11 @@ _:public CheckPlayerChangePW( playerid, imeigraca[] )
     else 
     {
         new 
-        	user_id = cache_get_field_content_int( 0, "user_id" ),
-        	novalozinka[ 32 ],
+        	user_id;
+		cache_get_value_name_int( 0, "user_id", user_id );
+ 			
+   		new
+			novalozinka[ 32 ],
         	randombroj = 100000 + random(899999);
 
 		format( novalozinka, sizeof( novalozinka ), "%d", randombroj );
@@ -24487,9 +24585,9 @@ _:public CheckPlayerChangePW( playerid, imeigraca[] )
 
 _:public deleteoffvehicle( playerid, const imeigraca[] )
 {
-    new rows, fields;
-    cache_get_data( rows, fields, mSQL );
-
+	new
+	    rows = cache_num_rows();
+	    
     if( !rows )
 	{
         SendErrorMessage( playerid, "Izabrani igrac nema to vozilo u vlasnistvu!");
@@ -24498,8 +24596,10 @@ _:public deleteoffvehicle( playerid, const imeigraca[] )
 	{
         strdel( DialogStrgEx, 0, sizeof( DialogStrgEx ) );
 
-        new veh_id = cache_get_field_content_int( 0, "veh_id" );
-		new veh_model = cache_get_field_content_int( 0, "v_model" );
+        new veh_id;
+		cache_get_value_name_int( 0, "veh_id", veh_id );
+		new veh_model;
+		cache_get_value_name_int( 0, "v_model", veh_model );
 
         new str[ 144 ];
         format( str, sizeof( str ), "{FFFFFF}Izabrano vozilo %s (SQLID: %d) je u vlasnistvu %s.\n", GetVehicleNameEx( veh_model ), veh_model, imeigraca );
@@ -24517,9 +24617,9 @@ _:public deleteoffvehicle( playerid, const imeigraca[] )
 
 _:public CheckPlayerOffVeh( playerid, imeigraca[] )
 {
-    new rows, fields;
-    cache_get_data( rows, fields, mSQL );
-
+	new
+	    rows = cache_num_rows();
+	    
     if( !rows )
     {
         SendErrorMessage( playerid, "Taj igrac ne postoji u bazi podataka!");
@@ -24528,7 +24628,8 @@ _:public CheckPlayerOffVeh( playerid, imeigraca[] )
 
         strdel( DialogStrgEx, 0, sizeof( DialogStrgEx ) );
 
-        new vehicle_slots	= 	cache_get_field_content_int( 0, "vehicle_slots");
+        new vehicle_slots;
+		cache_get_value_name_int( 0, "vehicle_slots", vehicle_slots );
 
         new veh_model, veh_id;
 
@@ -24538,8 +24639,8 @@ _:public CheckPlayerOffVeh( playerid, imeigraca[] )
 
         for( new i = 0; i < rows; i ++ )
         {
-            veh_id = cache_get_field_content_int( i, "veh_id" );
-            veh_model = cache_get_field_content_int( i, "v_model" );
+            cache_get_value_name_int( i, "veh_id", veh_id );
+            cache_get_value_name_int( i, "v_model", veh_model );
 
 			if( veh_id > 0 && veh_model >= 400 )
 			{
@@ -24564,7 +24665,7 @@ _:public CheckPlayerOffRich_Z( playerid, imeigraca[] )
     new query[ 1024 ];
 	mysql_format( mSQL, query, sizeof(query), 
 
-			"SELECT users.money, users.xBRacun, users.property_id_1, users.property_id_2, users.property_id_3, users.bussines_id, \
+			"SELECT users.money, users.bank_acc, users.property_id_1, users.property_id_2, users.property_id_3, users.bussines_id, \
 				IFNULL(org_members.org_id, 0) AS `org_id`, IFNULL(banned.ban_id, 0) AS `ban_id`, banned.ban_reason FROM users \
 			    LEFT JOIN org_members ON users.user_id = org_members.memb_sqlID \
                 LEFT JOIN banned ON users.user_id = banned.user_id \
@@ -24578,18 +24679,20 @@ _:public CheckPlayerOffRich_Z( playerid, imeigraca[] )
 
 _:public CheckPlayerOffRich( playerid, imeigraca[] )
 {
-    new rows, fields;
-    cache_get_data( rows, fields, mSQL );
-
+	new
+	    rows = cache_num_rows();
+	    
     if( !rows )
 	{
         SendErrorMessage( playerid, "Taj igrac ne postoji u bazi podataka!");
     }
     else
 	{
-		new novac =  cache_get_field_content_int(0, "money");
+		new novac;
+	 	cache_get_value_name_int(0, "money", novac);
 
-		new fsqlID = cache_get_field_content_int(0, "bussines_id");
+		new fsqlID;
+		cache_get_value_name_int(0, "bussines_id", fsqlID);
 
 		new firma = -1;
         if( PI[ playerid ][ xBussinesSqlID ] != 0 )
@@ -24604,16 +24707,21 @@ _:public CheckPlayerOffRich( playerid, imeigraca[] )
 			}
 		}
 
-	    new property_1 = cache_get_field_content_int(0, "property_id_1");
-	    new property_2 = cache_get_field_content_int(0, "property_id_2");
-	    new property_3 = cache_get_field_content_int(0, "property_id_3");
+	    new property_1;
+		cache_get_value_name_int(0, "property_id_1", property_1);
+	    new property_2;
+		cache_get_value_name_int(0, "property_id_2", property_2);
+	    new property_3;
+		cache_get_value_name_int(0, "property_id_3", property_3);
 
-	    new bank_money = cache_get_field_content_int(0, "xBRacun");
+	    new bank_money;
+		cache_get_value_name_int(0, "bank_acc", bank_money);
 
 	    new user_ip[ 64 ];
-		cache_get_field_content( 0, "user_ip", user_ip, mSQL, 64 );
+		cache_get_value_name( 0, "user_ip", user_ip, 64 );
 
-        new osqlID 	= 	cache_get_field_content_int(0, "org_id");
+        new osqlID;
+		cache_get_value_name_int(0, "org_id", osqlID);
 
         new OrgID = -1;
 		for( new id = 1; id < MAX_ORG; id++)
@@ -24625,7 +24733,8 @@ _:public CheckPlayerOffRich( playerid, imeigraca[] )
 		    }
 		}
 
-        new ban_id 	= cache_get_field_content_int(0, "ban_id");
+        new ban_id;
+		cache_get_value_name_int(0, "ban_id", ban_id);
         
         new ban_reason[ 64 ], 
         	ban_string[ 5 ];
@@ -24633,7 +24742,7 @@ _:public CheckPlayerOffRich( playerid, imeigraca[] )
 		if( ban_id > 0 )
 		{
             ban_string = "Da";
-            cache_get_field_content( 0, "ban_reason", ban_reason, mSQL, 64 );
+            cache_get_value_name( 0, "ban_reason", ban_reason, 64 );
 	    }
 	    else
 		{
@@ -24655,22 +24764,30 @@ _:public CheckPlayerOffRich( playerid, imeigraca[] )
 
 _:public CheckPlayerOffStats( playerid, imeigraca[] )
 {
-    new rows, fields;
-    cache_get_data( rows, fields, mSQL );
-
+	new
+	    rows = cache_num_rows();
+	    
     if( !rows )
 	{
         SendErrorMessage( playerid, "Taj igrac ne postoji u bazi podataka!");
     }
     else
 	{
-		new pol			    = 	cache_get_field_content_int(0, "sex");
-		new godine			= 	cache_get_field_content_int(0, "age");
-		new novac			= 	cache_get_field_content_int(0, "money");
-		new level			= 	cache_get_field_content_int(0, "level");
-		new exp			    = 	cache_get_field_content_int(0, "exp");
+	    new
+	        pol,
+	        godine,
+	        novac,
+	        level,
+	        exp;
+	    
+		cache_get_value_name_int(0, "sex", pol);
+		cache_get_value_name_int(0, "age", godine);
+		cache_get_value_name_int(0, "money", novac);
+		cache_get_value_name_int(0, "level", level);
+		cache_get_value_name_int(0, "exp", exp);
 
-		new fsqlID = cache_get_field_content_int(0, "bussines_id");
+		new fsqlID;
+		cache_get_value_name_int(0, "bussines_id", fsqlID);
 
 		new firma = -1;
         if( PI[ playerid ][ xBussinesSqlID ] != 0 )
@@ -24684,38 +24801,50 @@ _:public CheckPlayerOffStats( playerid, imeigraca[] )
 				}
 			}
 		}
+		new
+		    posao,
+		    property_1,
+		    property_2,
+		    property_3,
+		    bank_money,
+		    onlinesati,
+		    admin_level,
+		    helper_level,
+		    warns;
 
-		new posao				= 	cache_get_field_content_int(0, "job_id");
+		cache_get_value_name_int(0, "job_id", posao);
 
-	    new property_1			= 	cache_get_field_content_int(0, "property_id_1");
-	    new property_2			= 	cache_get_field_content_int(0, "property_id_2");
-	    new property_3			= 	cache_get_field_content_int(0, "property_id_3");
+	    cache_get_value_name_int(0, "property_id_1", property_1);
+	    cache_get_value_name_int(0, "property_id_2", property_2);
+	    cache_get_value_name_int(0, "property_id_3", property_3);
 
-	    new bank_money			= 	cache_get_field_content_int(0, "xBRacun");
-	    new onlinesati			= 	cache_get_field_content_int(0, "xOnlineSati");
-	    new admin_level			= 	cache_get_field_content_int(0, "admin_lvl");
-	    new helper_level		= 	cache_get_field_content_int(0, "helper_level");
-	    new warns				= 	cache_get_field_content_int(0, "warn");
+	    cache_get_value_name_int(0, "bank_acc", bank_money);
+	    cache_get_value_name_int(0, "online_hours", onlinesati);
+	    cache_get_value_name_int(0, "admin_lvl", admin_level);
+	    cache_get_value_name_int(0, "helper_level", helper_level);
+     	cache_get_value_name_int(0, "warn", warns);
 
 		new mail_e[ 128 ];
-		cache_get_field_content( 0, "email", mail_e, mSQL, 128 );
+		cache_get_value_name( 0, "email", mail_e, 128 );
 
-		new staff_min			= 	cache_get_field_content_int(0, "staff_min");
+		new staff_min;
+		cache_get_value_name_int(0, "staff_min", staff_min);
 
 		new lastlogin[ 64 ];
-		cache_get_field_content( 0, "last_login", lastlogin, mSQL, 64 );
+		cache_get_value_name( 0, "last_login", lastlogin, 64 );
 
         new regdate[ 64 ];
-		cache_get_field_content( 0, "reg_date", regdate, mSQL, 64 );
+		cache_get_value_name( 0, "reg_date", regdate, 64 );
 
 	    new user_ip[ 64 ];
-		cache_get_field_content( 0, "user_ip", user_ip, mSQL, 64 );
+		cache_get_value_name( 0, "user_ip", user_ip, 64 );
 
-	    new rank 				= 	cache_get_field_content_int(0, "memb_rank");
+	    new rank;
+		cache_get_value_name_int(0, "memb_rank", rank);
 
         new osqlID = 0, OrgID = 0;
 
-		osqlID 					= cache_get_field_content_int( 0, "org_id" );
+		cache_get_value_name_int( 0, "org_id", osqlID );
 
 		if( osqlID != 0  )
 		{
@@ -24728,14 +24857,14 @@ _:public CheckPlayerOffStats( playerid, imeigraca[] )
 				}
 			}
 		}
-
-        new ban_id 	= 		cache_get_field_content_int(0, "ban_id");
+		new ban_id;
+		cache_get_value_name_int(0, "ban_id", ban_id);
         new ban_reason[ 64 ] ,ban_string[ 5 ];
 
 		if( ban_id > 0 )
 		{
             ban_string = "Da";
-            cache_get_field_content( 0, "ban_reason", ban_reason, mSQL, 64 );
+            cache_get_value_name( 0, "ban_reason", ban_reason, 64 );
 	    }
 	    else
 		{
@@ -24768,16 +24897,17 @@ _:public CheckPlayerOffStats( playerid, imeigraca[] )
 
 _:public CheckPlayerOffOrgKick( type, OrgID, playerid, const imeigraca[] )
 {
-    new rows, fields;
-    cache_get_data( rows, fields, mSQL );
-
+	new
+	    rows = cache_num_rows();
+	    
     if( !rows )
 	{
         SendErrorMessage( playerid, "Taj igrac ne postoji u bazi podataka!");
     }
     else
 	{
-        new user_id = cache_get_field_content_int( 0, "user_id" );
+        new user_id;
+ 		cache_get_value_name_int( 0, "user_id", user_id );
 
         new done = 0;
 		for( new i = 0; i < org_info[ OrgID ][ oMaxClanova ]+2; i++ )
@@ -24814,19 +24944,20 @@ _:public CheckPlayerOffOrgKick( type, OrgID, playerid, const imeigraca[] )
 
 _:public CheckPlayerOffBan( const reason[], playerid, const imeigraca[] )
 {
-    new rows, fields;
-    cache_get_data( rows, fields, mSQL );
-
+	new
+	    rows = cache_num_rows();
+	    
     if( !rows )
     {
         SendErrorMessage( playerid, "Taj igrac ne postoji u bazi podataka!");
     }
     else 
     {
-        new user_id = cache_get_field_content_int( 0, "user_id" );
+        new user_id;
+		cache_get_value_name_int( 0, "user_id", user_id );
 
         PI[ playerid ][ xAGMStats ]++;
-	    sql_user_update_integer( playerid, "xAGMStats", PI[ playerid ][ xAGMStats ] );
+	    sql_user_update_integer( playerid, "agm_stats", PI[ playerid ][ xAGMStats ] );
 		ServerInfo[ BanovanihKorisnika ]++;
 
 		sql_ban_user( imeigraca, user_id, 1, reason, ImeIgraca( playerid ) ); 
@@ -24839,9 +24970,9 @@ _:public CheckPlayerOffBan( const reason[], playerid, const imeigraca[] )
 
 _:public CheckPlayerBan( playerid )
 {
-    new rows, fields;
-    cache_get_data( rows, fields, mSQL );
-
+	new
+	    rows = cache_num_rows();
+	    
     if( !rows )
 	{
         InterpolatePogledLogin(playerid);
@@ -24849,16 +24980,19 @@ _:public CheckPlayerBan( playerid )
     }
     else
 	{
-        new user_id, ban_type;
-		user_id = cache_get_field_content_int( 0, "user_id" );
-		ban_type = cache_get_field_content_int( 0, "ban_type" );
+        new
+			user_id,
+			ban_type;
+        
+		cache_get_value_name_int( 0, "user_id", user_id);
+		cache_get_value_name_int( 0, "ban_type", ban_type );
 
 		if( ban_type == 1 )
 		{
 		    new ban_reason[ 64 ], ban_date[ 64 ], ban_admin[ MAX_PLAYER_NAME ];
-		    cache_get_field_content( 0, "ban_reason", ban_reason, mSQL, 150 );
-		    cache_get_field_content( 0, "ban_date", ban_date, mSQL, 150 );
-		    cache_get_field_content( 0, "ban_admin", ban_admin, mSQL, 150 );
+		    cache_get_value_name( 0, "ban_reason", ban_reason, 150 );
+		    cache_get_value_name( 0, "ban_date", ban_date, 150 );
+		    cache_get_value_name( 0, "ban_admin", ban_admin, 150 );
 
   			if( user_id == PI[ playerid ][ xID ] )
 			{
@@ -24883,10 +25017,11 @@ _:public CheckPlayerBan( playerid )
 		else if( ban_type == 2 )
 		{
 			new ban_reason[ 64 ], ban_date[ 64 ], ban_admin[ MAX_PLAYER_NAME ];
-		    cache_get_field_content( 0, "ban_reason", ban_reason, mSQL, 150 );
-		    cache_get_field_content( 0, "ban_date", ban_date, mSQL, 150 );
-		    cache_get_field_content( 0, "ban_admin", ban_admin, mSQL, 150 );
-		    new ban_time = cache_get_field_content_int( 0, "ban_time" );
+		    cache_get_value_name( 0, "ban_reason", ban_reason, 150 );
+		    cache_get_value_name( 0, "ban_date", ban_date, 150 );
+		    cache_get_value_name( 0, "ban_admin", ban_admin, 150 );
+		    new ban_time;
+		 	cache_get_value_name_int( 0, "ban_time", ban_time );
 
 			if( ban_time > 0 )
 			{
@@ -25162,6 +25297,7 @@ public OnPlayerDisconnect( playerid, reason )
 	if( AdminVozilo[ playerid ] != -1 ) VehicleInfo[ AdminVozilo[ playerid ] ][ Validv3DText ] = false, DestroyDynamic3DTextLabel(VehicleInfo[ AdminVozilo[ playerid ] ][ v3DText ]), SMG_DestroyVehicle( AdminVozilo[ playerid ] ), ResetVehicle( AdminVozilo[ playerid ] ), AdminVozilo[ playerid ] = -1;
 	if( VipVozilo[ playerid ] != -1 ) VehicleInfo[ VipVozilo[ playerid ] ][ Validv3DText ] = false, DestroyDynamic3DTextLabel(VehicleInfo[ VipVozilo[ playerid ] ][ v3DText ]), SMG_DestroyVehicle( VipVozilo[ playerid ] ), ResetVehicle( VipVozilo[ playerid ] ), VipVozilo[ playerid ] = -1;
 	if( PromoterVozilo[ playerid ] != -1 ) VehicleInfo[ PromoterVozilo[ playerid ] ][ Validv3DText ] = false, DestroyDynamic3DTextLabel(VehicleInfo[ PromoterVozilo[ playerid ] ][ v3DText ]), SMG_DestroyVehicle( PromoterVozilo[ playerid ] ), ResetVehicle( PromoterVozilo[ playerid ] ), PromoterVozilo[ playerid ] = -1;
+	if( YTVozilo[ playerid ] != -1 ) VehicleInfo[ YTVozilo[ playerid ] ][ Validv3DText ] = false, DestroyDynamic3DTextLabel(VehicleInfo[ YTVozilo[ playerid ] ][ v3DText ]), SMG_DestroyVehicle( YTVozilo[ playerid ] ), ResetVehicle( YTVozilo[ playerid ] ), YTVozilo[ playerid ] = -1;
 	if( PosaoVozilo[ playerid ] != -1 ) VehicleInfo[ PosaoVozilo[ playerid ] ][ Validv3DText ] = false, DestroyDynamic3DTextLabel(VehicleInfo[ PosaoVozilo[ playerid ] ][ v3DText ]), SMG_DestroyVehicle( PosaoVozilo[ playerid ] ), ResetVehicle( PosaoVozilo[ playerid ] ), PosaoVozilo[ playerid ] = -1;
 	if( PosaoTrailer[ playerid ] != -1 ) VehicleInfo[ PosaoTrailer[ playerid ] ][ Validv3DText ] = false, DestroyDynamic3DTextLabel(VehicleInfo[ PosaoTrailer[ playerid ] ][ v3DText ]), SMG_DestroyVehicle( PosaoTrailer[ playerid ] ), ResetVehicle( PosaoTrailer[ playerid ] ), PosaoTrailer[ playerid ] = -1;
 	if( TrkaVozilo[ playerid ] != -1 ) SMG_DestroyVehicle( TrkaVozilo[ playerid ] ), ResetVehicle( TrkaVozilo[ playerid ] ), TrkaVozilo[ playerid ] = -1;
@@ -25404,6 +25540,7 @@ public OnPlayerSpawn( playerid )
     if( AdminVozilo[ playerid ] != -1 ) VehicleInfo[ AdminVozilo[ playerid ] ][ Validv3DText ] = false, DestroyDynamic3DTextLabel(VehicleInfo[ AdminVozilo[ playerid ] ][ v3DText ]), SMG_DestroyVehicle( AdminVozilo[ playerid ] ), ResetVehicle( AdminVozilo[ playerid ] ), AdminVozilo[ playerid ] = -1;
 	if( VipVozilo[ playerid ] != -1 ) VehicleInfo[ VipVozilo[ playerid ] ][ Validv3DText ] = false, DestroyDynamic3DTextLabel(VehicleInfo[ VipVozilo[ playerid ] ][ v3DText ]), SMG_DestroyVehicle( VipVozilo[ playerid ] ), ResetVehicle( VipVozilo[ playerid ] ), VipVozilo[ playerid ] = -1;
 	if( PromoterVozilo[ playerid ] != -1 ) VehicleInfo[ PromoterVozilo[ playerid ] ][ Validv3DText ] = false, DestroyDynamic3DTextLabel(VehicleInfo[ PromoterVozilo[ playerid ] ][ v3DText ]), SMG_DestroyVehicle( PromoterVozilo[ playerid ] ), ResetVehicle( PromoterVozilo[ playerid ] ), PromoterVozilo[ playerid ] = -1;
+	if( YTVozilo[ playerid ] != -1 ) VehicleInfo[ YTVozilo[ playerid ] ][ Validv3DText ] = false, DestroyDynamic3DTextLabel(VehicleInfo[ YTVozilo[ playerid ] ][ v3DText ]), SMG_DestroyVehicle( YTVozilo[ playerid ] ), ResetVehicle( YTVozilo[ playerid ] ), YTVozilo[ playerid ] = -1;
 	if( PosaoVozilo[ playerid ] != -1 ) VehicleInfo[ PosaoVozilo[ playerid ] ][ Validv3DText ] = false, DestroyDynamic3DTextLabel(VehicleInfo[ PosaoVozilo[ playerid ] ][ v3DText ]), SMG_DestroyVehicle( PosaoVozilo[ playerid ] ), ResetVehicle( PosaoVozilo[ playerid ] ), PosaoVozilo[ playerid ] = -1;
 	if( PosaoTrailer[ playerid ] != -1 ) VehicleInfo[ PosaoTrailer[ playerid ] ][ Validv3DText ] = false, DestroyDynamic3DTextLabel(VehicleInfo[ PosaoTrailer[ playerid ] ][ v3DText ]), SMG_DestroyVehicle( PosaoTrailer[ playerid ] ), ResetVehicle( PosaoTrailer[ playerid ] ), PosaoTrailer[ playerid ] = -1;
 	if( TrkaVozilo[ playerid ] != -1 ) SMG_DestroyVehicle( TrkaVozilo[ playerid ] ), ResetVehicle( TrkaVozilo[ playerid ] ), TrkaVozilo[ playerid ] = -1;
@@ -26035,6 +26172,7 @@ public OnPlayerDeath( playerid, killerid, reason )
 		if( AdminVozilo[ playerid ] != -1 ) VehicleInfo[ AdminVozilo[ playerid ] ][ Validv3DText ] = false, DestroyDynamic3DTextLabel(VehicleInfo[ AdminVozilo[ playerid ] ][ v3DText ]), SMG_DestroyVehicle( AdminVozilo[ playerid ] ), ResetVehicle( AdminVozilo[ playerid ] ), AdminVozilo[ playerid ] = -1;
 		if( VipVozilo[ playerid ] != -1 ) VehicleInfo[ VipVozilo[ playerid ] ][ Validv3DText ] = false, DestroyDynamic3DTextLabel(VehicleInfo[ VipVozilo[ playerid ] ][ v3DText ]), SMG_DestroyVehicle( VipVozilo[ playerid ] ), ResetVehicle( VipVozilo[ playerid ] ), VipVozilo[ playerid ] = -1;
 		if( PromoterVozilo[ playerid ] != -1 ) VehicleInfo[ PromoterVozilo[ playerid ] ][ Validv3DText ] = false, DestroyDynamic3DTextLabel(VehicleInfo[ PromoterVozilo[ playerid ] ][ v3DText ]), SMG_DestroyVehicle( PromoterVozilo[ playerid ] ), ResetVehicle( PromoterVozilo[ playerid ] ), PromoterVozilo[ playerid ] = -1;
+		if( YTVozilo[ playerid ] != -1 ) VehicleInfo[ YTVozilo[ playerid ] ][ Validv3DText ] = false, DestroyDynamic3DTextLabel(VehicleInfo[ YTVozilo[ playerid ] ][ v3DText ]), SMG_DestroyVehicle( YTVozilo[ playerid ] ), ResetVehicle( YTVozilo[ playerid ] ), YTVozilo[ playerid ] = -1;
 		if( PosaoVozilo[ playerid ] != -1 ) VehicleInfo[ PosaoVozilo[ playerid ] ][ Validv3DText ] = false, DestroyDynamic3DTextLabel(VehicleInfo[ PosaoVozilo[ playerid ] ][ v3DText ]), SMG_DestroyVehicle( PosaoVozilo[ playerid ] ), ResetVehicle( PosaoVozilo[ playerid ] ), PosaoVozilo[ playerid ] = -1;
 		if( PosaoTrailer[ playerid ] != -1 ) VehicleInfo[ PosaoTrailer[ playerid ] ][ Validv3DText ] = false, DestroyDynamic3DTextLabel(VehicleInfo[ PosaoTrailer[ playerid ] ][ v3DText ]), SMG_DestroyVehicle( PosaoTrailer[ playerid ] ), ResetVehicle( PosaoTrailer[ playerid ] ), PosaoTrailer[ playerid ] = -1;
 		if( TrkaVozilo[ playerid ] != -1 ) SMG_DestroyVehicle( TrkaVozilo[ playerid ] ), ResetVehicle( TrkaVozilo[ playerid ] ), TrkaVozilo[ playerid ] = -1;
@@ -26527,16 +26665,6 @@ public OnPlayerDeath( playerid, killerid, reason )
 			}
 		}
 	}
-
-	/*if( PI[ playerid ][ xWanted ] >= 1 )
-	{
-		new price = PI[ playerid ][ xWanted ] * 500;
-		DajIgracuNovac( playerid, -price );
-        SCMF( playerid, ZUTA, "(DEATH): Umrli ste sa wanted levelom i oduzeto vam je $%d.", price );
-        PI[ playerid ][ xWanted ] = 0;
-        sql_user_update_integer( playerid, "wanted_level", PI[ playerid ][ xWanted ] );
-	}*/
-
     if( Draged[ playerid ] != -1 )
 	{
 		KillTimer(DragTimer[Draged[playerid]]);
@@ -26675,6 +26803,11 @@ public OnVehicleDeath( vehicleid, killerid )
 		if( PromoterVozilo[ playerid ] == vehicleid )
 		{
 			VehicleInfo[ PromoterVozilo[ playerid ] ][ Validv3DText ] = false, DestroyDynamic3DTextLabel(VehicleInfo[ PromoterVozilo[ playerid ] ][ v3DText ]), SMG_DestroyVehicle( PromoterVozilo[ playerid ] ), ResetVehicle( PromoterVozilo[ playerid ] ), PromoterVozilo[ playerid ] = -1;
+			break;
+		}
+		if( YTVozilo[ playerid ] == vehicleid )
+		{
+			VehicleInfo[ YTVozilo[ playerid ] ][ Validv3DText ] = false, DestroyDynamic3DTextLabel(VehicleInfo[ YTVozilo[ playerid ] ][ v3DText ]), SMG_DestroyVehicle( YTVozilo[ playerid ] ), ResetVehicle( YTVozilo[ playerid ] ), YTVozilo[ playerid ] = -1;
 			break;
 		}
 		if( PosaoVozilo[ playerid ] == vehicleid )
@@ -27179,6 +27312,17 @@ public OnPlayerEnterVehicle(playerid, vehicleid, ispassenger)
 				}
 			    break;
 		    }
+		    else if(YTVozilo[i] == vehicleid)
+		    {
+		        if(PI[playerid][xAdmin] < 1 && PI[playerid][xSpecAdmin] < 1 && PI[playerid][xGamemaster] < 1 && PI[playerid][xYouTuber] < 1)
+		    	{
+			    	new Float:PozX, Float:PozY, Float:PozZ;
+				   	GetPlayerPos( playerid, PozX, PozY, PozZ );
+				   	SMG_SetPlayerPos( playerid, PozX, PozY, PozZ );
+				   	SendClientMessage( playerid, ANTICHEAT, "(VOZILO): Ovo nije vase YouTuber vozilo.");
+				}
+			    break;
+		    }
 		    else if(RentVozilo[i] == vehicleid)
 		    {
 		        if(RentVozilo[playerid] != vehicleid)
@@ -27674,14 +27818,21 @@ public OnPlayerEnterCheckpoint( playerid )
 						if(jskInfo[playerid][skill_Uber] == 100) 
 						{
 							PI[ playerid ][ xBRacun ] += (zarada+bonus);
-							sql_user_update_integer( playerid, "xBRacun", PI[ playerid ][ xBRacun ] );
+							sql_user_update_integer( playerid, "bank_acc", PI[ playerid ][ xBRacun ] );
 						}
 						else {
 							PI[ playerid ][ xBRacun ] += (zarada+bonus);
-							sql_user_update_integer( playerid, "xBRacun", PI[ playerid ][ xBRacun ] );
+							sql_user_update_integer( playerid, "bank_acc", PI[ playerid ][ xBRacun ] );
 
 							jskInfo[playerid][skill_Uber]++;
-							sql_updatejobskills(playerid);
+							
+							new
+							    tmpUpdate[ 128 ];
+
+							mysql_format( mSQL, tmpUpdate, sizeof( tmpUpdate ), "UPDATE `job_skills` SET `skill_uber` = '%d' WHERE `user_id` = '%d'",
+							    jskInfo[ playerid ][ skill_Uber ], PI[ playerid ][ xID ] );
+							mysql_tquery( mSQL, tmpUpdate );
+
 						}
 						UpdateBankTD( playerid );
 						BussinesJobMoney( POSAO_UBERDRIVER, ((zarada+bonus)/10) );
@@ -27762,14 +27913,20 @@ public OnPlayerEnterCheckpoint( playerid )
 					if(jskInfo[playerid][skill_PNamjestaja] == 100) 
 					{
 						PI[ playerid ][ xBRacun ] += (zarada+bonus);
-						sql_user_update_integer( playerid, "xBRacun", PI[ playerid ][ xBRacun ] );
+						sql_user_update_integer( playerid, "bank_acc", PI[ playerid ][ xBRacun ] );
 					}
 					else {
 						PI[ playerid ][ xBRacun ] += (zarada+bonus);
-						sql_user_update_integer( playerid, "xBRacun", PI[ playerid ][ xBRacun ] );
+						sql_user_update_integer( playerid, "bank_acc", PI[ playerid ][ xBRacun ] );
 
 						jskInfo[playerid][skill_PNamjestaja]++;
-						sql_updatejobskills(playerid);
+						
+						new
+						    tmpUpdate[ 128 ];
+
+						mysql_format( mSQL, tmpUpdate, sizeof( tmpUpdate ), "UPDATE `job_skills` SET `skill_pnamjestaja` = '%d' WHERE `user_id` = '%d'",
+						    jskInfo[ playerid ][ skill_PNamjestaja ], PI[ playerid ][ xID ] );
+						mysql_tquery( mSQL, tmpUpdate );
 					}
 					UpdateBankTD( playerid );
 					BussinesJobMoney( POSAO_PNAMESTAJA, ((zarada+bonus)/10) );
@@ -27888,14 +28045,21 @@ public OnPlayerEnterCheckpoint( playerid )
 						if(jskInfo[playerid][skill_Fasader] == 100)
 						{
 							PI[ playerid ][ xBRacun ] += (zarada+bonus);
-							sql_user_update_integer( playerid, "xBRacun", PI[ playerid ][ xBRacun ] );
+							sql_user_update_integer( playerid, "bank_acc", PI[ playerid ][ xBRacun ] );
 						}
 						else {
 							PI[ playerid ][ xBRacun ] += (zarada+bonus);
-							sql_user_update_integer( playerid, "xBRacun", PI[ playerid ][ xBRacun ] );
+							sql_user_update_integer( playerid, "bank_acc", PI[ playerid ][ xBRacun ] );
 
 							jskInfo[playerid][skill_Fasader]++;
-							sql_updatejobskills(playerid);
+							
+							new
+							    tmpUpdate[ 128 ];
+
+							mysql_format( mSQL, tmpUpdate, sizeof( tmpUpdate ), "UPDATE `job_skills` SET `skill_fasader` = '%d' WHERE `user_id` = '%d'",
+							    jskInfo[ playerid ][ skill_Fasader ], PI[ playerid ][ xID ] );
+							mysql_tquery( mSQL, tmpUpdate );
+
 						}
 						PI[ playerid ][ xBRacun ] += zarada; UpdateBankTD( playerid );
 						SMG_TogglePlayerControllable(playerid, true); AccountVerified[playerid] = false;
@@ -28002,15 +28166,22 @@ public OnPlayerEnterCheckpoint( playerid )
 						if(jskInfo[playerid][skill_PMunicije] == 100)
 						{
 							PI[ playerid ][ xBRacun ] += (zarada+bonus);
-							sql_user_update_integer( playerid, "xBRacun", PI[ playerid ][ xBRacun ] );
+							sql_user_update_integer( playerid, "bank_acc", PI[ playerid ][ xBRacun ] );
 						}
 						else 
 						{
 							PI[ playerid ][ xBRacun ] += (zarada+bonus);
-							sql_user_update_integer( playerid, "xBRacun", PI[ playerid ][ xBRacun ] );
+							sql_user_update_integer( playerid, "bank_acc", PI[ playerid ][ xBRacun ] );
 
 							jskInfo[playerid][skill_PMunicije]++;
-							sql_updatejobskills(playerid);
+							
+							new
+							    tmpUpdate[ 128 ];
+
+							mysql_format( mSQL, tmpUpdate, sizeof( tmpUpdate ), "UPDATE `job_skills` SET `skill_pmunicije` = '%d' WHERE `user_id` = '%d'",
+							    jskInfo[ playerid ][ skill_PMunicije ], PI[ playerid ][ xID ] );
+							mysql_tquery( mSQL, tmpUpdate );
+
 						}
 						UpdateBankTD(playerid);
 						BussinesJobMoney(POSAO_PMUNICIJE, ((zarada+bonus)/10));
@@ -28107,14 +28278,21 @@ public OnPlayerEnterCheckpoint( playerid )
 							if(jskInfo[playerid][skill_Pilot] == 100) 
 							{
 								PI[ playerid ][ xBRacun ] += zarada;
-								sql_user_update_integer( playerid, "xBRacun", PI[ playerid ][ xBRacun ] );
+								sql_user_update_integer( playerid, "bank_acc", PI[ playerid ][ xBRacun ] );
 							}
 							else {
 								PI[ playerid ][ xBRacun ] += zarada;
-								sql_user_update_integer( playerid, "xBRacun", PI[ playerid ][ xBRacun ] );
+								sql_user_update_integer( playerid, "bank_acc", PI[ playerid ][ xBRacun ] );
 
 								jskInfo[playerid][skill_Pilot]++;
-								sql_updatejobskills(playerid);
+								
+								new
+								    tmpUpdate[ 128 ];
+
+								mysql_format( mSQL, tmpUpdate, sizeof( tmpUpdate ), "UPDATE `job_skills` SET `skill_pilot` = '%d' WHERE `user_id` = '%d'",
+								    jskInfo[ playerid ][ skill_Pilot ], PI[ playerid ][ xID ] );
+								mysql_tquery( mSQL, tmpUpdate );
+
 							}
 							UpdateBankTD( playerid );
 							BussinesJobMoney( POSAO_PILOT, ((zarada+bonus)/10) );
@@ -28212,17 +28390,23 @@ public OnPlayerEnterCheckpoint( playerid )
 							if(jskInfo[playerid][skill_Pilot] == 100) 
 							{
 								PI[ playerid ][ xBRacun ] += zarada;
-								sql_user_update_integer( playerid, "xBRacun", PI[ playerid ][ xBRacun ] );
+								sql_user_update_integer( playerid, "bank_acc", PI[ playerid ][ xBRacun ] );
 							}
 							else {
 								PI[ playerid ][ xBRacun ] += zarada;
-								sql_user_update_integer( playerid, "xBRacun", PI[ playerid ][ xBRacun ] );
+								sql_user_update_integer( playerid, "bank_acc", PI[ playerid ][ xBRacun ] );
 
 								jskInfo[playerid][skill_Pilot]++;
-								sql_updatejobskills(playerid);
+
+								new
+								    tmpUpdate[ 128 ];
+
+								mysql_format( mSQL, tmpUpdate, sizeof( tmpUpdate ), "UPDATE `job_skills` SET `skill_pilot` = '%d' WHERE `user_id` = '%d'",
+								    jskInfo[ playerid ][ skill_Pilot ], PI[ playerid ][ xID ] );
+								mysql_tquery( mSQL, tmpUpdate );
 							}
 							PI[ playerid ][ xBRacun ] += zarada;
-							sql_user_update_integer( playerid, "xBRacun", PI[ playerid ][ xBRacun ] );
+							sql_user_update_integer( playerid, "bank_acc", PI[ playerid ][ xBRacun ] );
 							UpdateBankTD( playerid );
 
 							BussinesJobMoney( POSAO_PILOT, ((zarada+bonus)/10) );
@@ -28341,7 +28525,7 @@ public OnPlayerEnterCheckpoint( playerid )
 							SCMF( playerid, 0x95B4A2FF, "(SVERC): Otvorili ste kutiju i dobili {FFFFFF}(%d) {95B4A2}droge.", droga );
 
 							new q[ 128 ];
-							mysql_format( mSQL, q, sizeof(q), "UPDATE `users` SET `xTorba_Droga` = '%d', `mats_smugl` = '%d' WHERE `user_id` = '%d'", PI[playerid][xTorba_Droga], PI[ playerid ][ xSvercer ], PI[ playerid ][ xID ] );
+							mysql_format( mSQL, q, sizeof(q), "UPDATE `users` SET `backpack_drug` = '%d', `mats_smugl` = '%d' WHERE `user_id` = '%d'", PI[playerid][xTorba_Droga], PI[ playerid ][ xSvercer ], PI[ playerid ][ xID ] );
 						    mysql_tquery( mSQL, q );
 						}
 						else SendErrorMessage( playerid, "Nemate mesta gde da stavite drogu(propala vam je)." );
@@ -28383,10 +28567,16 @@ _:public Iskopavanje( playerid )
 			SendJobMessage( playerid, "Iskopali ste {FFFFFF}(%dg) {36AB00}zlata.", zlato );
 
 			jskInfo[playerid][skill_Rudar]++;
-			sql_updatejobskills(playerid);
+			
+			new
+			    tmpUpdate[ 128 ];
+
+			mysql_format( mSQL, tmpUpdate, sizeof( tmpUpdate ), "UPDATE `job_skills` SET `skill_rudar` = '%d' WHERE `user_id` = '%d'",
+			    jskInfo[ playerid ][ skill_Rudar ], PI[ playerid ][ xID ] );
+			mysql_tquery( mSQL, tmpUpdate );
 		}
 		BussinesJobMoney(POSAO_RUDAR, ((zlato*150)/10));
-		sql_user_update_integer( playerid, "xZlato", PI[ playerid ][ xZlato ] ); UpdateZlatoTD(playerid);
+		sql_user_update_integer( playerid, "gold", PI[ playerid ][ xZlato ] ); UpdateZlatoTD(playerid);
 		PosaoRudar[ playerid ] = 0;
 		ShowPlayerDialog(playerid, D_RUDAR, DIALOG_STYLE_MSGBOX, "{FFFFFF}Posao - Rudar:", "{FFFFFF}* Da li zelite da nastavite sa kopanjem?", "Da", "Ne");
 	}
@@ -28942,26 +29132,6 @@ public OnVehiclePaintjob( playerid, vehicleid, paintjobid)
 
 public OnVehicleRespray(playerid, vehicleid, color1, color2)
 {
-    /*new colorStr[24] ;
-    format(colorStr, sizeof(colorStr), "%d-%d", color1, color2);
-    setproperty(_, "", PROPERTY_OFFSET(vehicleid), colorStr);
-
-	if( VehicleInfo[ vehicleid ][ vUsage ] == PRIVATNO_VOZILO ) 
-	{
-		if( strcmp( ImeIgraca( playerid ), VehicleInfo[ vehicleid ][ vOwner ], true) == 0 ) 
-		{
-			VehicleInfo[ vehicleid ][ vColor1 ] = color1;
-			VehicleInfo[ vehicleid ][ vColor2 ] = color2;
-
-			new q[ 128 ];
-			mysql_format( mSQL, q, sizeof(q), "UPDATE `vehicles` SET `v_color_1` = '%d', `v_color_2` = '%d' WHERE `veh_id` = '%d' LIMIT 1",
-									VehicleInfo[ vehicleid ][ vColor1 ],
-									VehicleInfo[ vehicleid ][ vColor2 ],
-									VehicleInfo[ vehicleid ][ vSqlID ] );
-
-			mysql_tquery( mSQL, q );
-		}
-	}*/
 	return 1;
 }
 
@@ -29155,7 +29325,7 @@ public OnPlayerKeyStateChange( playerid, newkeys, oldkeys )
 			{
 			    if( BikeBH[ playerid ] == 0 )
 				{
-				    if( PI[ playerid ][ xAdmin ] < 1 && PI[ playerid ][ xSpecAdmin ] < 1 && PI[ playerid ][ xGamemaster ] < 1  && PI[ playerid ][ xVIPLevel ] < 3 )
+				    if( PI[ playerid ][ xAdmin ] < 1 && PI[ playerid ][ xSpecAdmin ] < 1 && PI[ playerid ][ xGamemaster ] < 1 && PI[ playerid ][ xPromoter ] < 1 && PI[ playerid ][ xYouTuber ] < 1 && PI[ playerid ][ xVIPLevel ] < 3 )
 					{
 					    SendErrorMessage( playerid, "Ne mozete skakati sa biciklom.");
 					    SetPlayerTimerEx(playerid, "BikeBunnyHop", 2000, false, "i", playerid);
@@ -29218,6 +29388,8 @@ public OnPlayerKeyStateChange( playerid, newkeys, oldkeys )
 		{
 		    if( !KnockedDown[ playerid ] &&
 					PI[ playerid ][ xZatvor ] == 0 &&
+						PI[ playerid ][ xPromoter ] < 1 &&
+							PI[ playerid ][ xYouTuber ] < 1 &&
 								!IsPlayerInAnyVehicle( playerid ) &&
 									!AdminDuty[ playerid ] &&
 										PI[ playerid ][ xVIPLevel ] < 4 &&
@@ -29888,14 +30060,14 @@ public OnDialogResponse( playerid, dialogid, response, listitem, inputtext[])
 					if( PI[ playerid ][ xAdmin ] >= 6 )
 					{
 				        strcat( DialogStrgEx1, "{FFFFFF}** {2D6888}DIREKTOR:\n{FFFFFF}");
-					    strcat( DialogStrgEx1, "/oport /aktivnostigraca /muteall /gethereall /unwarn /razvedi /dajdrogu /dodajfakture /edit /startpaket /smenispecadmina /(opv)offplayerveh\n");
+					    strcat( DialogStrgEx1, "/promenipol /oport /aktivnostigraca /muteall /gethereall /unwarn /razvedi /dajdrogu /dodajfakture /edit /startpaket /smenispecadmina /(opv)offplayerveh\n");
 						strcat( DialogStrgEx1, "/veh /unmuteall /setjob /dboja /proveriimovinu /maknisastatsa /adajdozvolu /neaktivnost /playerrich /servername /checkbusiness /deleteoffveh /deleteacc\n\n");
 					}
 					if( PI[ playerid ][ xAdmin ] >= 7 )
 					{
 				        strcat( DialogStrgEx1, "{FFFFFF}** {2D6888}VLASNIK:\n{FFFFFF}");
 				        strcat( DialogStrgEx1, "{2D6888}NOVO:{FFFFFF} /prodajimovine /prodajfirme /getip /speclist\n");
-					    strcat( DialogStrgEx1, "/server /dajsvima /maintenancemode /kickall /makevip /changename /giverank /x /lockserver /xgoto /resetstaffstats /setstat /donatorskeboje /pomerilokaciju\n");
+					    strcat( DialogStrgEx1, "/server /dajsvima /maintenancemode /kickall /makevip /changename /giverank /1 /lockserver /xgoto /resetstaffstats /setstat /donatorskeboje /pomerilokaciju\n");
 						strcat( DialogStrgEx1, "/dodajslotvozila /skinislotvozila /hidenames /shownames /proverisqlidigraca /sklonisaaukcije /listavozila /smenigamemastera /smenivipa /aktivirajpoklone\n");
 						strcat( DialogStrgEx1, "/smeniadmina /makeadmin /givemoney /makegamemaster /changeacode /(pv)playervehicles /aukcije /prodajsaaukcije /vratistats /offvratistats");
 					}
@@ -30331,59 +30503,90 @@ public OnDialogResponse( playerid, dialogid, response, listitem, inputtext[])
 				        ShowPlayerDialog(playerid, 0, DIALOG_STYLE_MSGBOX, "{FFFFFF}Pomoc - Promoter:",
 																								"{FFFFFF}** {2D6888}Promoter 1:\n\n\
 																								 {2D6888}>> SPECIAL BONUS: {FFFFFF}Dodatak na placu (1.5k).\n\
+																								 {2D6888}>> SPECIAL: {FFFFFF}Anti BH iskljucen.\n\
 																								 {2D6888}>> /port: {FFFFFF}Portanje na odredjene lokacije.\n\
-																								 {2D6888}>> /g: {FFFFFF}G chat.\n\
-																								 {2D6888}>> /(fv)fixveh: {FFFFFF}Popravljanje vozila.", "Zatvori", "");
+																								 {2D6888}>> /g: {FFFFFF}Promoter chat.\n\
+																								 {2D6888}>> /(fv)fixveh: {FFFFFF}Popravljanje vozila.\n\
+																								 {2D6888}>> /(pveh)promoterveh: {FFFFFF}Promoter vozilo.", "Zatvori", "");
 
 					    if( PI[ playerid ][ xAdmin ] >= 6 || PI[ playerid ][ xPromoter ] >= 2 )
 						{
 				        	ShowPlayerDialog(playerid, 0, DIALOG_STYLE_MSGBOX, "{FFFFFF}Pomoc - Promoter:",
 																									"{FFFFFF}** {2D6888}Promoter 2:\n\n\
 																									 {2D6888}>> SPECIAL BONUS: {FFFFFF}Dodatak na placu (2k).\n\
+																									 {2D6888}>> SPECIAL: {FFFFFF}Anti BH iskljucen.\n\
 																									 {2D6888}>> /port: {FFFFFF}Portanje na odredjene lokacije.\n\
-																									 {2D6888}>> /g: {FFFFFF}G chat.\n\
+																									 {2D6888}>> /g: {FFFFFF}Promoter chat.\n\
 																									 {2D6888}>> /(fv)fixveh: {FFFFFF}Popravljanje vozila.\n\
 																									 {2D6888}>> /nitro: {FFFFFF}Dodavanje nitra u vozilo.\n\
-																									 {2D6888}>> /rtc: {FFFFFF}Respawnovanje vozila.", "Zatvori", "");
+																									 {2D6888}>> /rtc: {FFFFFF}Respawnovanje vozila.\n\
+																									 {2D6888}>> /(pveh)promoterveh: {FFFFFF}Promoter vozilo.", "Zatvori", "");
 					    }
 					    if( PI[ playerid ][ xAdmin ] >= 6 || PI[ playerid ][ xPromoter ] >= 3 )
 						{
 				        	ShowPlayerDialog(playerid, 0, DIALOG_STYLE_MSGBOX, "{FFFFFF}Pomoc - Promoter:",
 																									"{FFFFFF}** {2D6888}Promoter 3:\n\n\
 																									 {2D6888}>> SPECIAL BONUS: {FFFFFF}Dodatak na placu (2.5k).\n\
+																									 {2D6888}>> SPECIAL: {FFFFFF}Anti BH iskljucen.\n\
 																									 {2D6888}>> SPECIAL: {FFFFFF}Neam cooldown na /port.\n\
 																									 {2D6888}>> /port: {FFFFFF}Portanje na odredjene lokacije.\n\
-																									 {2D6888}>> /g: {FFFFFF}G chat.\n\
+																									 {2D6888}>> /g: {FFFFFF}Promoter chat.\n\
 																									 {2D6888}>> /(fv)fixveh: {FFFFFF}Popravljanje vozila.\n\
 																									 {2D6888}>> /nitro: {FFFFFF}Dodavanje nitra u vozilo.\n\
-																									 {2D6888}>> /rtc: {FFFFFF}Respawnovanje vozila.", "Zatvori", "");
+																									 {2D6888}>> /rtc: {FFFFFF}Respawnovanje vozila.\n\
+																									 {2D6888}>> /fasttune: {FFFFFF}Brzo tuniranje vozila.\n\
+																									 {2D6888}>> /playercc: {FFFFFF}Brise sopstveni chat.\n\
+																									 {2D6888}>> /(pveh)promoterveh: {FFFFFF}Promoter vozilo.", "Zatvori", "");
 					    }
 					    if( PI[ playerid ][ xAdmin ] >= 6 || PI[ playerid ][ xPromoter ] >= 4 || PI[ playerid ] [ xSkriptaRank ] == 5 )
 						{
-				        	ShowPlayerDialog(playerid, 0, DIALOG_STYLE_MSGBOX, "{FFFFFF}Pomoc - Youtuber:",
-																									"{FFFFFF}** {2D6888}Youtuber 1:\n\n\
+				        	ShowPlayerDialog(playerid, 0, DIALOG_STYLE_MSGBOX, "{FFFFFF}Pomoc - Promoter:",
+																									"{FFFFFF}** {2D6888}Head Promoter:\n\n\
 																									 {2D6888}>> SPECIAL BONUS: {FFFFFF}Dodatak na placu (3k).\n\
+																									 {2D6888}>> SPECIAL: {FFFFFF}Anti BH iskljucen.\n\
+																									 {2D6888}>> SPECIAL: {FFFFFF}Neam cooldown na /port.\n\
 																									 {2D6888}>> /port: {FFFFFF}Portanje na odredjene lokacije.\n\
-																									 {2D6888}>> /g: {FFFFFF}G chat.\n\
+																									 {2D6888}>> /g: {FFFFFF}Promoter chat.\n\
 																									 {2D6888}>> /(fv)fixveh: {FFFFFF}Popravljanje vozila.\n\
 																									 {2D6888}>> /nitro: {FFFFFF}Dodavanje nitra u vozilo.\n\
 																									 {2D6888}>> /rtc: {FFFFFF}Respawnovanje vozila.\n\
+																									 {2D6888}>> /fasttune: {FFFFFF}Brzo tuniranje vozila.\n\
+																									 {2D6888}>> /playercc: {FFFFFF}Brise sopstveni chat.\n\
 																									 {2D6888}>> /pskin: {FFFFFF}Specijalni VIP skin.\n\
-																									 {2D6888}>> /getcar: {FFFFFF}Porta vozilo do sebe.", "Zatvori", "");
+																									 {2D6888}>> /getcar: {FFFFFF}Porta vozilo do sebe.\n\
+																									 {2D6888}>> /mark: {FFFFFF}Oznacava specijalnu lokaciju.\n\
+																									 {2D6888}>> /gotomark: {FFFFFF}Porta do specijalne lokacije.\n\
+																									 {2D6888}>> /(pveh)promoterveh: {FFFFFF}Promoter vozilo.", "Zatvori", "");
 				        }
-						if( PI[ playerid ][ xAdmin ] >= 6 || PI[ playerid ][ xPromoter ] >= 5 || PI[ playerid ] [ xSkriptaRank ] == 5 )
+				    }
+					else return SendErrorMessage( playerid, "Niste u mogucnosti koristiti ovu komandu." );
+			    }
+				case 21:
+			    {
+			        //YouTuber
+			        if( PI[ playerid ][ xAdmin ] >= 6 || PI[ playerid ][ xYouTuber ] >= 1 )
+					{
+				        ShowPlayerDialog(playerid, 0, DIALOG_STYLE_MSGBOX, "{FFFFFF}Pomoc - YouTuber:",
+																								"{FFFFFF}** {2D6888}YouTuber:\n\n\
+																								 {2D6888}>> SPECIAL BONUS: {FFFFFF}Dodatak na placu.\n\
+																								 {2D6888}>> SPECIAL: {FFFFFF}Anti BH iskljucen.\n\
+																								 {2D6888}>> /port: {FFFFFF}Portanje na odredjene lokacije.\n\
+																								 {2D6888}>> /g: {FFFFFF}YouTuber chat.\n\
+																								 {2D6888}>> /(fv)fixveh: {FFFFFF}Popravljanje vozila.\n\
+																								 {2D6888}>> /ytveh: {FFFFFF}YouTuber vozilo.", "Zatvori", "");
+
+					    if( PI[ playerid ][ xAdmin ] >= 6 || PI[ playerid ][ xYouTuber ] >= 2 )
 						{
-				        	ShowPlayerDialog(playerid, 0, DIALOG_STYLE_MSGBOX, "{FFFFFF}Pomoc - Youtuber 2:",
-																									"{FFFFFF}** {2D6888}Youtuber 2:\n\n\
-																									 {2D6888}>> SPECIAL BONUS: {FFFFFF}Dodatak na placu (3.5k).\n\
+				        	ShowPlayerDialog(playerid, 0, DIALOG_STYLE_MSGBOX, "{FFFFFF}Pomoc - YouTuber:",
+																									"{FFFFFF}** {2D6888}Head YouTuber:\n\n\
+																									 {2D6888}>> SPECIAL BONUS: {FFFFFF}Dodatak na placu.\n\
 																									 {2D6888}>> /port: {FFFFFF}Portanje na odredjene lokacije.\n\
-																									 {2D6888}>> /g: {FFFFFF}G chat.\n\
+																									 {2D6888}>> /g: {FFFFFF}YouTuber chat.\n\
 																									 {2D6888}>> /(fv)fixveh: {FFFFFF}Popravljanje vozila.\n\
-																									 {2D6888}>> /nitro: {FFFFFF}Dodavanje nitra u vozilo.\n\
-																									 {2D6888}>> /rtc: {FFFFFF}Respawnovanje vozila.\n\
-																									 {2D6888}>> /pskin: {FFFFFF}Specijalni VIP skin.\n\
-																									 {2D6888}>> /getcar: {FFFFFF}Porta vozilo do sebe.", "Zatvori", "");
-				        }
+																									 {2D6888}>> /ytveh: {FFFFFF}YouTuber vozilo.\n\
+																									 {2D6888}>> /makeyoutuber: {FFFFFF}Postavljanje/skidanje YTera.\n\
+																									 {2D6888}>> /smeniytera: {FFFFFF}Skidanje offline YTera.", "Zatvori", "");
+					    }
 				    }
 					else return SendErrorMessage( playerid, "Niste u mogucnosti koristiti ovu komandu." );
 			    }
@@ -30399,7 +30602,7 @@ public OnDialogResponse( playerid, dialogid, response, listitem, inputtext[])
 			if(PI[playerid][xZlato] < kaucija) return SendErrorMessage(playerid, "Nemate dovoljno zlata za kauciju, potrebno vam je %d.", kaucija);
 
 			PI[playerid][xZlato] -= kaucija;
-			sql_user_update_integer(playerid, "xZlato", PI[playerid][xZlato]); UpdateZlatoTD(playerid);
+			sql_user_update_integer(playerid, "gold", PI[playerid][xZlato]); UpdateZlatoTD(playerid);
 
 			SMG_SetPlayerPos(playerid, 1536.2214,-1663.0848,13.5469);
 			UcitajObjekte(playerid);
@@ -30534,17 +30737,17 @@ public OnDialogResponse( playerid, dialogid, response, listitem, inputtext[])
 				case 1:
 				{
 					//sati igre
-					mysql_tquery(mSQL, "SELECT `xOnlineSati`, `p_name`, `isonline`, `last_login` FROM `users` ORDER BY `xOnlineSati` DESC LIMIT 30", "showTopList", "ii", playerid, 1);
+					mysql_tquery(mSQL, "SELECT `online_hours`, `p_name`, `isonline`, `last_login` FROM `users` ORDER BY `online_hours` DESC LIMIT 30", "showTopList", "ii", playerid, 1);
 				}
 				case 2:
 				{
 					//novac
-					mysql_tquery(mSQL, "SELECT `money`, `xBRacun`, `p_name`, `isonline`, `last_login` FROM `users` ORDER BY `money` + `xBRacun` DESC LIMIT 30", "showTopList", "ii", playerid, 2);
+					mysql_tquery(mSQL, "SELECT `money`, `bank_acc`, `p_name`, `isonline`, `last_login` FROM `users` ORDER BY `money` + `bank_acc` DESC LIMIT 30", "showTopList", "ii", playerid, 2);
 				}
 				case 3:
 				{
 					//zlato
-					mysql_tquery(mSQL, "SELECT `xZlato`, `p_name`, `isonline`, `last_login` FROM `users` ORDER BY `xZlato` DESC LIMIT 30", "showTopList", "ii", playerid, 3);
+					mysql_tquery(mSQL, "SELECT `gold`, `p_name`, `isonline`, `last_login` FROM `users` ORDER BY `gold` DESC LIMIT 30", "showTopList", "ii", playerid, 3);
 				}
 				case 4:
 				{
@@ -30592,7 +30795,7 @@ public OnDialogResponse( playerid, dialogid, response, listitem, inputtext[])
 					QuestTimer[playerid] = SetPlayerTimerEx(playerid, "questDone", 10000, 10000, "ii", playerid, 2);
 
 					PI[ playerid ][ xZlato ] += 5;
-				   	sql_user_update_integer( playerid, "xZlato", PI[ playerid ][ xZlato ] );
+				   	sql_user_update_integer( playerid, "gold", PI[ playerid ][ xZlato ] );
 					sql_UpdateQuest(playerid); UpdateZlatoTD(playerid);
 				}
 				case 1:
@@ -30612,7 +30815,7 @@ public OnDialogResponse( playerid, dialogid, response, listitem, inputtext[])
 					QuestTimer[playerid] = SetPlayerTimerEx(playerid, "questDone", 10000, 10000, "ii", playerid, 2);
 
 					PI[ playerid ][ xZlato ] += 15;
-				   	sql_user_update_integer( playerid, "xZlato", PI[ playerid ][ xZlato ] );
+				   	sql_user_update_integer( playerid, "gold", PI[ playerid ][ xZlato ] );
 					sql_UpdateQuest(playerid); UpdateZlatoTD(playerid);
 				}
 				case 2:
@@ -30631,7 +30834,7 @@ public OnDialogResponse( playerid, dialogid, response, listitem, inputtext[])
 					QuestTimer[playerid] = SetPlayerTimerEx(playerid, "questDone", 10000, 10000, "ii", playerid, 2);
 
 					PI[ playerid ][ xZlato ] += 15;
-				   	sql_user_update_integer( playerid, "xZlato", PI[ playerid ][ xZlato ] );
+				   	sql_user_update_integer( playerid, "gold", PI[ playerid ][ xZlato ] );
 					sql_UpdateQuest(playerid); UpdateZlatoTD(playerid);
 				}
 				case 3:
@@ -30650,7 +30853,7 @@ public OnDialogResponse( playerid, dialogid, response, listitem, inputtext[])
 					QuestTimer[playerid] = SetPlayerTimerEx(playerid, "questDone", 10000, 10000, "ii", playerid, 2);
 
 					PI[ playerid ][ xZlato ] += 15;
-				   	sql_user_update_integer( playerid, "xZlato", PI[ playerid ][ xZlato ] );
+				   	sql_user_update_integer( playerid, "gold", PI[ playerid ][ xZlato ] );
 					sql_UpdateQuest(playerid); UpdateZlatoTD(playerid);
 				}
 				case 4:
@@ -30669,7 +30872,7 @@ public OnDialogResponse( playerid, dialogid, response, listitem, inputtext[])
 					QuestTimer[playerid] = SetPlayerTimerEx(playerid, "questDone", 10000, 10000, "ii", playerid, 2);
 
 					PI[ playerid ][ xZlato ] += 25;
-				   	sql_user_update_integer( playerid, "xZlato", PI[ playerid ][ xZlato ] );
+				   	sql_user_update_integer( playerid, "gold", PI[ playerid ][ xZlato ] );
 					sql_UpdateQuest(playerid); UpdateZlatoTD(playerid);
 
 		            PI[ playerid ][ xRespekt ] += 1;
@@ -30724,7 +30927,7 @@ public OnDialogResponse( playerid, dialogid, response, listitem, inputtext[])
 					QuestTimer[playerid] = SetPlayerTimerEx(playerid, "questDone", 10000, 10000, "ii", playerid, 2);
 
 					PI[ playerid ][ xZlato ] += 50;
-				   	sql_user_update_integer( playerid, "xZlato", PI[ playerid ][ xZlato ] );
+				   	sql_user_update_integer( playerid, "gold", PI[ playerid ][ xZlato ] );
 					sql_UpdateQuest(playerid); UpdateZlatoTD(playerid);
 
 		            PI[ playerid ][ xRespekt ] += 4;
@@ -30781,7 +30984,7 @@ public OnDialogResponse( playerid, dialogid, response, listitem, inputtext[])
 					QuestTimer[playerid] = SetPlayerTimerEx(playerid, "questDone", 10000, 10000, "ii", playerid, 2);
 
 					PI[ playerid ][ xZlato ] += 50;
-				   	sql_user_update_integer( playerid, "xZlato", PI[ playerid ][ xZlato ] );
+				   	sql_user_update_integer( playerid, "gold", PI[ playerid ][ xZlato ] );
 					sql_UpdateQuest(playerid);
 					UpdateZlatoTD(playerid);
 
@@ -30839,7 +31042,7 @@ public OnDialogResponse( playerid, dialogid, response, listitem, inputtext[])
 					QuestTimer[playerid] = SetPlayerTimerEx(playerid, "questDone", 10000, 10000, "ii", playerid, 2);
 
 					PI[ playerid ][ xZlato ] += 50;
-				   	sql_user_update_integer( playerid, "xZlato", PI[ playerid ][ xZlato ] );
+				   	sql_user_update_integer( playerid, "gold", PI[ playerid ][ xZlato ] );
 					sql_UpdateQuest(playerid);
 					UpdateZlatoTD(playerid);
 
@@ -30897,7 +31100,7 @@ public OnDialogResponse( playerid, dialogid, response, listitem, inputtext[])
 					QuestTimer[playerid] = SetPlayerTimerEx(playerid, "questDone", 10000, 10000, "ii", playerid, 2);
 
 					PI[ playerid ][ xZlato ] += 10;
-				   	sql_user_update_integer( playerid, "xZlato", PI[ playerid ][ xZlato ] );
+				   	sql_user_update_integer( playerid, "gold", PI[ playerid ][ xZlato ] );
 					sql_UpdateQuest(playerid);
 					UpdateZlatoTD(playerid);
 				}
@@ -30917,7 +31120,7 @@ public OnDialogResponse( playerid, dialogid, response, listitem, inputtext[])
 					QuestTimer[playerid] = SetPlayerTimerEx(playerid, "questDone", 10000, 10000, "ii", playerid, 2);
 
 					PI[ playerid ][ xZlato ] += 100;
-				   	sql_user_update_integer( playerid, "xZlato", PI[ playerid ][ xZlato ] );
+				   	sql_user_update_integer( playerid, "gold", PI[ playerid ][ xZlato ] );
 					sql_UpdateQuest(playerid);
 					UpdateZlatoTD(playerid);
 
@@ -30981,7 +31184,7 @@ public OnDialogResponse( playerid, dialogid, response, listitem, inputtext[])
 
             new brojpotvrde = ( 400000+random( 500000 ) );
             PI[ playerid ][ xBonPotvrda ] = brojpotvrde;
-			sql_user_update_integer( playerid, "xBonPotvrda", PI[ playerid ][ xBonPotvrda ] );
+			sql_user_update_integer( playerid, "sms_confirmation", PI[ playerid ][ xBonPotvrda ] );
 			SendInfoMessage( playerid, "Vas broj XBon potvrde je {FFFFFF}%d.", brojpotvrde );
 			SendInfoMessage( playerid, "Broj vase potvrde mozete vidjeti u bilo kojem trenu komandom /brojpotvrde");
 
@@ -31000,7 +31203,7 @@ public OnDialogResponse( playerid, dialogid, response, listitem, inputtext[])
 
             new brojpotvrde = ( 400000+random( 500000 ) );
             PI[ playerid ][ xPaysPotvrda ] = brojpotvrde;
-			sql_user_update_integer( playerid, "xPaysPotvrda", PI[ playerid ][ xPaysPotvrda ] );
+			sql_user_update_integer( playerid, "paysafe_confirmation", PI[ playerid ][ xPaysPotvrda ] );
 			SendInfoMessage( playerid, "Vas broj Paysafe potvrde je {FFFFFF}%d.", brojpotvrde );
 			SendInfoMessage( playerid, "Broj vase potvrde mozete vidjeti u bilo kojem trenu komandom /brojpotvrde");
 
@@ -31132,7 +31335,7 @@ public OnDialogResponse( playerid, dialogid, response, listitem, inputtext[])
 					if(pizza < 0 || pizza > 500) pizza = 500, SendInfoMessage(playerid, "Ne mozete kupiti vise od 500 pizza, zato vam je broj pizza postavljen na 500.");
 					DajIgracuNovac( playerid, -pizza*100 );
 					PI[playerid][xTorba_Pizza] += pizza;
-					sql_user_update_integer(playerid, "xTorba_Pizza", PI[playerid][xTorba_Pizza]);
+					sql_user_update_integer(playerid, "backpack_pizza", PI[playerid][xTorba_Pizza]);
 				    UzeoIzMarketa[ playerid ][ 0 ] = 0;
 					BussinesMoney( uFirmi[ playerid ], pizza*100, true);
 				}
@@ -31157,7 +31360,7 @@ public OnDialogResponse( playerid, dialogid, response, listitem, inputtext[])
 					if(Sok < 0 || Sok > 500) Sok = 500, SendInfoMessage(playerid, "Ne mozete kupiti vise od 500 sokova, zato vam je broj sokova postavljen na 500.");
 					DajIgracuNovac( playerid, -Sok*40 );
 					PI[playerid][xTorba_Sok] += Sok;
-					sql_user_update_integer(playerid, "xTorba_Sok", PI[playerid][xTorba_Sok]);
+					sql_user_update_integer(playerid, "backpack_juice", PI[playerid][xTorba_Sok]);
 				    UzeoIzMarketa[ playerid ][ 3 ] = 0;
 					BussinesMoney( uFirmi[ playerid ], Sok*40, true);
 				}
@@ -31172,7 +31375,7 @@ public OnDialogResponse( playerid, dialogid, response, listitem, inputtext[])
 					if(Pivo < 0 || Pivo > 500) Pivo = 500, SendInfoMessage(playerid, "Ne mozete kupiti vise od 500 piva, zato vam je broj piva postavljen na 500.");
 					DajIgracuNovac( playerid, -Pivo*55 );
 					PI[playerid][xTorba_Pivo] += Pivo;
-					sql_user_update_integer(playerid, "xTorba_Pivo", PI[playerid][xTorba_Pivo]);
+					sql_user_update_integer(playerid, "backpack_beer", PI[playerid][xTorba_Pivo]);
 				    UzeoIzMarketa[ playerid ][ 4 ] = 0;
 					BussinesMoney( uFirmi[ playerid ], Pivo*55, true);
 				}
@@ -31187,7 +31390,7 @@ public OnDialogResponse( playerid, dialogid, response, listitem, inputtext[])
 					if(hamburger < 0 || hamburger > 500) hamburger = 500, SendInfoMessage(playerid, "Ne mozete kupiti vise od 500 hambia, zato vam je broj hamburgera postavljen na 500.");
 					DajIgracuNovac( playerid, -hamburger*65 );
 					PI[playerid][xTorba_Hambi] += hamburger;
-					sql_user_update_integer(playerid, "xTorba_Hambi", PI[playerid][xTorba_Hambi]);
+					sql_user_update_integer(playerid, "backpack_hamburger", PI[playerid][xTorba_Hambi]);
 				    UzeoIzMarketa[ playerid ][ 5 ] = 0;
 					BussinesMoney( uFirmi[ playerid ], hamburger*65, true);
 				}
@@ -31201,7 +31404,7 @@ public OnDialogResponse( playerid, dialogid, response, listitem, inputtext[])
 					if(pilence < 0 || pilence > 500) pilence = 500, SendInfoMessage(playerid, "Ne mozete kupiti vise od 500 ribe, zato vam je broj ribe postavljen na 500.");
 					DajIgracuNovac( playerid, -pilence*250 );
 					PI[playerid][xTorba_Riba] += pilence;
-					sql_user_update_integer(playerid, "xTorba_Riba", PI[playerid][xTorba_Riba]);
+					sql_user_update_integer(playerid, "backpack_fish", PI[playerid][xTorba_Riba]);
 				    UzeoIzMarketa[ playerid ][ 6 ] = 0;
 					BussinesMoney( uFirmi[ playerid ], pilence*250, true);
 				}
@@ -31229,7 +31432,7 @@ public OnDialogResponse( playerid, dialogid, response, listitem, inputtext[])
 					if(vatromet < 0 || vatromet > 10) vatromet = 10, SendInfoMessage(playerid, "Ne mozete kupiti vise od 10 vatrometa, zato vam je broj vatrometa postavljen na 10.");
 					DajIgracuNovac( playerid, -vatromet*3500 );
 					PI[playerid][xFirework] += vatromet;
-					sql_user_update_integer(playerid, "xFirework", PI[playerid][xFirework]);
+					sql_user_update_integer(playerid, "firework", PI[playerid][xFirework]);
 				    UzeoIzMarketa[ playerid ][ 9 ] = 0;
 					BussinesMoney( uFirmi[ playerid ], vatromet*2500, true);
 				}
@@ -31830,16 +32033,16 @@ public OnDialogResponse( playerid, dialogid, response, listitem, inputtext[])
 				{
     				new as = Iter_Free(iter_ATM);
 
-					if( atmInfo[ (MAX_ATM-1) ][ atmSQLID ] != 0 ) return SendErrorMessage( playerid, "Ima maksimalno kreiranih bankomata." );
+					if( AtmInfo[ (MAX_ATM-1) ][ atmSQLID ] != 0 ) return SendErrorMessage( playerid, "Ima maksimalno kreiranih bankomata." );
 
-					GetPlayerPos( playerid, atmInfo[ as ][ atmPos ][ 0 ], atmInfo[ as ][ atmPos ][ 1 ], atmInfo[ as ][ atmPos ][ 2 ]);
-		    		atmInfo[ as ][ atmPos ][ 3 ] = 0;
-		    		atmInfo[ as ][ atmPos ][ 4 ] = 0;
-		    		atmInfo[ as ][ atmPos ][ 5 ] = 0;
+					GetPlayerPos( playerid, AtmInfo[ as ][ atmPos ][ 0 ], AtmInfo[ as ][ atmPos ][ 1 ], AtmInfo[ as ][ atmPos ][ 2 ]);
+		    		AtmInfo[ as ][ atmPos ][ 3 ] = 0;
+		    		AtmInfo[ as ][ atmPos ][ 4 ] = 0;
+		    		AtmInfo[ as ][ atmPos ][ 5 ] = 0;
 
-					atmInfo[ as ][ atmObject ] = CreateDynamicObject( 2942, atmInfo[ as ][ atmPos ][ 0 ]+2, atmInfo[ as ][ atmPos ][ 1 ], atmInfo[ as ][ atmPos ][ 2 ]+0.6, 0.0, 0.0, 0.0 );
+					AtmInfo[ as ][ atmObject ] = CreateDynamicObject( 2942, AtmInfo[ as ][ atmPos ][ 0 ]+2, AtmInfo[ as ][ atmPos ][ 1 ], AtmInfo[ as ][ atmPos ][ 2 ]+0.6, 0.0, 0.0, 0.0 );
       				Streamer_Update( playerid );
-					EditDynamicObject( playerid, atmInfo[ as ][ atmObject ] );
+					EditDynamicObject( playerid, AtmInfo[ as ][ atmObject ] );
 
 					EditATM[ playerid ] = as;
 				 	mSQL_CreateATM( as );
@@ -32276,26 +32479,26 @@ public OnDialogResponse( playerid, dialogid, response, listitem, inputtext[])
 	                if( GetNearestAtm( playerid ) == -1 ) return SendErrorMessage( playerid, "Moras biti blizu bankomata." );
 					new i = GetNearestAtm( playerid );
 
-					if( IsValidDynamicObject( atmInfo[ i ][ atmObject ] ) ) DestroyDynamicObject( atmInfo[ i ][ atmObject ] );
-	                if( IsValidDynamic3DTextLabel( atmInfo[ i ][ atmText3D ] ) ) DestroyDynamic3DTextLabel( atmInfo[ i ][ atmText3D ] );
+					if( IsValidDynamicObject( AtmInfo[ i ][ atmObject ] ) ) DestroyDynamicObject( AtmInfo[ i ][ atmObject ] );
+	                if( IsValidDynamic3DTextLabel( AtmInfo[ i ][ atmText3D ] ) ) DestroyDynamic3DTextLabel( AtmInfo[ i ][ atmText3D ] );
 
-			    	atmInfo[ i ][ atmPos ][ 0 ] = 0;
-	    			atmInfo[ i ][ atmPos ][ 1 ] = 0;
-	    			atmInfo[ i ][ atmPos ][ 2 ] = 0;
-	    			atmInfo[ i ][ atmPos ][ 3 ] = 0;
-	    			atmInfo[ i ][ atmPos ][ 4 ] = 0;
-	    			atmInfo[ i ][ atmPos ][ 5 ] = 0;
-	    			atmInfo[ i ][ atmPreseceneZice ] = false;
-	    			atmInfo[ i ][ atmProbijenBios ] = false;
-	    			atmInfo[ i ][ atmVremeDoRoba ] = 0;
+			    	AtmInfo[ i ][ atmPos ][ 0 ] = 0;
+	    			AtmInfo[ i ][ atmPos ][ 1 ] = 0;
+	    			AtmInfo[ i ][ atmPos ][ 2 ] = 0;
+	    			AtmInfo[ i ][ atmPos ][ 3 ] = 0;
+	    			AtmInfo[ i ][ atmPos ][ 4 ] = 0;
+	    			AtmInfo[ i ][ atmPos ][ 5 ] = 0;
+	    			AtmInfo[ i ][ atmPreseceneZice ] = false;
+	    			AtmInfo[ i ][ atmProbijenBios ] = false;
+	    			AtmInfo[ i ][ atmVremeDoRoba ] = 0;
 
 					static q[120];
-					mysql_format(mSQL, q, 120, "DELETE FROM `atms` WHERE `atmSQLID` = '%d'", atmInfo[i][atmSQLID]);
+					mysql_format(mSQL, q, 120, "DELETE FROM `atms` WHERE `id` = '%d'", AtmInfo[i][atmSQLID]);
 					mysql_tquery(mSQL, q);
 
 					Iter_Remove(iter_ATM, i);
 
-		            SendInfoMessage( playerid, "Obrisao si bankomat ID {FFFFFF}(%d).", atmInfo[i][atmSQLID] );
+		            SendInfoMessage( playerid, "Obrisao si bankomat ID {FFFFFF}(%d).", AtmInfo[i][atmSQLID] );
 				}
 				case 6: SendErrorMessage(playerid, "Ovdje nema nista."); 
 				case 7:
@@ -32306,7 +32509,7 @@ public OnDialogResponse( playerid, dialogid, response, listitem, inputtext[])
 					if( IsValidDynamicObject( GateData[ g ][ gateObject ] ) ) DestroyDynamicObject( GateData[ g ][ gateObject ] );
 
 				    new query[ 128 ];
-					mysql_format( mSQL, query, sizeof( query ), "DELETE FROM `gates` WHERE `gateid` = '%d'", GateData[ g ][ gatebaseID ] );
+					mysql_format( mSQL, query, sizeof( query ), "DELETE FROM `gates` WHERE `id` = '%d'", GateData[ g ][ gatebaseID ] );
 					mysql_tquery( mSQL, query );
 
 					Iter_Remove(iter_Gate, g);
@@ -32432,7 +32635,7 @@ public OnDialogResponse( playerid, dialogid, response, listitem, inputtext[])
 					VoziloRentInfo[i][vrLiP_Pos_Z] = 0;
 
 	    			static q[130];
-	    			mysql_format(mSQL, q, sizeof(q), "DELETE FROM `rents` WHERE `vrSQLID` = '%d'", VoziloRentInfo[ i ][ vrSQLID ]);
+	    			mysql_format(mSQL, q, sizeof(q), "DELETE FROM `rents` WHERE `id` = '%d'", VoziloRentInfo[ i ][ vrSQLID ]);
 	    			mysql_tquery(mSQL, q);
 	    			
 	    			Iter_Remove(iter_Rent, i);
@@ -32725,7 +32928,13 @@ public OnDialogResponse( playerid, dialogid, response, listitem, inputtext[])
 			if( gpsInfo[gpsid[playerid]][gpsSQLID] == 0 ) return SendErrorMessage( playerid, "Izabrana GPS lokacija ne postoji u bazi podataka." );
 
 			strmid( gpsInfo[ gpsid[ playerid ] ][ gpsName ], gpsname, 0, strlen( gpsname ), 50 );
-			GPS_Save( gpsid[ playerid ] );
+			
+			new
+			    tmpUpdate[ 128 ];
+
+			mysql_format( mSQL, tmpUpdate, sizeof( tmpUpdate ), "UPDATE `gps` SET `name` = '%s' WHERE `id` = '%d'",
+			    gpsInfo[ gpsid[ playerid ] ][ gpsName ], gpsInfo[ gpsid[ playerid ] ][ gpsSQLID ] );
+			mysql_tquery( mSQL, tmpUpdate );
 
 			SendInfoMessage( playerid, "Uspesno si promenio ime GPS lokacije u {FFFFFF}%s.", gpsname );
 			gpsid[ playerid ] = -1;
@@ -32740,7 +32949,12 @@ public OnDialogResponse( playerid, dialogid, response, listitem, inputtext[])
 
             GetPlayerPos( playerid, gpsInfo[ IDgps ][ gpsPos ][ 0 ], gpsInfo[ IDgps ][ gpsPos ][ 1 ], gpsInfo[ IDgps ][ gpsPos ][ 2 ] );
 
-			GPS_Save( IDgps );
+			new
+			    tmpUpdate[ 256 ];
+			    
+			mysql_format( mSQL, tmpUpdate, sizeof( tmpUpdate ), "UPDATE `gps` SET `pos_x` = '%f', `pos_y` = '%f', `pos_z` = '%f' WHERE `id` = '%d'",
+			    gpsInfo[ IDgps ][ gpsPos ][ 0 ], gpsInfo[ IDgps ][ gpsPos ][ 1 ], gpsInfo[ IDgps ][ gpsPos ][ 2 ], gpsInfo[ IDgps ][ gpsSQLID ] );
+			mysql_tquery( mSQL, tmpUpdate );
 
 			SendInfoMessage( playerid, "Uspesno si promenio poziciju GPS lokacije {FFFFFF}%s {2D6888}na tvoju poziciju.", gpsInfo[ IDgps ][ gpsName ] );
         }
@@ -36714,7 +36928,7 @@ public OnDialogResponse( playerid, dialogid, response, listitem, inputtext[])
                     UpdateBankTD( playerid );
 
 					new q[ 180 ];
-					mysql_format( mSQL, q, sizeof(q), "UPDATE `users` SET `xBRacun` = '%d', `credit_rest` = '%d', `credit_amount` = '%d', `credit_installment` = '%d' WHERE `user_id` = '%d'",
+					mysql_format( mSQL, q, sizeof(q), "UPDATE `users` SET `bank_acc` = '%d', `credit_rest` = '%d', `credit_amount` = '%d', `credit_installment` = '%d' WHERE `user_id` = '%d'",
                         PI[ playerid ][ xBRacun ],
 						PI[ playerid ][ xPreostaloZaOtplatu ],
 						PI[ playerid ][ xIznosKredita ],
@@ -36735,7 +36949,7 @@ public OnDialogResponse( playerid, dialogid, response, listitem, inputtext[])
 	                UpdateBankTD( playerid );
 
 					new q[ 180 ];
-					mysql_format( mSQL, q, sizeof(q), "UPDATE `users` SET `xBRacun` = '%d', `credit_rest` = '%d', `credit_amount` = '%d', `credit_installment` = '%d' WHERE `user_id` = '%d'",
+					mysql_format( mSQL, q, sizeof(q), "UPDATE `users` SET `bank_acc` = '%d', `credit_rest` = '%d', `credit_amount` = '%d', `credit_installment` = '%d' WHERE `user_id` = '%d'",
                         PI[ playerid ][ xBRacun ],
 						PI[ playerid ][ xPreostaloZaOtplatu ],
 						PI[ playerid ][ xIznosKredita ],
@@ -36756,7 +36970,7 @@ public OnDialogResponse( playerid, dialogid, response, listitem, inputtext[])
                     UpdateBankTD( playerid );
 
 					new q[ 180 ];
-					mysql_format( mSQL, q, sizeof(q), "UPDATE `users` SET `xBRacun` = '%d', `credit_rest` = '%d', `credit_amount` = '%d', `credit_installment` = '%d' WHERE `user_id` = '%d'",
+					mysql_format( mSQL, q, sizeof(q), "UPDATE `users` SET `bank_acc` = '%d', `credit_rest` = '%d', `credit_amount` = '%d', `credit_installment` = '%d' WHERE `user_id` = '%d'",
                         PI[ playerid ][ xBRacun ],
 						PI[ playerid ][ xPreostaloZaOtplatu ],
 						PI[ playerid ][ xIznosKredita ],
@@ -36777,7 +36991,7 @@ public OnDialogResponse( playerid, dialogid, response, listitem, inputtext[])
 				    UpdateBankTD( playerid );
 
 					new q[ 180 ];
-					mysql_format( mSQL, q, sizeof(q), "UPDATE `users` SET `xBRacun` = '%d', `credit_rest` = '%d', `credit_amount` = '%d', `credit_installment` = '%d' WHERE `user_id` = '%d'",
+					mysql_format( mSQL, q, sizeof(q), "UPDATE `users` SET `bank_acc` = '%d', `credit_rest` = '%d', `credit_amount` = '%d', `credit_installment` = '%d' WHERE `user_id` = '%d'",
                         PI[ playerid ][ xBRacun ],
 						PI[ playerid ][ xPreostaloZaOtplatu ],
 						PI[ playerid ][ xIznosKredita ],
@@ -36813,7 +37027,7 @@ public OnDialogResponse( playerid, dialogid, response, listitem, inputtext[])
 				    UpdateBankTD( playerid );
 
 					new q[ 256 ];
-					mysql_format( mSQL, q, sizeof(q), "UPDATE `users` SET `xBRacun` = '%d', `credit_rest` = '%d', `credit_amount` = '%d', `credit_installment` = '%d' WHERE `user_id` = '%d'",
+					mysql_format( mSQL, q, sizeof(q), "UPDATE `users` SET `bank_acc` = '%d', `credit_rest` = '%d', `credit_amount` = '%d', `credit_installment` = '%d' WHERE `user_id` = '%d'",
                         PI[ playerid ][ xBRacun ],
 						PI[ playerid ][ xPreostaloZaOtplatu ],
 						PI[ playerid ][ xIznosKredita ],
@@ -37009,7 +37223,7 @@ public OnDialogResponse( playerid, dialogid, response, listitem, inputtext[])
 				case 1 .. 23:
 				{
 					PI[playerid][xTDColor] = listitem-1;
-					sql_user_update_integer(playerid, "xTDColor", PI[playerid][xTDColor]);
+					sql_user_update_integer(playerid, "td_color", PI[playerid][xTDColor]);
 
 					BuildIngameTextDraws(playerid, false);
 					BuildIngameTextDraws(playerid, true);
@@ -37336,6 +37550,318 @@ public OnDialogResponse( playerid, dialogid, response, listitem, inputtext[])
 			}
 	    }
 	}
+	else if(dialogid == D_PROMOTERVEH )
+	{
+		if( response )
+		{
+		    switch(listitem)
+			{
+				case 0:
+				{
+					PromoterVozilo[ playerid ] = SMG_CreateVehicle(560, 873.9756, -1663.4427, 13.5469, 270.0000, 79, 79, -1 );
+					LinkVehicleToInterior( PromoterVozilo[ playerid ], GetPlayerInterior( playerid ) );
+			        SetVehicleVirtualWorld( PromoterVozilo[ playerid ], GetPlayerVirtualWorld( playerid ) );
+			        ResetVehicle( PromoterVozilo[ playerid ] );
+					vCanDrive[ PromoterVozilo[ playerid ] ] = 1;
+				    PutPlayerInVehicle( playerid, PromoterVozilo[ playerid ], 0 );
+					ResetVehicleStatistics( PromoterVozilo[ playerid ] );
+
+					new string[ 35+MAX_PLAYER_NAME ];
+			  		format( string, sizeof( string ), "[ PROMOTER - {FFFFFF}%s {AEFAA2}]", ImeIgraca(playerid) );
+					VehicleInfo[ PromoterVozilo[ playerid ] ][ Validv3DText ] = true;
+					VehicleInfo[ PromoterVozilo[ playerid ] ][ v3DText ] = CreateDynamic3DTextLabel(string, 0xAEFAA2FF, 0.0, 0.0, -100.0, 7.5, IPI, PromoterVozilo[ playerid ], 0, -1, -1, -1, 7.5, -1, 0);
+
+					new engine, lights, alarm, doors, bonnet, boot, objective;
+				    GetVehicleParamsEx( PromoterVozilo[ playerid ], engine, lights, alarm, doors, bonnet, boot, objective );
+				    SetVehicleParamsEx( PromoterVozilo[ playerid ], 1, 0, alarm, 0, 0, 0, objective );
+
+				    if(PI[playerid][xPromoter] >= 1) SpawnovaoVozilo[playerid] = gettime()+120;
+				}
+				case 1:
+				{
+					PromoterVozilo[ playerid ] = SMG_CreateVehicle(579, 873.9756, -1663.4427, 13.5469, 270.0000, 79, 79, -1 );
+					LinkVehicleToInterior( PromoterVozilo[ playerid ], GetPlayerInterior( playerid ) );
+			        SetVehicleVirtualWorld( PromoterVozilo[ playerid ], GetPlayerVirtualWorld( playerid ) );
+			        ResetVehicle( PromoterVozilo[ playerid ] );
+					vCanDrive[ PromoterVozilo[ playerid ] ] = 1;
+				    PutPlayerInVehicle( playerid, PromoterVozilo[ playerid ], 0 );
+					ResetVehicleStatistics( PromoterVozilo[ playerid ] );
+
+					new string[ 35+MAX_PLAYER_NAME ];
+			  		format( string, sizeof( string ), "[ PROMOTER - {FFFFFF}%s {AEFAA2}]", ImeIgraca(playerid) );
+					VehicleInfo[ PromoterVozilo[ playerid ] ][ Validv3DText ] = true;
+					VehicleInfo[ PromoterVozilo[ playerid ] ][ v3DText ] = CreateDynamic3DTextLabel(string, 0xaefaa2FF, 0.0, 0.0, -100.0, 7.5, IPI, PromoterVozilo[ playerid ], 0, -1, -1, -1, 7.5, -1, 0);
+
+					new engine, lights, alarm, doors, bonnet, boot, objective;
+				    GetVehicleParamsEx( PromoterVozilo[ playerid ], engine, lights, alarm, doors, bonnet, boot, objective );
+				    SetVehicleParamsEx( PromoterVozilo[ playerid ], 1, 0, alarm, 0, 0, 0, objective );
+
+				    if(PI[playerid][xPromoter] >= 1) SpawnovaoVozilo[playerid] = gettime()+120;
+				}
+				case 2:
+				{
+					PromoterVozilo[ playerid ] = SMG_CreateVehicle(447, 873.9756, -1663.4427, 13.5469, 270.0000, 79, 79, -1 );
+					LinkVehicleToInterior( PromoterVozilo[ playerid ], GetPlayerInterior( playerid ) );
+			        SetVehicleVirtualWorld( PromoterVozilo[ playerid ], GetPlayerVirtualWorld( playerid ) );
+			        ResetVehicle( PromoterVozilo[ playerid ] );
+					vCanDrive[ PromoterVozilo[ playerid ] ] = 1;
+				    PutPlayerInVehicle( playerid, PromoterVozilo[ playerid ], 0 );
+					ResetVehicleStatistics( PromoterVozilo[ playerid ] );
+
+					new string[ 35+MAX_PLAYER_NAME ];
+			  		format( string, sizeof( string ), "[ PROMOTER - {FFFFFF}%s {AEFAA2}]", ImeIgraca(playerid) );
+					VehicleInfo[ PromoterVozilo[ playerid ] ][ Validv3DText ] = true;
+					VehicleInfo[ PromoterVozilo[ playerid ] ][ v3DText ] = CreateDynamic3DTextLabel(string, 0xaefaa2FF, 0.0, 0.0, -100.0, 7.5, IPI, PromoterVozilo[ playerid ], 0, -1, -1, -1, 7.5, -1, 0);
+
+					new engine, lights, alarm, doors, bonnet, boot, objective;
+				    GetVehicleParamsEx( PromoterVozilo[ playerid ], engine, lights, alarm, doors, bonnet, boot, objective );
+				    SetVehicleParamsEx( PromoterVozilo[ playerid ], 1, 0, alarm, 0, 0, 0, objective );
+
+				    if(PI[playerid][xPromoter] >= 1) SpawnovaoVozilo[playerid] = gettime()+120;
+				}
+				case 3:
+				{
+					PromoterVozilo[ playerid ] = SMG_CreateVehicle(411, 873.9756, -1663.4427, 13.5469, 270.0000, 79, 79, -1 );
+					LinkVehicleToInterior( PromoterVozilo[ playerid ], GetPlayerInterior( playerid ) );
+			        SetVehicleVirtualWorld( PromoterVozilo[ playerid ], GetPlayerVirtualWorld( playerid ) );
+			        ResetVehicle( PromoterVozilo[ playerid ] );
+					vCanDrive[ PromoterVozilo[ playerid ] ] = 1;
+				    PutPlayerInVehicle( playerid, PromoterVozilo[ playerid ], 0 );
+					ResetVehicleStatistics( PromoterVozilo[ playerid ] );
+
+					new string[ 35+MAX_PLAYER_NAME ];
+			  		format( string, sizeof( string ), "[ PROMOTER - {FFFFFF}%s {AEFAA2}]", ImeIgraca(playerid) );
+					VehicleInfo[ PromoterVozilo[ playerid ] ][ Validv3DText ] = true;
+					VehicleInfo[ PromoterVozilo[ playerid ] ][ v3DText ] = CreateDynamic3DTextLabel(string, 0xaefaa2FF, 0.0, 0.0, -100.0, 7.5, IPI, PromoterVozilo[ playerid ], 0, -1, -1, -1, 7.5, -1, 0);
+
+					new engine, lights, alarm, doors, bonnet, boot, objective;
+				    GetVehicleParamsEx( PromoterVozilo[ playerid ], engine, lights, alarm, doors, bonnet, boot, objective );
+				    SetVehicleParamsEx( PromoterVozilo[ playerid ], 1, 0, alarm, 0, 0, 0, objective );
+
+				    if(PI[playerid][xPromoter] >= 1) SpawnovaoVozilo[playerid] = gettime()+120;
+				}
+				case 4:
+				{
+					PromoterVozilo[ playerid ] = SMG_CreateVehicle(451, 873.9756, -1663.4427, 13.5469, 270.0000, 79, 79, -1 );
+					LinkVehicleToInterior( PromoterVozilo[ playerid ], GetPlayerInterior( playerid ) );
+			        SetVehicleVirtualWorld( PromoterVozilo[ playerid ], GetPlayerVirtualWorld( playerid ) );
+			        ResetVehicle( PromoterVozilo[ playerid ] );
+					vCanDrive[ PromoterVozilo[ playerid ] ] = 1;
+				    PutPlayerInVehicle( playerid, PromoterVozilo[ playerid ], 0 );
+					ResetVehicleStatistics( PromoterVozilo[ playerid ] );
+
+					new string[ 35+MAX_PLAYER_NAME ];
+			  		format( string, sizeof( string ), "[ PROMOTER - {FFFFFF}%s {AEFAA2}]", ImeIgraca(playerid) );
+					VehicleInfo[ PromoterVozilo[ playerid ] ][ Validv3DText ] = true;
+					VehicleInfo[ PromoterVozilo[ playerid ] ][ v3DText ] = CreateDynamic3DTextLabel(string, 0xaefaa2FF, 0.0, 0.0, -100.0, 7.5, IPI, PromoterVozilo[ playerid ], 0, -1, -1, -1, 7.5, -1, 0);
+
+					new engine, lights, alarm, doors, bonnet, boot, objective;
+				    GetVehicleParamsEx( PromoterVozilo[ playerid ], engine, lights, alarm, doors, bonnet, boot, objective );
+				    SetVehicleParamsEx( PromoterVozilo[ playerid ], 1, 0, alarm, 0, 0, 0, objective );
+
+				    if(PI[playerid][xPromoter] >= 1) SpawnovaoVozilo[playerid] = gettime()+120;
+				}
+				case 5:
+				{
+					PromoterVozilo[ playerid ] = SMG_CreateVehicle(522, 873.9756, -1663.4427, 13.5469, 270.0000, 79, 79, -1 );
+					LinkVehicleToInterior( PromoterVozilo[ playerid ], GetPlayerInterior( playerid ) );
+			        SetVehicleVirtualWorld( PromoterVozilo[ playerid ], GetPlayerVirtualWorld( playerid ) );
+			        ResetVehicle( PromoterVozilo[ playerid ] );
+					vCanDrive[ PromoterVozilo[ playerid ] ] = 1;
+				    PutPlayerInVehicle( playerid, PromoterVozilo[ playerid ], 0 );
+					ResetVehicleStatistics( PromoterVozilo[ playerid ] );
+
+					new string[ 35+MAX_PLAYER_NAME ];
+			  		format( string, sizeof( string ), "[ PROMOTER - {FFFFFF}%s {AEFAA2}]", ImeIgraca(playerid) );
+					VehicleInfo[ PromoterVozilo[ playerid ] ][ Validv3DText ] = true;
+					VehicleInfo[ PromoterVozilo[ playerid ] ][ v3DText ] = CreateDynamic3DTextLabel(string, 0xaefaa2FF, 0.0, 0.0, -100.0, 7.5, IPI, PromoterVozilo[ playerid ], 0, -1, -1, -1, 7.5, -1, 0);
+
+					new engine, lights, alarm, doors, bonnet, boot, objective;
+				    GetVehicleParamsEx( PromoterVozilo[ playerid ], engine, lights, alarm, doors, bonnet, boot, objective );
+				    SetVehicleParamsEx( PromoterVozilo[ playerid ], 1, 0, alarm, 0, 0, 0, objective );
+
+				    if(PI[playerid][xPromoter] >= 1) SpawnovaoVozilo[playerid] = gettime()+120;
+				}
+				case 6:
+				{
+					PromoterVozilo[ playerid ] = SMG_CreateVehicle(541, 873.9756, -1663.4427, 13.5469, 270.0000, 79, 79, -1 );
+					LinkVehicleToInterior( PromoterVozilo[ playerid ], GetPlayerInterior( playerid ) );
+			        SetVehicleVirtualWorld( PromoterVozilo[ playerid ], GetPlayerVirtualWorld( playerid ) );
+			        ResetVehicle( PromoterVozilo[ playerid ] );
+					vCanDrive[ PromoterVozilo[ playerid ] ] = 1;
+				    PutPlayerInVehicle( playerid, PromoterVozilo[ playerid ], 0 );
+					ResetVehicleStatistics( PromoterVozilo[ playerid ] );
+
+					new string[ 35+MAX_PLAYER_NAME ];
+			  		format( string, sizeof( string ), "[ PROMOTER - {FFFFFF}%s {AEFAA2}]", ImeIgraca(playerid) );
+					VehicleInfo[ PromoterVozilo[ playerid ] ][ Validv3DText ] = true;
+					VehicleInfo[ PromoterVozilo[ playerid ] ][ v3DText ] = CreateDynamic3DTextLabel(string, 0xaefaa2FF, 0.0, 0.0, -100.0, 7.5, IPI, PromoterVozilo[ playerid ], 0, -1, -1, -1, 7.5, -1, 0);
+
+					new engine, lights, alarm, doors, bonnet, boot, objective;
+				    GetVehicleParamsEx( PromoterVozilo[ playerid ], engine, lights, alarm, doors, bonnet, boot, objective );
+				    SetVehicleParamsEx( PromoterVozilo[ playerid ], 1, 0, alarm, 0, 0, 0, objective );
+
+				    if(PI[playerid][xPromoter] >= 1) SpawnovaoVozilo[playerid] = gettime()+120;
+				}
+			}
+	    }
+	}
+	else if(dialogid == D_YTVEH )
+	{
+		if( response )
+		{
+		    switch(listitem)
+			{
+				case 0:
+				{
+					YTVozilo[ playerid ] = SMG_CreateVehicle(560, 873.9756, -1663.4427, 13.5469, 270.0000, 3, 3, -1 );
+					LinkVehicleToInterior( YTVozilo[ playerid ], GetPlayerInterior( playerid ) );
+			        SetVehicleVirtualWorld( YTVozilo[ playerid ], GetPlayerVirtualWorld( playerid ) );
+			        ResetVehicle( YTVozilo[ playerid ] );
+					vCanDrive[ YTVozilo[ playerid ] ] = 1;
+				    PutPlayerInVehicle( playerid, YTVozilo[ playerid ], 0 );
+					ResetVehicleStatistics( YTVozilo[ playerid ] );
+
+					new string[ 35+MAX_PLAYER_NAME ];
+			  		format( string, sizeof( string ), "[ YOUTUBER - {FFFFFF}%s {DB2C2C}]", ImeIgraca(playerid) );
+					VehicleInfo[ YTVozilo[ playerid ] ][ Validv3DText ] = true;
+					VehicleInfo[ YTVozilo[ playerid ] ][ v3DText ] = CreateDynamic3DTextLabel(string, 0xDB2C2CFF, 0.0, 0.0, -100.0, 7.5, IPI, YTVozilo[ playerid ], 0, -1, -1, -1, 7.5, -1, 0);
+
+					new engine, lights, alarm, doors, bonnet, boot, objective;
+				    GetVehicleParamsEx( YTVozilo[ playerid ], engine, lights, alarm, doors, bonnet, boot, objective );
+				    SetVehicleParamsEx( YTVozilo[ playerid ], 1, 0, alarm, 0, 0, 0, objective );
+
+				    SpawnovaoVozilo[playerid] = gettime()+120;
+				}
+				case 1:
+				{
+					YTVozilo[ playerid ] = SMG_CreateVehicle(579, 873.9756, -1663.4427, 13.5469, 270.0000, 3, 3, -1 );
+					LinkVehicleToInterior( YTVozilo[ playerid ], GetPlayerInterior( playerid ) );
+			        SetVehicleVirtualWorld( YTVozilo[ playerid ], GetPlayerVirtualWorld( playerid ) );
+			        ResetVehicle( YTVozilo[ playerid ] );
+					vCanDrive[ YTVozilo[ playerid ] ] = 1;
+				    PutPlayerInVehicle( playerid, YTVozilo[ playerid ], 0 );
+					ResetVehicleStatistics( YTVozilo[ playerid ] );
+
+					new string[ 35+MAX_PLAYER_NAME ];
+			  		format( string, sizeof( string ), "[ YOUTUBER - {FFFFFF}%s {DB2C2C}]", ImeIgraca(playerid) );
+					VehicleInfo[ YTVozilo[ playerid ] ][ Validv3DText ] = true;
+					VehicleInfo[ YTVozilo[ playerid ] ][ v3DText ] = CreateDynamic3DTextLabel(string, 0xDB2C2CFF, 0.0, 0.0, -100.0, 7.5, IPI, YTVozilo[ playerid ], 0, -1, -1, -1, 7.5, -1, 0);
+
+					new engine, lights, alarm, doors, bonnet, boot, objective;
+				    GetVehicleParamsEx( YTVozilo[ playerid ], engine, lights, alarm, doors, bonnet, boot, objective );
+				    SetVehicleParamsEx( YTVozilo[ playerid ], 1, 0, alarm, 0, 0, 0, objective );
+
+				    SpawnovaoVozilo[playerid] = gettime()+120;
+				}
+				case 2:
+				{
+					YTVozilo[ playerid ] = SMG_CreateVehicle(447, 873.9756, -1663.4427, 13.5469, 270.0000, 3, 3, -1 );
+					LinkVehicleToInterior( YTVozilo[ playerid ], GetPlayerInterior( playerid ) );
+			        SetVehicleVirtualWorld( YTVozilo[ playerid ], GetPlayerVirtualWorld( playerid ) );
+			        ResetVehicle( YTVozilo[ playerid ] );
+					vCanDrive[ YTVozilo[ playerid ] ] = 1;
+				    PutPlayerInVehicle( playerid, YTVozilo[ playerid ], 0 );
+					ResetVehicleStatistics( YTVozilo[ playerid ] );
+
+					new string[ 35+MAX_PLAYER_NAME ];
+			  		format( string, sizeof( string ), "[ YOUTUBER - {FFFFFF}%s {DB2C2C}]", ImeIgraca(playerid) );
+					VehicleInfo[ YTVozilo[ playerid ] ][ Validv3DText ] = true;
+					VehicleInfo[ YTVozilo[ playerid ] ][ v3DText ] = CreateDynamic3DTextLabel(string, 0xDB2C2CFF, 0.0, 0.0, -100.0, 7.5, IPI, YTVozilo[ playerid ], 0, -1, -1, -1, 7.5, -1, 0);
+
+					new engine, lights, alarm, doors, bonnet, boot, objective;
+				    GetVehicleParamsEx( YTVozilo[ playerid ], engine, lights, alarm, doors, bonnet, boot, objective );
+				    SetVehicleParamsEx( YTVozilo[ playerid ], 1, 0, alarm, 0, 0, 0, objective );
+
+				    SpawnovaoVozilo[playerid] = gettime()+120;
+				}
+				case 3:
+				{
+					YTVozilo[ playerid ] = SMG_CreateVehicle(411, 873.9756, -1663.4427, 13.5469, 270.0000, 3, 3, -1 );
+					LinkVehicleToInterior( YTVozilo[ playerid ], GetPlayerInterior( playerid ) );
+			        SetVehicleVirtualWorld( YTVozilo[ playerid ], GetPlayerVirtualWorld( playerid ) );
+			        ResetVehicle( YTVozilo[ playerid ] );
+					vCanDrive[ YTVozilo[ playerid ] ] = 1;
+				    PutPlayerInVehicle( playerid, YTVozilo[ playerid ], 0 );
+					ResetVehicleStatistics( YTVozilo[ playerid ] );
+
+					new string[ 35+MAX_PLAYER_NAME ];
+			  		format( string, sizeof( string ), "[ YOUTUBER - {FFFFFF}%s {DB2C2C}]", ImeIgraca(playerid) );
+					VehicleInfo[ YTVozilo[ playerid ] ][ Validv3DText ] = true;
+					VehicleInfo[ YTVozilo[ playerid ] ][ v3DText ] = CreateDynamic3DTextLabel(string, 0xDB2C2CFF, 0.0, 0.0, -100.0, 7.5, IPI, YTVozilo[ playerid ], 0, -1, -1, -1, 7.5, -1, 0);
+
+					new engine, lights, alarm, doors, bonnet, boot, objective;
+				    GetVehicleParamsEx( YTVozilo[ playerid ], engine, lights, alarm, doors, bonnet, boot, objective );
+				    SetVehicleParamsEx( YTVozilo[ playerid ], 1, 0, alarm, 0, 0, 0, objective );
+
+				    SpawnovaoVozilo[playerid] = gettime()+120;
+				}
+				case 4:
+				{
+					YTVozilo[ playerid ] = SMG_CreateVehicle(451, 873.9756, -1663.4427, 13.5469, 270.0000, 3, 3, -1 );
+					LinkVehicleToInterior( YTVozilo[ playerid ], GetPlayerInterior( playerid ) );
+			        SetVehicleVirtualWorld( YTVozilo[ playerid ], GetPlayerVirtualWorld( playerid ) );
+			        ResetVehicle( YTVozilo[ playerid ] );
+					vCanDrive[ YTVozilo[ playerid ] ] = 1;
+				    PutPlayerInVehicle( playerid, YTVozilo[ playerid ], 0 );
+					ResetVehicleStatistics( YTVozilo[ playerid ] );
+
+					new string[ 35+MAX_PLAYER_NAME ];
+			  		format( string, sizeof( string ), "[ YOUTUBER - {FFFFFF}%s {DB2C2C}]", ImeIgraca(playerid) );
+					VehicleInfo[ YTVozilo[ playerid ] ][ Validv3DText ] = true;
+					VehicleInfo[ YTVozilo[ playerid ] ][ v3DText ] = CreateDynamic3DTextLabel(string, 0xDB2C2CFF, 0.0, 0.0, -100.0, 7.5, IPI, YTVozilo[ playerid ], 0, -1, -1, -1, 7.5, -1, 0);
+
+					new engine, lights, alarm, doors, bonnet, boot, objective;
+				    GetVehicleParamsEx( YTVozilo[ playerid ], engine, lights, alarm, doors, bonnet, boot, objective );
+				    SetVehicleParamsEx( YTVozilo[ playerid ], 1, 0, alarm, 0, 0, 0, objective );
+
+				    SpawnovaoVozilo[playerid] = gettime()+120;
+				}
+				case 5:
+				{
+					YTVozilo[ playerid ] = SMG_CreateVehicle(522, 873.9756, -1663.4427, 13.5469, 270.0000, 3, 3, -1 );
+					LinkVehicleToInterior( YTVozilo[ playerid ], GetPlayerInterior( playerid ) );
+			        SetVehicleVirtualWorld( YTVozilo[ playerid ], GetPlayerVirtualWorld( playerid ) );
+			        ResetVehicle( YTVozilo[ playerid ] );
+					vCanDrive[ YTVozilo[ playerid ] ] = 1;
+				    PutPlayerInVehicle( playerid, YTVozilo[ playerid ], 0 );
+					ResetVehicleStatistics( YTVozilo[ playerid ] );
+
+					new string[ 35+MAX_PLAYER_NAME ];
+			  		format( string, sizeof( string ), "[ YOUTUBER - {FFFFFF}%s {DB2C2C}]", ImeIgraca(playerid) );
+					VehicleInfo[ YTVozilo[ playerid ] ][ Validv3DText ] = true;
+					VehicleInfo[ YTVozilo[ playerid ] ][ v3DText ] = CreateDynamic3DTextLabel(string, 0xDB2C2CFF, 0.0, 0.0, -100.0, 7.5, IPI, YTVozilo[ playerid ], 0, -1, -1, -1, 7.5, -1, 0);
+
+					new engine, lights, alarm, doors, bonnet, boot, objective;
+				    GetVehicleParamsEx( YTVozilo[ playerid ], engine, lights, alarm, doors, bonnet, boot, objective );
+				    SetVehicleParamsEx( YTVozilo[ playerid ], 1, 0, alarm, 0, 0, 0, objective );
+
+				    SpawnovaoVozilo[playerid] = gettime()+120;
+				}
+				case 6:
+				{
+					YTVozilo[ playerid ] = SMG_CreateVehicle(541, 873.9756, -1663.4427, 13.5469, 270.0000, 3, 3, -1 );
+					LinkVehicleToInterior( YTVozilo[ playerid ], GetPlayerInterior( playerid ) );
+			        SetVehicleVirtualWorld( YTVozilo[ playerid ], GetPlayerVirtualWorld( playerid ) );
+			        ResetVehicle( YTVozilo[ playerid ] );
+					vCanDrive[ YTVozilo[ playerid ] ] = 1;
+				    PutPlayerInVehicle( playerid, YTVozilo[ playerid ], 0 );
+					ResetVehicleStatistics( YTVozilo[ playerid ] );
+
+					new string[ 35+MAX_PLAYER_NAME ];
+			  		format( string, sizeof( string ), "[ YOUTUBER - {FFFFFF}%s {DB2C2C}]", ImeIgraca(playerid) );
+					VehicleInfo[ YTVozilo[ playerid ] ][ Validv3DText ] = true;
+					VehicleInfo[ YTVozilo[ playerid ] ][ v3DText ] = CreateDynamic3DTextLabel(string, 0xDB2C2CFF, 0.0, 0.0, -100.0, 7.5, IPI, YTVozilo[ playerid ], 0, -1, -1, -1, 7.5, -1, 0);
+
+					new engine, lights, alarm, doors, bonnet, boot, objective;
+				    GetVehicleParamsEx( YTVozilo[ playerid ], engine, lights, alarm, doors, bonnet, boot, objective );
+				    SetVehicleParamsEx( YTVozilo[ playerid ], 1, 0, alarm, 0, 0, 0, objective );
+
+				    SpawnovaoVozilo[playerid] = gettime()+120;
+				}
+			}
+	    }
+	}
 	else if(dialogid == D_PROPERTYWEPTAKE )
 	{
 	    new wepname[ 32 ];
@@ -37537,20 +38063,20 @@ public OnDialogResponse( playerid, dialogid, response, listitem, inputtext[])
 			        if( inProperty[ playerid ] != -1 )
 			        {
 
-			            if(GetDistanceBetweenPoints3D(atmInfo[ i ][ atmPos ][ 0 ], atmInfo[ i ][ atmPos ][ 1 ], atmInfo[ i ][ atmPos ][ 2 ], II[ inProperty[ playerid ] ][ iEnter ][ 0 ], II[ inProperty[ playerid ] ][ iEnter ][ 1 ], II[ inProperty[ playerid ] ][ iEnter ][ 2 ]) <
-			                GetDistanceBetweenPoints3D(atmInfo[ najblizi ][ atmPos ][ 0 ], atmInfo[ najblizi ][ atmPos ][ 1 ], atmInfo[ najblizi ][ atmPos ][ 2 ], II[ inProperty[ playerid ] ][ iEnter ][ 0 ], II[ inProperty[ playerid ] ][ iEnter ][ 1 ], II[ inProperty[ playerid ] ][ iEnter ][ 2 ])){
+			            if(GetDistanceBetweenPoints3D(AtmInfo[ i ][ atmPos ][ 0 ], AtmInfo[ i ][ atmPos ][ 1 ], AtmInfo[ i ][ atmPos ][ 2 ], II[ inProperty[ playerid ] ][ iEnter ][ 0 ], II[ inProperty[ playerid ] ][ iEnter ][ 1 ], II[ inProperty[ playerid ] ][ iEnter ][ 2 ]) <
+			                GetDistanceBetweenPoints3D(AtmInfo[ najblizi ][ atmPos ][ 0 ], AtmInfo[ najblizi ][ atmPos ][ 1 ], AtmInfo[ najblizi ][ atmPos ][ 2 ], II[ inProperty[ playerid ] ][ iEnter ][ 0 ], II[ inProperty[ playerid ] ][ iEnter ][ 1 ], II[ inProperty[ playerid ] ][ iEnter ][ 2 ])){
 			                    najblizi = i;
 			            }
 			        }
 			        else
 			        {
-			            if(GetDistanceBetweenPoints3D(atmInfo[ i ][ atmPos ][ 0 ], atmInfo[ i ][ atmPos ][ 1 ], atmInfo[ i ][ atmPos ][ 2 ], pos[0], pos[1], pos[2]) <
-			                GetDistanceBetweenPoints3D(atmInfo[ najblizi ][ atmPos ][ 0 ], atmInfo[ najblizi ][ atmPos ][ 1 ], atmInfo[ najblizi ][ atmPos ][ 2 ], pos[0], pos[1], pos[2])){
+			            if(GetDistanceBetweenPoints3D(AtmInfo[ i ][ atmPos ][ 0 ], AtmInfo[ i ][ atmPos ][ 1 ], AtmInfo[ i ][ atmPos ][ 2 ], pos[0], pos[1], pos[2]) <
+			                GetDistanceBetweenPoints3D(AtmInfo[ najblizi ][ atmPos ][ 0 ], AtmInfo[ najblizi ][ atmPos ][ 1 ], AtmInfo[ najblizi ][ atmPos ][ 2 ], pos[0], pos[1], pos[2])){
 			                    najblizi = i;
 			            }
 			        }
 			    }
-			    setPlayerGps(playerid, atmInfo[ najblizi ][ atmPos ][ 0 ], atmInfo[ najblizi ][ atmPos ][ 1 ], atmInfo[ najblizi ][ atmPos ][ 2 ]);
+			    setPlayerGps(playerid, AtmInfo[ najblizi ][ atmPos ][ 0 ], AtmInfo[ najblizi ][ atmPos ][ 1 ], AtmInfo[ najblizi ][ atmPos ][ 2 ]);
 			}
 		}
 		return 1;
@@ -38677,7 +39203,7 @@ public OnDialogResponse( playerid, dialogid, response, listitem, inputtext[])
 			{
 				II[ hid ][ iDrugAmmount ] += kolicina;
 				PI[playerid][xTorba_Droga] -= kolicina;
-				sql_user_update_integer(playerid, "xTorba_Droga", PI[playerid][xTorba_Droga]);
+				sql_user_update_integer(playerid, "backpack_drug", PI[playerid][xTorba_Droga]);
 
 			    SendNearbyMessage(playerid, 10.0, 0xC2A2DAFF, "* %s ostavlja drogu u sef.", ImeIgraca( playerid ) );
 				SCMF( playerid, 0xFFFF00FF, "(IMOVINA): Ostavili ste {FFFFFF}(%dg) {FFFF00}droge u sef.", kolicina );
@@ -38699,7 +39225,7 @@ public OnDialogResponse( playerid, dialogid, response, listitem, inputtext[])
 
 			II[ hid ][ iDrugAmmount ] -= kolicina;
 			PI[playerid][xTorba_Droga] += kolicina;
-			sql_user_update_integer(playerid, "xTorba_Droga", PI[playerid][xTorba_Droga]);
+			sql_user_update_integer(playerid, "backpack_drug", PI[playerid][xTorba_Droga]);
 
 			SendNearbyMessage(playerid, 10.0, 0xC2A2DAFF, "* %s uzima drogu iz sefa.", ImeIgraca( playerid ) );
 			SCMF( playerid, 0xFFFF00FF, "(IMOVINA): Uzeli ste {FFFFFF}(%dg) {FFFF00}droge iz sefa.", kolicina );
@@ -39599,7 +40125,7 @@ public OnDialogResponse( playerid, dialogid, response, listitem, inputtext[])
 			{
 				VehicleInfo[ izbor ][ vDrugAmmount ] += kolicina;
 				PI[playerid][xTorba_Droga] -= kolicina;
-				sql_user_update_integer(playerid, "xTorba_Droga", PI[playerid][xTorba_Droga]);
+				sql_user_update_integer(playerid, "backpack_drug", PI[playerid][xTorba_Droga]);
 
 				SendNearbyMessage(playerid, 20.0, 0xC2A2DAFF, "* %s uzima nesto iz gepeka.", ImeIgraca( playerid ) );
 				SCMF( playerid, 0xFFFF00FF, "(VOZILO): Ostavili ste {FFFFFF}(%dg) {FFFF00}droge u gepek.", kolicina );
@@ -39626,7 +40152,7 @@ public OnDialogResponse( playerid, dialogid, response, listitem, inputtext[])
 
 			VehicleInfo[ izbor ][ vDrugAmmount ] -= kolicina;
 			PI[playerid][xTorba_Droga] += kolicina;
-			sql_user_update_integer(playerid, "xTorba_Droga", PI[playerid][xTorba_Droga]);
+			sql_user_update_integer(playerid, "backpack_drug", PI[playerid][xTorba_Droga]);
 
 			SendNearbyMessage(playerid, 20.0, 0xC2A2DAFF, "* %s uzima nesto iz gepeka.", ImeIgraca( playerid ) );
 			SCMF( playerid, 0xFFFF00FF, "(VOZILO): Uzeli ste {FFFFFF}(%dg) {FFFF00}droge iz gepeka.", kolicina );
@@ -39868,7 +40394,7 @@ public OnDialogResponse( playerid, dialogid, response, listitem, inputtext[])
 		        	PI[ playerid ][ xPBPoen ] -= ZPoen;
 
 		        	new q[ 128 ];
-					mysql_format( mSQL, q, sizeof(q), "UPDATE `users` SET `vip_level` = '%d', `vip_time` = '%f', `xPBPoen` = '%d' WHERE `user_id` = '%d'", PI[ playerid ][ xVIPLevel ], PI[ playerid ][ xVipTime ], PI[ playerid ][ xPBPoen ], PI[ playerid ][ xID ] );
+					mysql_format( mSQL, q, sizeof(q), "UPDATE `users` SET `vip_level` = '%d', `vip_time` = '%f', `game_points` = '%d' WHERE `user_id` = '%d'", PI[ playerid ][ xVIPLevel ], PI[ playerid ][ xVipTime ], PI[ playerid ][ xPBPoen ], PI[ playerid ][ xID ] );
 			    	mysql_tquery( mSQL, q );
 
 		        	SendClientMessage( playerid, 0xFF6347FF, "(PB-POEN): Uzeli ste paket - {FFFFFF}'VIP level 1'.");
@@ -39885,7 +40411,7 @@ public OnDialogResponse( playerid, dialogid, response, listitem, inputtext[])
 		        	PI[ playerid ][ xPBPoen ] -= ZPoen;
 
 		        	new q[ 128 ];
-					mysql_format( mSQL, q, sizeof(q), "UPDATE `users` SET `vip_level` = '%d', `vip_time` = '%f', `xPBPoen` = '%d' WHERE `user_id` = '%d'", PI[ playerid ][ xVIPLevel ], PI[ playerid ][ xVipTime ], PI[ playerid ][ xPBPoen ], PI[ playerid ][ xID ] );
+					mysql_format( mSQL, q, sizeof(q), "UPDATE `users` SET `vip_level` = '%d', `vip_time` = '%f', `game_points` = '%d' WHERE `user_id` = '%d'", PI[ playerid ][ xVIPLevel ], PI[ playerid ][ xVipTime ], PI[ playerid ][ xPBPoen ], PI[ playerid ][ xID ] );
 			    	mysql_tquery( mSQL, q );
 
 		        	SendClientMessage( playerid, 0xFF6347FF, "(PB-POEN): Uzeli ste paket - {FFFFFF}'VIP level 2'.");
@@ -39902,7 +40428,7 @@ public OnDialogResponse( playerid, dialogid, response, listitem, inputtext[])
 		        	PI[ playerid ][ xPBPoen ] -= ZPoen;
 
 		        	new q[ 128 ];
-					mysql_format( mSQL, q, sizeof(q), "UPDATE `users` SET `vip_level` = '%d', `vip_time` = '%f', `xPBPoen` = '%d' WHERE `user_id` = '%d'", PI[ playerid ][ xVIPLevel ], PI[ playerid ][ xVipTime ], PI[ playerid ][ xPBPoen ], PI[ playerid ][ xID ] );
+					mysql_format( mSQL, q, sizeof(q), "UPDATE `users` SET `vip_level` = '%d', `vip_time` = '%f', `game_points` = '%d' WHERE `user_id` = '%d'", PI[ playerid ][ xVIPLevel ], PI[ playerid ][ xVipTime ], PI[ playerid ][ xPBPoen ], PI[ playerid ][ xID ] );
 			    	mysql_tquery( mSQL, q );
 
 		        	SendClientMessage( playerid, 0xFF6347FF, "(PB-POEN): Uzeli ste paket - {FFFFFF}'VIP level 3'.");
@@ -39919,7 +40445,7 @@ public OnDialogResponse( playerid, dialogid, response, listitem, inputtext[])
 		        	PI[ playerid ][ xPBPoen ] -= ZPoen;
 
 		        	new q[ 128 ];
-					mysql_format( mSQL, q, sizeof(q), "UPDATE `users` SET `level` = '%d', `xPBPoen` = '%d' WHERE `user_id` = '%d'", PI[ playerid ][ xLevel ], PI[ playerid ][ xPBPoen ], PI[ playerid ][ xID ] );
+					mysql_format( mSQL, q, sizeof(q), "UPDATE `users` SET `level` = '%d', `game_points` = '%d' WHERE `user_id` = '%d'", PI[ playerid ][ xLevel ], PI[ playerid ][ xPBPoen ], PI[ playerid ][ xID ] );
 			    	mysql_tquery( mSQL, q );
 
 		        	SendClientMessage( playerid, 0xFF6347FF, "(PB-POEN): Uzeli ste paket - {FFFFFF}'Level UP'.");
@@ -40089,24 +40615,6 @@ public OnDialogResponse( playerid, dialogid, response, listitem, inputtext[])
 	        }
 		}
 	}
-	else if(dialogid == D_ports_MISSIONS)
-	{
-		if(!response) return 1;
-		if(response)
-		{
-			switch(listitem) 
-			{
-				case 0:
-				{
-					/*UcitajObjekte(playerid);
-					SMG_SetPlayerPos(playerid, 1421.3903, -1327.2521, 13.5599);
-					SetPlayerInterior(playerid, 0);
-					SetPlayerVirtualWorld(playerid, 0);
-					SCMF(playerid, 0x2D6888FF, "(TP): Teleportovali ste se do lokacije {FFFFFF}Misija Transport.");*/
-				}
-			}
-		}
-	}
 	else if(dialogid == D_ports_MAIN )
 	{
 	    if( !response ) return 1;
@@ -40117,6 +40625,7 @@ public OnDialogResponse( playerid, dialogid, response, listitem, inputtext[])
 		    if(PI[playerid][xAdmin] != 0 || PI[playerid][xSpecAdmin] != 0 || PI[playerid][xGamemaster] != 0) ima_dozvolu = true;
 		    if(portInfo[id][tpVIP] <= PI[playerid][xVIPLevel]) ima_dozvolu = true;
 		    if(portInfo[id][tpPromoter] <= PI[playerid][xPromoter]) ima_dozvolu = true;
+		    if(portInfo[id][tpYouTuber] <= PI[playerid][xYouTuber]) ima_dozvolu = true;
 
 			if(!ima_dozvolu) return SendErrorMessage(playerid, "Ne mozete se portati na ovu lokaciju, niste ovlasceni.");
 
@@ -40156,8 +40665,13 @@ public OnDialogResponse( playerid, dialogid, response, listitem, inputtext[])
 			{ 
 				DodajWarnRed("~y~(PORT) ~w~Promoter ~y~%s ~w~se teleportova%s do ~y~%s.", ImeIgraca(playerid), getPolForString(playerid, "o", "la"), portInfo[id][tpNaziv] );
 
-				if(PI[playerid][xPromoter] < 5) CooldownPort[ playerid ] = gettime()+60;
-				else CooldownPort[ playerid ] = gettime()+45;
+				if(PI[playerid][xPromoter] < 3) CooldownPort[ playerid ] = gettime()+60;
+			}
+			else if(PI[playerid][xYouTuber] != 0)
+			{ 
+				DodajWarnRed("~y~(PORT) ~w~YouTuber ~y~%s ~w~se teleportova%s do ~y~%s.", ImeIgraca(playerid), getPolForString(playerid, "o", "la"), portInfo[id][tpNaziv] );
+
+				if(PI[playerid][xYouTuber] < 2) CooldownPort[ playerid ] = gettime()+60;
 			}
 			SCMF(playerid, 0x2D6888FF, "(TP): Teleportovali ste se do lokacije {FFFFFF}%s.", portInfo[ id ][ tpNaziv ] );
 		}
@@ -40200,7 +40714,13 @@ public OnDialogResponse( playerid, dialogid, response, listitem, inputtext[])
 			{ 
 				DodajWarnRed("~y~(PORT) ~w~Promoter ~y~%s ~w~se teleportova%s do ~y~%s.", ImeIgraca(playerid), getPolForString(playerid, "o", "la"),jobsInfos[ listitem ][ jName ]  );
 
-				if(PI[playerid][xPromoter] < 5) CooldownPort[ playerid ] = gettime()+60;
+				if(PI[playerid][xPromoter] < 3) CooldownPort[ playerid ] = gettime()+60;
+			}
+			else if(PI[playerid][xYouTuber] != 0)
+			{ 
+				DodajWarnRed("~y~(PORT) ~w~YouTuber ~y~%s ~w~se teleportova%s do ~y~%s.", ImeIgraca(playerid), getPolForString(playerid, "o", "la"),jobsInfos[ listitem ][ jName ]  );
+
+				if(PI[playerid][xYouTuber] < 2) CooldownPort[ playerid ] = gettime()+60;
 			}
 			SetPlayerInterior( playerid, 0 );
 			SetPlayerVirtualWorld( playerid, 0 );
@@ -40750,8 +41270,8 @@ public OnDialogResponse( playerid, dialogid, response, listitem, inputtext[])
 
 			PI[playerid][xTorba_OruzjeM][0] -= kolicina;
 			if(PI[playerid][xTorba_OruzjeM][0] == 0) PI[playerid][xTorba_Oruzje][0] = 0;
-            sql_user_update_integer(playerid, "xTorba_Oruzje_1", PI[playerid][xTorba_Oruzje][0]);
-            sql_user_update_integer(playerid, "xTorba_OruzjeM_1", PI[playerid][xTorba_OruzjeM][0]);			
+            sql_user_update_integer(playerid, "backpack_gs_s1", PI[playerid][xTorba_Oruzje][0]);
+            sql_user_update_integer(playerid, "backpack_am_s1", PI[playerid][xTorba_OruzjeM][0]);
 		}
 	}
 	else if(dialogid == D_BACKPACKTAKEGUN_2)
@@ -40770,8 +41290,8 @@ public OnDialogResponse( playerid, dialogid, response, listitem, inputtext[])
 
 			PI[playerid][xTorba_OruzjeM][1] -= kolicina;
 			if(PI[playerid][xTorba_OruzjeM][1] == 0) PI[playerid][xTorba_Oruzje][1] = 0;
-            sql_user_update_integer(playerid, "xTorba_Oruzje_2", PI[playerid][xTorba_Oruzje][1]);
-            sql_user_update_integer(playerid, "xTorba_OruzjeM_2", PI[playerid][xTorba_OruzjeM][1]);			
+            sql_user_update_integer(playerid, "backpack_gs_s2", PI[playerid][xTorba_Oruzje][1]);
+            sql_user_update_integer(playerid, "backpack_am_s2", PI[playerid][xTorba_OruzjeM][1]);
 		}
 	}
 	else if(dialogid == D_BACKPACKTAKEGUN_3)
@@ -40790,8 +41310,8 @@ public OnDialogResponse( playerid, dialogid, response, listitem, inputtext[])
 
 			PI[playerid][xTorba_OruzjeM][2] -= kolicina;
 			if(PI[playerid][xTorba_OruzjeM][2] == 0) PI[playerid][xTorba_Oruzje][2] = 0;
-            sql_user_update_integer(playerid, "xTorba_Oruzje_3", PI[playerid][xTorba_Oruzje][2]);
-            sql_user_update_integer(playerid, "xTorba_OruzjeM_3", PI[playerid][xTorba_OruzjeM][2]);			
+            sql_user_update_integer(playerid, "backpack_gs_s3", PI[playerid][xTorba_Oruzje][2]);
+            sql_user_update_integer(playerid, "backpack_am_s3", PI[playerid][xTorba_OruzjeM][2]);
 		}
 	}
 	else if(dialogid == D_MAKEGUN )
@@ -41957,7 +42477,7 @@ public OnDialogResponse( playerid, dialogid, response, listitem, inputtext[])
 			{
 				org_info[ OrgID ][ oSafeDrugAmmount ] += kolicina;
 				PI[playerid][xTorba_Droga] -= kolicina;
-				sql_user_update_integer(playerid, "xTorba_Droga", PI[playerid][xTorba_Droga]);
+				sql_user_update_integer(playerid, "backpack_drug", PI[playerid][xTorba_Droga]);
 
 				SendNearbyMessage(playerid, 10.0, 0xC2A2DAFF, "* %s ostavlja nesto u sef.", ImeIgraca( playerid ) );
 				SCMF( playerid, ZUTA, "(%s): Ostavili ste {FFFFFF}(%dg) {FFFF00}droge u sef.", org_info[ OrgID ][ oPreFix ], kolicina );
@@ -41991,7 +42511,7 @@ public OnDialogResponse( playerid, dialogid, response, listitem, inputtext[])
 			{
 				org_info[ OrgID ][ oSafeDrugAmmount ] -= kolicina;
 				PI[playerid][xTorba_Droga] += kolicina;
-				sql_user_update_integer(playerid, "xTorba_Droga", PI[playerid][xTorba_Droga]);
+				sql_user_update_integer(playerid, "backpack_drug", PI[playerid][xTorba_Droga]);
 
 				SendNearbyMessage(playerid, 10.0, 0xC2A2DAFF, "* %s uzima nesto iz sefa.", ImeIgraca( playerid ) );
 				SCMF( playerid, ZUTA, "(%s): Uzeli ste {FFFFFF}(%dg) {FFFF00}droge iz sefa.", org_info[ OrgID ][ oPreFix ], kolicina );
@@ -42144,7 +42664,7 @@ public OnDialogResponse( playerid, dialogid, response, listitem, inputtext[])
 				GMChat( 0xAE7C5BFF, "#LP-ODG: %s > %s: {FFFFFF}%s.", ImeIgraca( playerid ), askqList[ askid ][ askqOwner ], text );
 
 				PI[ playerid ][ xAGMStats ]++;
-	    		sql_user_update_integer( playerid, "xAGMStats", PI[ playerid ][ xAGMStats ] );
+	    		sql_user_update_integer( playerid, "agm_stats", PI[ playerid ][ xAGMStats ] );
 
 	            SendInfoMessage( playerid, "Poslali ste odgovor igracu {FFFFFF}%s.", askqList[ askid ][ askqOwner ] );
 	            SendInfoMessage( playerid, "Vas odgovor glasi: {FFFFFF}%s.", text );
@@ -42727,7 +43247,8 @@ public OnDialogResponse( playerid, dialogid, response, listitem, inputtext[])
 					if( AdminVozilo[playerid] != -1 ) return SendErrorMessage(playerid, "Imate spawnovano A/GM vozilo, unistite ga pa pokrenite trku.");
 					if( VipVozilo[playerid] != -1 ) return SendErrorMessage(playerid, "Imate spawnovano V/T vozilo, unistite ga pa pokrenite trku.");
 					if( PromoterVozilo[playerid] != -1 ) return SendErrorMessage(playerid, "Imate spawnovano Promoter vozilo, unistite ga pa pokrenite trku.");
-					ShowPlayerDialog( playerid, D_NFSIZAZOVI, DIALOG_STYLE_INPUT, "{FFFFFF}Izazovite na trku:", "{FFFFFF}* Unesite ID igraca, zatim broj iz ponude i ulog.\n[Broj] 1. Sultan 2. Infernus 3. Bullet 4. Elegy 5. Turismo\n[Broj] 6. Quad 7. Sabre 8. Hotring Racer 9. NRG-500 10. Tractor\n[Ulog] Ukoliko je ulog 0, igracete bez uloga\n\nPrimer: 25 4 1320", "U redu", "Izadji" );
+					if( YTVozilo[playerid] != -1 ) return SendErrorMessage(playerid, "Imate spawnovano YT vozilo, unistite ga pa pokrenite trku.");
+	                ShowPlayerDialog( playerid, D_NFSIZAZOVI, DIALOG_STYLE_INPUT, "{FFFFFF}Izazovite na trku:", "{FFFFFF}* Unesite ID igraca, zatim broj iz ponude i ulog.\n[Broj] 1. Sultan 2. Infernus 3. Bullet 4. Elegy 5. Turismo\n[Broj] 6. Quad 7. Sabre 8. Hotring Racer 9. NRG-500 10. Tractor\n[Ulog] Ukoliko je ulog 0, igracete bez uloga\n\nPrimer: 25 4 1320", "U redu", "Izadji" );
 				}
 	        }
 	    }
@@ -43256,30 +43777,28 @@ _:public countStatistic(playerid, count)
 	{
 		case 0:
 		{
-		    new rows,
-		    	fields,
-		    	admin_lvl,
-		    	agmstats,
-		    	p_name[MAX_PLAYER_NAME],
-		    	str[2048];
-
-		    cache_get_data( rows, fields, mSQL );
+	        new
+      			rows = cache_num_rows(),
+	    		admin_lvl,
+	    		agmstats,
+	    		p_name[MAX_PLAYER_NAME],
+	    		str[2048];
 
 		    format(str, sizeof(str), "{FFFFFF}Name\t{FFFFFF}Admin\t{FFFFFF}Stats\n");
 		    if( rows )
 			{
 		        for( new i = 0; i < rows; i++ )
 				{
-		            agmstats = cache_get_field_content_int( i, "xAGMStats" );
+		            cache_get_value_name_int( i, "agm_stats", agmstats );
 
 		            CountStatistic += agmstats;
 				}
 
 				for( new i = 0; i < rows; i++ )
 				{
-		            admin_lvl = cache_get_field_content_int( i, "admin_lvl" );
-		            agmstats = cache_get_field_content_int( i, "xAGMStats" );
-		            cache_get_field_content( i, "p_name", p_name, mSQL, 24 );
+		            cache_get_value_name_int( i, "admin_lvl", admin_lvl );
+		            cache_get_value_name_int( i, "agm_stats", agmstats );
+		            cache_get_value_name( i, "p_name", p_name, 24 );
 
 		            new Float:postotak = floatmul(floatdiv(100, CountStatistic), agmstats);
 
@@ -43292,30 +43811,28 @@ _:public countStatistic(playerid, count)
 		}
 		case 1:
 		{
-		    new rows,
-		    	fields,
+		    new
+				rows = cache_num_rows(),
 		    	admin_lvl,
 		    	agmstats,
 		    	p_name[MAX_PLAYER_NAME],
 		    	str[2048];
-
-		    cache_get_data( rows, fields, mSQL );
 
 		    format(str, sizeof(str), "{FFFFFF}Name\t{FFFFFF}GameMaster\t{FFFFFF}Stats\n");
 		    if( rows )
 			{
 		        for( new i = 0; i < rows; i++ )
 				{
-		            agmstats = cache_get_field_content_int( i, "xAGMStats" );
+		            cache_get_value_name_int( i, "agm_stats", agmstats );
 
 		            CountStatistic += agmstats;
 				}
 
 				for( new i = 0; i < rows; i++ )
 				{
-		            admin_lvl = cache_get_field_content_int( i, "helper_level" );
-		            agmstats = cache_get_field_content_int( i, "xAGMStats" );
-		            cache_get_field_content( i, "p_name", p_name, mSQL, 24 );
+		            cache_get_value_name_int( i, "helper_level", admin_lvl );
+		            cache_get_value_name_int( i, "agm_stats", agmstats );
+		            cache_get_value_name( i, "p_name", p_name, 24 );
 
 		            new Float:postotak = floatmul(floatdiv(100, CountStatistic), agmstats);
 
@@ -43328,28 +43845,26 @@ _:public countStatistic(playerid, count)
 		}
 		case 2:
 		{
-		    new rows,
-		    	fields,
+		    new
+				rows = cache_num_rows(),
 		    	agmstats,
 		    	p_name[MAX_PLAYER_NAME],
 		    	str[2048];
-
-		    cache_get_data( rows, fields, mSQL );
 
 		    format(str, sizeof(str), "{FFFFFF}Name\t{FFFFFF}Stats\n");
 		    if( rows )
 			{
 		        for( new i = 0; i < rows; i++ )
 				{
-		            agmstats = cache_get_field_content_int( i, "xAGMStats" );
+		            cache_get_value_name_int( i, "agm_stats", agmstats );
 
 		            CountStatistic += agmstats;
 				}
 
 				for( new i = 0; i < rows; i++ )
 				{
-		            agmstats = cache_get_field_content_int( i, "xAGMStats" );
-		            cache_get_field_content( i, "p_name", p_name, mSQL, 24 );
+		            cache_get_value_name_int( i, "agm_stats", agmstats );
+		            cache_get_value_name( i, "p_name", p_name, 24 );
 
 		            new Float:postotak = floatmul(floatdiv(100, CountStatistic), agmstats);
 
@@ -43366,9 +43881,9 @@ _:public countStatistic(playerid, count)
 
 _:public addUserToBlackList(playerid, const ime[])
 {
-    new rows, fields;
-    cache_get_data( rows, fields, mSQL );
-
+	new
+	    rows = cache_num_rows();
+	    
     if( rows )
 	{
 	    SendErrorMessage( playerid, "To ime vec postoji na BL!" );
@@ -43387,9 +43902,9 @@ _:public addUserToBlackList(playerid, const ime[])
 
 _:public removeUserFromBlackList(playerid, const ime[])
 {
-	new rows, fields;
-	cache_get_data(rows, fields, mSQL);
-
+	new
+	    rows = cache_num_rows();
+	    
 	if(!rows)
 	{
 		SendErrorMessage(playerid, "Taj igrac ne postoji u bazi podataka!");
@@ -43632,16 +44147,17 @@ CMD:offvratistats( playerid, const params[] )
 
 _:public CheckPlayerOffVratiStats( playerid, novac, const imeigraca[], levell)
 {
-    new rows, fields;
-    cache_get_data( rows, fields, mSQL );
-
+	new
+	    rows = cache_num_rows();
+	    
     if( !rows ) 
     {
         SendErrorMessage( playerid, "Taj igrac ne postoji u bazi podataka!");
     }
     else {
 
-        new user_id = cache_get_field_content_int( 0, "user_id" );
+        new user_id;
+		cache_get_value_name_int( 0, "user_id", user_id );
 
        	new q[ 150 ];
 		mysql_format( mSQL, q, sizeof(q), "UPDATE `users` SET `money` = money+'%d', `level` = level+'%d' WHERE `user_id` = '%d' LIMIT 1", novac, levell, user_id );
@@ -43828,7 +44344,7 @@ CMD:tiki(playerid)
 		SendClientMessage(playerid, 0x009113FF, "(TIKI): Dobili ste +1 PB-Poen zbog {FFFFFF}(50) {009113}Tiki-a.");
     }
     static string[144];
-	mysql_format(mSQL, string, sizeof(string), "UPDATE `users` SET `xTiki` = '%d', `xPBPoen` = '%d' WHERE `user_id` = '%d'", PI[playerid][xTiki], PI[playerid][xPBPoen], PI[playerid][xID]);
+	mysql_format(mSQL, string, sizeof(string), "UPDATE `users` SET `tikies` = '%d', `game_points` = '%d' WHERE `user_id` = '%d'", PI[playerid][xTiki], PI[playerid][xPBPoen], PI[playerid][xID]);
 	mysql_tquery(mSQL, string);
 	return 1;
 }
@@ -43872,7 +44388,7 @@ CMD:sretniid(playerid, const params[])
 			SendClientMessageToAllEx(0x26FF79FF, "#SRETNI-ID: %s[%d] {FFFFFF}je izvuka%s sretni ID, {26FF79}%s[%d] {FFFFFF}>> {26FF79}%dG zlata", ImeIgraca(playerid), playerid, getPolForString(playerid, "o", "la"), ImeIgraca(sretniid), sretniid, kolicina);
 			
 			PI[sretniid][xZlato] += kolicina;
-			sql_user_update_integer(sretniid, "xZlato", PI[sretniid][xZlato]);
+			sql_user_update_integer(sretniid, "gold", PI[sretniid][xZlato]);
 			UpdateZlatoTD(sretniid);
 			
 			WriteLog("log-sretniid", "%s je izvuka%s sretni id %s[%d], nagrada: %dG zlata", ImeIgraca(playerid), getPolForString(playerid, "o", "la"), ImeIgraca(sretniid), sretniid, kolicina);
@@ -43978,7 +44494,7 @@ CMD:vipwarn(playerid, const params[])
 	SCMF(playerid, 0xFF6347FF, "#VIPWARN: {FFFFFF}Igracu {FF6347}%s {FFFFFF}dali ste VIP warn, {FF6347}[%d/3].", ImeIgraca(id), PI[id][xVIPWarn]);
 	AdminMsg(ADM_WARN, "[ADMIN] %s[%d] je da%s igracu %s[%d] VIP warn (%d/3).", ImeIgraca(playerid), playerid, PI[playerid][xPol] == 1 ? "o" : "la", ImeIgraca(id), id, PI[id][xVIPWarn]);
 	WriteLog("log-warn", "Admin %s je dao/la %s VIP warn (%d/3)", ImeIgraca( playerid ), ImeIgraca(id), PI[id][xVIPWarn]);
-	sql_user_update_integer(id, "xVIPWarn", PI[id][xVIPWarn]);
+	sql_user_update_integer(id, "vip_warn", PI[id][xVIPWarn]);
 
 	if(PI[id][xVIPWarn] >= 3)
 	{
@@ -43988,7 +44504,7 @@ CMD:vipwarn(playerid, const params[])
 		SCMF(id, 0xFF6347FF, "#VIPWARN: {FFFFFF}Zbog dostignutog broja VIP warnova od {FF6347}[%d/3] {FFFFFF}izgubili ste VIP privilegije.", PI[id][xVIPWarn]);
 
 		static q[128];
-		mysql_format(mSQL, q, sizeof(q), "UPDATE `users` SET `vip_level` = '0', `xVIPWarn` = '0' WHERE `user_id` = '%d' LIMIT 1", PI[id][xID]);
+		mysql_format(mSQL, q, sizeof(q), "UPDATE `users` SET `vip_level` = '0', `vip_warn` = '0' WHERE `user_id` = '%d' LIMIT 1", PI[id][xID]);
 		mysql_tquery(mSQL, q);
 	}
 	return 1;
@@ -44010,7 +44526,7 @@ CMD:rvipwarn(playerid, const params[])
     AdminMsg(ADM_WARN, "[ADMIN] %s[%d] je skinu%s igracu %s[%d] VIP warn (%d/3).", ImeIgraca(playerid), playerid, PI[playerid][xPol] == 1 ? "o" : "la", ImeIgraca(id), id, PI[id][xVIPWarn]);
     WriteLog("log-warn", "Admin %s je skinuo/la %s VIP warn (%d/3)", ImeIgraca(playerid), ImeIgraca(id), PI[id][xVIPWarn]);
 
-    sql_user_update_integer(id, "xVIPWarn", PI[id][xVIPWarn]);
+    sql_user_update_integer(id, "vip_warn", PI[id][xVIPWarn]);
 
     if(PI[id][xVIPWarn] == 0)
     {
@@ -44034,7 +44550,7 @@ CMD:oglaswarn(playerid, const params[])
 	SCMF(playerid, 0xFF6347FF, "#OGLASWARN: {FFFFFF}Igracu {FF6347}%s {FFFFFF}dali ste oglas warn, {FF6347}[%d/3].", ImeIgraca(id), PI[id][xOglasWarn]);
 	AdminMsg(ADM_WARN, "[ADMIN] %s[%d] je da%s igracu %s[%d] oglas warn (%d/3).", ImeIgraca(playerid), playerid, PI[playerid][xPol] == 1 ? "o" : "la", ImeIgraca(id), id, PI[id][xOglasWarn]);
 	WriteLog("log-warn", "Admin %s je dao/la %s oglas warn (%d/3)", ImeIgraca( playerid ), ImeIgraca(id), PI[id][xOglasWarn]);
-	sql_user_update_integer(id, "xOglasWarn", PI[id][xOglasWarn]);
+	sql_user_update_integer(id, "ad_warn", PI[id][xOglasWarn]);
 
 	if(PI[id][xOglasWarn] >= 3)
 	{
@@ -44059,7 +44575,7 @@ CMD:roglaswarn(playerid, const params[])
     AdminMsg(ADM_WARN, "[ADMIN] %s[%d] je skinu%s igracu %s[%d] oglas warn (%d/3).", ImeIgraca(playerid), playerid, PI[playerid][xPol] == 1 ? "o" : "la", ImeIgraca(id), id, PI[id][xOglasWarn]);
     WriteLog("log-warn", "Admin %s je skinuo/la %s oglas warn (%d/3)", ImeIgraca(playerid), ImeIgraca(id), PI[id][xOglasWarn]);
 
-    sql_user_update_integer(id, "xOglasWarn", PI[id][xOglasWarn]);
+    sql_user_update_integer(id, "ad_warn", PI[id][xOglasWarn]);
 
     if(PI[id][xOglasWarn] == 0)
     {
@@ -44078,17 +44594,17 @@ CMD:proverarada(playerid, const params[])
 	if(strcmp(kjsk, "admin", true) == 0)
 	{
 		if(PI[playerid][xAdmin] < 4) return SendErrorMessage(playerid, "Samo Admini.");
-		mysql_tquery(mSQL, "SELECT `admin_lvl`, `p_name`, `xAGMStats` FROM `users` WHERE `admin_lvl` > 0 ORDER BY `admin_lvl` DESC", "countStatistic", "ii", playerid, 0);
+		mysql_tquery(mSQL, "SELECT `admin_lvl`, `p_name`, `agm_stats` FROM `users` WHERE `admin_lvl` > 0 ORDER BY `admin_lvl` DESC", "countStatistic", "ii", playerid, 0);
 	}
 	else if(strcmp(kjsk, "gm", true) == 0)
 	{
 		if(PI[playerid][xAdmin] < 4 && PI[playerid][xSkriptaRank] != 7) return SendErrorMessage(playerid, "Samo Admini i vodja gamemastera.");
-		mysql_tquery(mSQL, "SELECT `helper_level`, `p_name`, `xAGMStats` FROM `users` WHERE `helper_level` > 0 ORDER BY `helper_level` DESC", "countStatistic", "ii", playerid, 1);
+		mysql_tquery(mSQL, "SELECT `helper_level`, `p_name`, `agm_stats` FROM `users` WHERE `helper_level` > 0 ORDER BY `helper_level` DESC", "countStatistic", "ii", playerid, 1);
 	}
 	else if(strcmp(kjsk, "spec", true) == 0)
 	{
 		if(PI[playerid][xAdmin] < 4 && PI[playerid][xSkriptaRank] != 6) return SendErrorMessage(playerid, "Samo Admini i vodja spec teama.");
-		mysql_tquery(mSQL, "SELECT `xSpecAdmin`, `p_name`, `xAGMStats` FROM `users` WHERE `xSpecAdmin` > 0", "countStatistic", "ii", playerid, 2);
+		mysql_tquery(mSQL, "SELECT `spec_admin`, `p_name`, `agm_stats` FROM `users` WHERE `spec_admin` > 0", "countStatistic", "ii", playerid, 2);
 	}
 	else SendErrorMessage(playerid, "Pogresan tip.");
 	return 1;
@@ -44102,7 +44618,7 @@ CMD:resetstaffstats(playerid)
 	{
 		PI[i][xAGMStats] = 0;
 	}
-	mysql_tquery(mSQL, "UPDATE `users` SET `xAGMStats` = '0' WHERE `xAGMStats` > 0");
+	mysql_tquery(mSQL, "UPDATE `users` SET `agm_stats` = '0' WHERE `agm_stats` > 0");
 
 	AdminMsg(ADM_WARN, "[ADMIN] %s[%d] je resetovao/la statistiku admina/gmova/spec admina.", ImeIgraca(playerid), playerid);
 	return 1;
@@ -44208,7 +44724,7 @@ CMD:firework(playerid, const params[])
 	    DodajWarnRed("~y~(PLAYER): %s ~w~je napravi%s vatromet ~y~ID(%d).", ImeIgraca(playerid), PI[playerid][xPol] == 1 ? "o" : "la", id);
 
 	    PI[playerid][xFirework]--;
-	    sql_user_update_integer(playerid, "xFirework", PI[playerid][xFirework]);
+	    sql_user_update_integer(playerid, "firework", PI[playerid][xFirework]);
 
     #else
 
@@ -44367,7 +44883,7 @@ CMD:opengift(playerid)
 	    case 13..15:
 	    {
 	        PI[ playerid ][ xZlato ] += 100;
-			sql_user_update_integer( playerid, "xZlato", PI[ playerid ][ xZlato ] ); UpdateZlatoTD(playerid);
+			sql_user_update_integer( playerid, "gold", PI[ playerid ][ xZlato ] ); UpdateZlatoTD(playerid);
  
 	        SendClientMessageToAllEx(0x2EC991FF, "[GIFT]: {FFFFFF}%s[%d] je pronasa%s gift i pokupi%s nagradu: {2EC991}100G ZLATA", ImeIgraca(playerid), playerid, PI[playerid][xPol] == 1 ? "o" : "la", PI[playerid][xPol] == 1 ? "o" : "la");
 
@@ -44379,7 +44895,7 @@ CMD:opengift(playerid)
 	    case 16:
 	    {
 	        PI[playerid][xPBPoen]++;
-	        sql_user_update_integer( playerid, "xPBPoen", PI[ playerid ][ xPBPoen ] );
+	        sql_user_update_integer( playerid, "game_points", PI[ playerid ][ xPBPoen ] );
 
 	        SendClientMessageToAllEx(0x2EC991FF, "[GIFT]: {FFFFFF}%s[%d] je pronasa%s gift i pokupi%s nagradu: {2EC991}1 PB-POEN", ImeIgraca(playerid), playerid, PI[playerid][xPol] == 1 ? "o" : "la", PI[playerid][xPol] == 1 ? "o" : "la");
 
@@ -44391,7 +44907,7 @@ CMD:opengift(playerid)
 	    case 17..19:
 	    {
 	        PI[ playerid ][ xZlato ] += 50;
-			sql_user_update_integer( playerid, "xZlato", PI[ playerid ][ xZlato ] ); UpdateZlatoTD(playerid);
+			sql_user_update_integer( playerid, "gold", PI[ playerid ][ xZlato ] ); UpdateZlatoTD(playerid);
 
 	        SendClientMessageToAllEx(0x2EC991FF, "[GIFT]: {FFFFFF}%s[%d] je pronasa%s gift i pokupi%s nagradu: {2EC991}50G ZLATA", ImeIgraca(playerid), playerid, PI[playerid][xPol] == 1 ? "o" : "la", PI[playerid][xPol] == 1 ? "o" : "la");
 
@@ -44523,7 +45039,7 @@ CMD:reklama(playerid, const params[])
 	    GMChat(ADM_WARN, "[ADMIN] %s je postavi%s reklamu za forum.", ImeIgraca(playerid), getPolForString(playerid, "o", "la"));
 
 	    PI[ playerid ][ xAGMStats ] += 4;
-	    sql_user_update_integer( playerid, "xAGMStats", PI[ playerid ][ xAGMStats ] );
+	    sql_user_update_integer( playerid, "agm_stats", PI[ playerid ][ xAGMStats ] );
 
 	    KoriscenaReklama = gettime()+600;
 	}
@@ -44539,7 +45055,7 @@ CMD:reklama(playerid, const params[])
 	    GMChat(ADM_WARN, "[ADMIN] %s je postavi%s reklamu za Teamspeak.", ImeIgraca(playerid), getPolForString(playerid, "o", "la"));
 
 	    PI[ playerid ][ xAGMStats ] += 4;
-	    sql_user_update_integer( playerid, "xAGMStats", PI[ playerid ][ xAGMStats ] );
+	    sql_user_update_integer( playerid, "agm_stats", PI[ playerid ][ xAGMStats ] );
 
 	    KoriscenaReklama = gettime()+600;
 	}
@@ -44594,7 +45110,7 @@ CMD:novagodina( playerid )
 
 		if( PI[ playerid ][ xPaketic ] ) return SendErrorMessage(playerid, "Vec si uzeo novogodisnji poklon!");
 		PI[ playerid ][ xPaketic ] = 1;
-		sql_user_update_integer( playerid, "xPaketic", PI[ playerid ][ xPaketic ] );
+		sql_user_update_integer( playerid, "paket", PI[ playerid ][ xPaketic ] );
 
 	    DajIgracuNovac( playerid, 500000 );
 		PI[ playerid ][ xLevel ] += 2;
@@ -44602,7 +45118,7 @@ CMD:novagodina( playerid )
 
 	    SetPlayerScore(playerid, PI[playerid][xLevel]);
 	  	sql_user_update_integer( playerid, "level", PI[ playerid ][ xLevel ] );
-	    sql_user_update_integer( playerid, "xZlato", PI[ playerid ][ xZlato ] ); UpdateZlatoTD(playerid);
+	    sql_user_update_integer( playerid, "gold", PI[ playerid ][ xZlato ] ); UpdateZlatoTD(playerid);
 
 	    SendClientMessage( playerid, 0xFF0000FF, "(PRAZNICI): Otvorili ste novogodisnji paketic. | Nagrada: {FFFFFF}$500.000 {FF0000}| {FFFFFF}2xLevelUP {FF0000}| {FFFFFF}Zlato - 1000g");
 
@@ -45183,7 +45699,7 @@ CMD:tunecar( playerid )
 
 CMD:fasttune(playerid)
 {
-	if(PI[playerid][xVIPLevel] < 5 && PI[playerid][xAdmin] < 1 && PI[playerid][xGamemaster] < 1 && PI[playerid][xSpecAdmin] < 1) return SendErrorMessage(playerid, "Niste ovlasceni.");
+	if(PI[playerid][xVIPLevel] < 5 && PI[playerid][xAdmin] < 1 && PI[playerid][xGamemaster] < 1 && PI[playerid][xSpecAdmin] < 1 && PI[playerid][xPromoter] < 3) return SendErrorMessage(playerid, "Niste ovlasceni.");
 	if(!IsPlayerInAnyVehicle(playerid)) return SendErrorMessage(playerid, "Niste u vozilu.");
 	if( PI[playerid][xWanted] != 0 ) return SendErrorMessage(playerid, "Ne mozete dok imate WL.");
 	if(IsVehicleBrod(GetPlayerVehicleID(playerid)) || IsVehicleBajs(GetPlayerVehicleID(playerid)) || IsVehicleMotor(GetPlayerVehicleID(playerid)) || IsVehicleLetelica(GetPlayerVehicleID(playerid))
@@ -45195,6 +45711,16 @@ CMD:fasttune(playerid)
 
 	SendClientMessage(playerid, 0x00FF00FF, "Uzeli ste brzi tuning: nitro 10x, zlatne felge i hidrauliku.");
 	GChat(0x00FF00FF, "#FASTTUNE: {FFFFFF}%s {00FF00}je ugradio/la brzi tuning u vozilo (nitro, felge, hidraulika).", ImeIgraca(playerid));
+	return 1;
+}
+
+CMD:playercc( playerid )
+{
+	if( PI[ playerid ][ xAdmin ] < 1 && PI[ playerid ][ xGamemaster ] < 1 && PI[ playerid ][ xVIPLevel ] < 2 && PI[ playerid ][ xPromoter ] < 3) return SendErrorMessage( playerid, "Niste u mogucnosti koristiti ovu komandu." );
+
+	ClearChat( playerid, 18 );
+	SendClientMessage(playerid, -1, "PLAYER-CC | Ocistili ste vas chat.");
+	SendClientMessage(playerid, 0x2D6888FF, "== "SERVER_WEB" ==");
 	return 1;
 }
 
@@ -45279,12 +45805,13 @@ CMD:makevip( playerid, const params[] )
 
 CMD:makepromoter(playerid, const params[]) 
 {
-    if( PI[ playerid ][ xAdmin ] >= 5 || PI[playerid][xSkriptaRank] == 5)
+    if( PI[ playerid ][ xAdmin ] >= 5 || PI[playerid][xSkriptaRank] == 5 || PI[playerid][xPromoter] == 4)
     {
 		new id, kolicina, razlog[ 64 ];
-	    if( sscanf( params, "uis[64]", id, kolicina, razlog ) ) return SendUsageMessage( playerid, "/makepromoter [id] [level(0/5)] [razlog]");
+	    if( sscanf( params, "uis[64]", id, kolicina, razlog ) ) return SendUsageMessage( playerid, "/makepromoter [id] [level(0/4)] [razlog]");
 		if( id == IPI ) return SendErrorMessage( playerid, "Taj igrac nije na serveru.");
-		if( kolicina < 0 || kolicina > 5 ) return SendErrorMessage( playerid, "Pogresno level promotera (0/5).");
+		if( kolicina < 0 || kolicina > 4 ) return SendErrorMessage( playerid, "Pogresno level promotera (0/4).");
+		if( kolicina == 4 && PI[playerid][xAdmin] < 7 ) return SendErrorMessage(playerid, "Ne mozete postaviti vodju promotera, mozete samo obicnog promotera od 1 do 3lvl.");
 
 		switch(kolicina) 
 		{
@@ -45300,11 +45827,11 @@ CMD:makepromoter(playerid, const params[])
 				SCMF( id, 0x00FF00FF, "#PROMOTER: {FFFFFF}Admin {00FF00}%s {FFFFFF}vam je postavi%s Promotera {00FF00}(%d).", ImeIgraca( playerid ), getPolForString(playerid, "o", "la"), kolicina );
 				SCMF( playerid, 0x00FF00FF, "#PROMOTER: {FFFFFF}Postavili ste igracu {00FF00}%s {FFFFFF}Promotera {00FF00}(%d).", ImeIgraca( id ), kolicina );
 			}
-			case 4..5:
+			case 4:
 			{
 				PI[ id ][ xPromoter ] = kolicina;
-				SCMF( id, 0x00FF00FF, "#PROMOTER: {FFFFFF}Admin {00FF00}%s {FFFFFF}vam je postavi%s YouTubera.", ImeIgraca( playerid ), getPolForString(playerid, "o", "la") );
-				SCMF( playerid, 0x00FF00FF, "#PROMOTER: {FFFFFF}Postavili ste igracu {00FF00}%s {FFFFFF}YouTubera.", ImeIgraca( id ) );
+				SCMF( id, 0x00FF00FF, "#PROMOTER: {FFFFFF}Admin {00FF00}%s {FFFFFF}vam je postavi%s Head Promotera.", ImeIgraca( playerid ), getPolForString(playerid, "o", "la") );
+				SCMF( playerid, 0x00FF00FF, "#PROMOTER: {FFFFFF}Postavili ste igracu {00FF00}%s {FFFFFF}Head Promotera.", ImeIgraca( id ) );
 			}
 		}
 
@@ -45318,6 +45845,41 @@ CMD:makepromoter(playerid, const params[])
 	return 1;
 }
 
+CMD:makeyoutuber(playerid, const params[]) 
+{
+    if( PI[ playerid ][ xAdmin ] >= 7 || PI[playerid][xYouTuber] == 2)
+    {
+		new id, kolicina, razlog[ 64 ];
+	    if( sscanf( params, "ris[64]", id, kolicina, razlog ) ) return SendUsageMessage( playerid, "/makeyoutuber [id] [level(0/2)] [razlog]");
+		if( id == IPI ) return SendErrorMessage( playerid, "Taj igrac nije na serveru.");
+		if( kolicina < 0 || kolicina > 2 ) return SendErrorMessage( playerid, "Pogresno level YouTuber (0/2).");
+		if( kolicina == 2 && PI[playerid][xAdmin] < 7 ) return SendErrorMessage(playerid, "Ne mozete vi davati vodju youtubera, samo obicnog youtubera.");
+
+		switch(kolicina) 
+		{
+			case 0: 
+			{
+				PI[ id ][ xYouTuber ] = 0;
+				SCMF( id, 0xFF0000FF, "#YOUTUBER: {FFFFFF}Admin {FF0000}%s {FFFFFF}vam je skinuo YouTubera.", ImeIgraca( playerid ) );
+				SCMF( playerid, 0xFF0000FF, "#YOUTUBER: {FFFFFF}Skinuli ste igracu {FF0000}%s {FFFFFF}YouTubera.", ImeIgraca( id ) );
+			}
+			case 1 .. 2: 
+			{
+				PI[ id ][ xYouTuber ] = kolicina;
+				SCMF( id, 0x00FF00FF, "#YOUTUBER: {FFFFFF}Admin {00FF00}%s {FFFFFF}vam je postavio YouTubera {00FF00}(%d).", ImeIgraca( playerid ), kolicina );
+				SCMF( playerid, 0x00FF00FF, "#YOUTUBER: {FFFFFF}Postavili ste igracu {00FF00}%s {FFFFFF}YouTubera {00FF00}(%d).", ImeIgraca( id ), kolicina );
+			}
+		}
+
+	    static q[ 128 ];
+		mysql_format( mSQL, q, sizeof(q), "UPDATE `users` SET `youtuber` = '%d' WHERE `user_id` = '%d'", PI[ id ][ xYouTuber ], PI[ id ][ xID ] );
+		mysql_tquery( mSQL, q );
+
+		WriteLog("log-make", "Admin %s | Igrac: %s | YouTuber: %d | Razlog: %s", ImeIgraca( playerid ), ImeIgraca( id ), kolicina, razlog);
+    }
+    else return SendErrorMessage( playerid, "Niste u mogucnosti koristiti ovu komandu.");
+	return 1;
+}
 
 CMD:givemoney( playerid, const params[] )
 {
@@ -45380,7 +45942,7 @@ CMD:makeadmin( playerid, const params[] )
 			PI[ id ][ xSkriptaRank ] = 0;
 
 			new q[ 180 ];
-			mysql_format( mSQL, q, sizeof(q), "UPDATE `users` SET `admin_lvl` = '%d', `skin_id` = '%d', `spawn` = '%d', `spec_rank`='0', `xAGMStats` = '0' WHERE `user_id` = '%d'",
+			mysql_format( mSQL, q, sizeof(q), "UPDATE `users` SET `admin_lvl` = '%d', `skin_id` = '%d', `spawn` = '%d', `spec_rank`='0', `agm_stats` = '0' WHERE `user_id` = '%d'",
 									                PI[id][xAdmin],
 													PI[id][xSkin],
 													PI[id][xSpawn],
@@ -45418,7 +45980,7 @@ CMD:makeadmin( playerid, const params[] )
 			PI[ id ][ xAGMStats ] = 0;
 			PI[ id ][ xAdmin ] = kolicina;
 
-			mysql_format( mSQL, q, 120, "UPDATE `users` SET `admin_lvl` = '%d', `admin_code` = '%d', `xAGMStats` = '0' WHERE `user_id` = '%d'", PI[ id ][ xAdmin ], PI[ id ][ xAKod ], PI[ id ][ xID ] );
+			mysql_format( mSQL, q, 120, "UPDATE `users` SET `admin_lvl` = '%d', `admin_code` = '%d', `agm_stats` = '0' WHERE `user_id` = '%d'", PI[ id ][ xAdmin ], PI[ id ][ xAKod ], PI[ id ][ xID ] );
     		mysql_tquery( mSQL, q );
     		
 			ALTPoruke[playerid] = false;
@@ -45445,8 +46007,8 @@ CMD:makespecadmin( playerid, const params[] )
 	 		PI[ id ][ xAGMStats ] = 0;
 
 		    SMG_SetPlayerColor( id );
-	 		sql_user_update_integer( id, "xSpecAdmin", PI[ id ][ xSpecAdmin ] );
-	 		sql_user_update_integer( id, "xAGMStats", PI[ id ][ xAGMStats ] );
+	 		sql_user_update_integer( id, "spec_admin", PI[ id ][ xSpecAdmin ] );
+	 		sql_user_update_integer( id, "agm_stats", PI[ id ][ xAGMStats ] );
 
 			SCMF( id, 0xFF0000FF, "#SPEC ADMIN: %s {FFFFFF}%s {FF0000}vam je skinu%s spec admin poziciju.", getAdminRankName( playerid ), ImeIgraca( playerid ), getPolForString(playerid, "o", "la") );
 
@@ -45460,8 +46022,8 @@ CMD:makespecadmin( playerid, const params[] )
 	 		PI[ id ][ xAGMStats ] = 0;
 	 		PI[ id ][ xGamemaster ] = 0;
 
-			sql_user_update_integer( id, "xSpecAdmin", PI[ id ][ xSpecAdmin ] );
-	 		sql_user_update_integer( id, "xAGMStats", PI[ id ][ xAGMStats ] );
+			sql_user_update_integer( id, "spec_admin", PI[ id ][ xSpecAdmin ] );
+	 		sql_user_update_integer( id, "agm_stats", PI[ id ][ xAGMStats ] );
 	 		sql_user_update_integer( id, "helper_level", PI[ id ][ xGamemaster ] );
 			
 			SCMF( id, 0x00FF00FF, "#SPEC ADMIN: %s {FFFFFF}%s {00FF00}vam je postavi%s spec admin poziciju.", getAdminRankName( playerid ), ImeIgraca( playerid ), getPolForString(playerid, "o", "la") );
@@ -45498,7 +46060,7 @@ CMD:makegamemaster( playerid, const params[] )
 			SMG_SetPlayerSkin( id, SetSexSkin( id ) );
 
 			new q[ 180 ];
-			mysql_format( mSQL, q, sizeof(q), "UPDATE `users` SET `skin_id` = '%d', `spawn` = '%d', `helper_level` = '%d', `xAGMStats` = '0'  WHERE `user_id` = '%d'",
+			mysql_format( mSQL, q, sizeof(q), "UPDATE `users` SET `skin_id` = '%d', `spawn` = '%d', `helper_level` = '%d', `agm_stats` = '0'  WHERE `user_id` = '%d'",
 												PI[ id ][ xSkin ],
 												PI[ id ][ xSpawn ],
 												PI[ id ][ xGamemaster ],
@@ -45519,7 +46081,7 @@ CMD:makegamemaster( playerid, const params[] )
 			PI[ id ][ xAGMStats ] = 0;
 
 			sql_user_update_integer( id, "helper_level", PI[ id ][ xGamemaster ] );
-			sql_user_update_integer( id, "xAGMStats", PI[ id ][ xAGMStats ] );
+			sql_user_update_integer( id, "agm_stats", PI[ id ][ xAGMStats ] );
 
 			SCMF( id, 0x00FF00FF, "#GAMEMASTER: %s {FFFFFF}%s {00FF00}vam je postavi%s Gamemaster 1 poziciju.", getAdminRankName( playerid ), ImeIgraca( playerid ), getPolForString(playerid, "o", "la") );
 			WriteLog("log-make", "Admin %s | Igrac: %s | Level Gamemastera: %d", ImeIgraca( playerid ), ImeIgraca( id ), kolicina); 
@@ -45531,7 +46093,7 @@ CMD:makegamemaster( playerid, const params[] )
 			PI[ id ][ xAGMStats ] = 0;
 
 			sql_user_update_integer( id, "helper_level", PI[ id ][ xGamemaster ] );
-			sql_user_update_integer( id, "xAGMStats", PI[ id ][ xAGMStats ] );
+			sql_user_update_integer( id, "agm_stats", PI[ id ][ xAGMStats ] );
 
 			SCMF( id, 0x00FF00FF, "#GAMEMASTER: %s {FFFFFF}%s {00FF00}vam je postavi%s Gamemaster 2 poziciju.", getAdminRankName( playerid ), ImeIgraca( playerid ), getPolForString(playerid, "o", "la") );
 			WriteLog("log-make", "Admin %s | Igrac: %s | Level Gamemastera: %d", ImeIgraca( playerid ), ImeIgraca( id ), kolicina);
@@ -45540,6 +46102,40 @@ CMD:makegamemaster( playerid, const params[] )
 		else return SendErrorMessage( playerid, "Pogresan level Gamemastera(0/3)." );
     } 
     else return SendErrorMessage( playerid, "Niste u mogucnosti koristiti ovu komandu.");
+	return 1;
+}
+
+CMD:promenipol( playerid, const params[] )
+{
+    if( PI[ playerid ][ xAdmin ] < 5 ) return SendErrorMessage( playerid, "Niste u mogucnosti koristiti ovu komandu.");
+    //if( PI[ playerid ][ xAdmin ] <= 5 && !AdminDuty[ playerid ] ) return SendErrorMessage( playerid, "Da bi koristili ovu komandu morate biti Admin na duznosti." );
+	
+	new id, kolicina;
+	if( sscanf( params, "ui", id, kolicina ) )
+	{
+		SendUsageMessage( playerid, "/promenipol [id] [pol(id)]");
+     	SendClientMessage( playerid, -1, "[POL] 1: Muski | 2: Zenski");
+     	return 1;
+	}
+	if( kolicina == 1 )
+	{
+	    PI[ id ][ xPol ] = 1;
+	    sql_user_update_integer( id, "sex", PI[ id ][ xPol ] );
+     	SCMF( playerid, 0x33CCFFFF, "#POL: {FFFFFF}Promenili ste igracu {33CCFF}%s {FFFFFF}pol na musko.", ImeIgraca( id ) );
+     	return 1;
+	}
+	else if( kolicina == 2 )
+	{
+	    PI[ id ][ xPol ] = 2;
+		sql_user_update_integer( id, "sex", PI[ id ][ xPol ] );
+     	SCMF( playerid, 0x33CCFFFF, "#POL: {FFFFFF}Promenili ste igracu {33CCFF}%s {FFFFFF}pol na zensko.", ImeIgraca( id ) );
+     	return 1;
+	}
+	else
+	{
+		SendUsageMessage( playerid, "/promenipol [id] [pol(id)]");
+     	SendClientMessage( playerid, -1, "[POL] 1: Muski | 2: Zenski");
+	}
 	return 1;
 }
 
@@ -45744,7 +46340,7 @@ CMD:dajdrogu( playerid, const params[] )
 		if( (PI[playerID][xTorba_Droga]+kolicina) <= 100000 )
 		{
 		    PI[playerID][xTorba_Droga] += kolicina;
-		    sql_user_update_integer(playerID, "xTorba_Droga", PI[playerID][xTorba_Droga]);
+		    sql_user_update_integer(playerID, "backpack_drug", PI[playerID][xTorba_Droga]);
 
 			SendInfoMessage( playerID, "%s %s vam je dao %dg droge.", getAdminRankNameInChat( playerid ), ImeIgraca( playerid ), kolicina );
 			SendInfoMessage( playerid, "Dali ste %s %dg droge.", ImeIgraca( playerID ), kolicina );
@@ -45784,7 +46380,7 @@ CMD:setstat( playerid, const params[] )
 	else if( strcmp( odabir, "pbpoen", true ) == 0 )
 	{
    		PI[ id ][ xPBPoen ] = kolicina;
-        sql_user_update_integer( id, "xPBPoen", PI[ id ][ xPBPoen ] );
+        sql_user_update_integer( id, "game_points", PI[ id ][ xPBPoen ] );
 
         SCMF( id, 0x33CCFFFF, "#SETSTAT: {FFFFFF}Admin {33CCFF}%s {FFFFFF}vam je postavi%s PB-Poen {33CCFF}(%d).", ImeIgraca( playerid ), getPolForString(playerid, "o", "la"), kolicina );
 		SCMF( playerid, 0x33CCFFFF, "#SETSTAT: {FFFFFF}Postavili ste igracu {33CCFF}%s {FFFFFF}PB-Poen {33CCFF}(%d).", ImeIgraca( id ), kolicina );
@@ -45795,7 +46391,7 @@ CMD:setstat( playerid, const params[] )
 	else if( strcmp( odabir, "tiki", true ) == 0 )
 	{
    		PI[ id ][ xTiki ] = kolicina;
-        sql_user_update_integer( id, "xTiki", PI[ id ][ xTiki ] );
+        sql_user_update_integer( id, "tikies", PI[ id ][ xTiki ] );
 
         SCMF( id, 0x33CCFFFF, "#SETSTAT: {FFFFFF}Admin {33CCFF}%s {FFFFFF}vam je postavi%s Tiki's {33CCFF}(%d).", ImeIgraca( playerid ), getPolForString(playerid, "o", "la"), kolicina );
 		SCMF( playerid, 0x33CCFFFF, "#SETSTAT: {FFFFFF}Postavili ste igracu {33CCFF}%s {FFFFFF}Tiki's {33CCFF}(%d).", ImeIgraca( id ), kolicina );
@@ -46095,10 +46691,10 @@ CMD:jetpack( playerid )
 
 CMD:nitro( playerid )
 {
-    if( PI[ playerid ][ xAdmin ] < 2 && PI[ playerid ][ xVIPLevel ] < 5 && PI[ playerid ][ xPromoter ] < 5 ) return SendErrorMessage( playerid, "Niste u mogucnosti koristiti ovu komandu." );
+    if( PI[ playerid ][ xAdmin ] < 2 && PI[ playerid ][ xVIPLevel ] < 5 && PI[ playerid ][ xPromoter ] < 2 ) return SendErrorMessage( playerid, "Niste u mogucnosti koristiti ovu komandu." );
     if( !IsPlayerInAnyVehicle( playerid ) ) return SendErrorMessage( playerid, "Morate biti u vozilu!");
 
-    if( PI[ playerid ][ xVIPLevel ] >= 5 || PI[ playerid ][ xPromoter ] >= 5 && PI[ playerid ][ xAdmin ] == 0 )
+    if( PI[ playerid ][ xVIPLevel ] >= 5 || PI[ playerid ][ xPromoter ] >= 2 && PI[ playerid ][ xAdmin ] == 0 )
 	{
 		if( ProcesSvercanja[ playerid ] > 0 ) return SendErrorMessage( playerid, "Ne mozes nitro dok svercas." );
 		if( NaDmEventu[ playerid ]) return SendErrorMessage( playerid, "Ne mozes dok si na CS-DM." );
@@ -46125,6 +46721,7 @@ CMD:veh( playerid, const params[] )
 	if( TrkaVozilo[playerid] != -1 ) return SendErrorMessage(playerid, "Imate spawnovano trkace vozilo, ponistite ili zavrsite utrku pa spawnujte vozilo.");
 	if( VipVozilo[playerid] != -1 ) return SendErrorMessage(playerid, "Imate spawnovano V/T vozilo, unistite ga pa spawnujte vozilo.");
 	if( PromoterVozilo[playerid] != -1 ) return SendErrorMessage(playerid, "Imate spawnovano Promoter vozilo, unistite ga pa spawnujte vozilo.");
+	if( YTVozilo[playerid] != -1 ) return SendErrorMessage(playerid, "Imate spawnovano YT vozilo, unistite ga pa spawnujte vozilo.");
 	if( Spectate[ playerid ] != -1) return SendErrorMessage(playerid, "Ne mozete u spectate modu.");
 
     if( AdminVozilo[ playerid ] == -1 ) 
@@ -46195,6 +46792,7 @@ CMD:vipveh( playerid, const params[] )
 	if( TrkaVozilo[playerid] != -1 ) return SendErrorMessage(playerid, "Imate spawnovano trkace vozilo, ponistite ili zavrsite utrku pa spawnujte vozilo.");
 	if( AdminVozilo[playerid] != -1 ) return SendErrorMessage(playerid, "Imate spawnovano A/GM vozilo, unistite ga pa spawnujte vozilo.");
 	if( PromoterVozilo[playerid] != -1 ) return SendErrorMessage(playerid, "Imate spawnovano Promoter vozilo, unistite ga pa spawnujte vozilo.");
+	if( YTVozilo[playerid] != -1 ) return SendErrorMessage(playerid, "Imate spawnovano YT vozilo, unistite ga pa spawnujte vozilo.");
 	if( Spectate[ playerid ] != -1) return SendErrorMessage(playerid, "Ne mozete u spectate modu.");
 
     if( VipVozilo[ playerid ] == -1 )
@@ -46254,17 +46852,93 @@ CMD:vipveh( playerid, const params[] )
 	return 1;
 }
 
+CMD:promoterveh( playerid, const params[] )
+{
+    if( ServerInfo[ BrojKreiranihVozila ] > MaxBrojKreiranih ) return SendClientMessage( playerid, ANTICHEAT, "[ANTICHEAT]: Nemoguce je trenutno kreirati vozilo, limit vozila na serveru je dosegnut.");
+	if( PI[ playerid ][ xPromoter ] < 1) return SendErrorMessage( playerid, "Niste u mogucnosti koristiti ovu komandu." );
+	if( PosaoVozilo[playerid] != -1 ) return SendErrorMessage(playerid, "Imate spawnovano poslovno vozilo, ponistite posao pa spawnujte vozilo.");
+	if( RentVozilo[playerid] != -1 ) return SendErrorMessage(playerid, "Imate spawnovano rent vozilo, ponistite rent pa spawnujte vozilo.");
+	if( TrkaVozilo[playerid] != -1 ) return SendErrorMessage(playerid, "Imate spawnovano trkace vozilo, ponistite ili zavrsite utrku pa spawnujte vozilo.");
+	if( AdminVozilo[playerid] != -1 ) return SendErrorMessage(playerid, "Imate spawnovano A/GM vozilo, unistite ga pa spawnujte vozilo.");
+	if( YTVozilo[playerid] != -1 ) return SendErrorMessage(playerid, "Imate spawnovano YT vozilo, unistite ga pa spawnujte vozilo.");
+	if( Spectate[ playerid ] != -1) return SendErrorMessage(playerid, "Ne mozete u spectate modu.");
+
+	if( PromoterVozilo[ playerid ] != -1 ) 
+	{
+	    SendInfoMessage( playerid, "Vozilo ID {FFFFFF}(%d) {2D6888}je unisteno.", PromoterVozilo[ playerid ] );
+
+		VehicleInfo[ PromoterVozilo[ playerid ] ][ Validv3DText ] = false;
+        DestroyDynamic3DTextLabel(VehicleInfo[ PromoterVozilo[ playerid ] ][ v3DText ]);
+	    ResetVehicle( PromoterVozilo[ playerid ] );
+		SMG_DestroyVehicle( PromoterVozilo[ playerid ] );
+		PromoterVozilo[ playerid ] = -1;
+	}
+	else
+	{
+		if( !IsPlayerInRangeOfPoint(playerid, 3.0, 873.9756, -1663.4427, 13.5469) ) return SendErrorMessage( playerid, "Niste u bazi na mjestu spawnovanja vozila." );
+		if(gettime() < SpawnovaoVozilo[playerid]) return SendErrorMessage(playerid, "Mozete spawnovati vozilo za %d sec.", gettime()-SpawnovaoVozilo[playerid]);
+
+		ShowPlayerDialog(playerid, D_PROMOTERVEH, DIALOG_STYLE_LIST, "{FFFFFF}Promoter Vozilo:",
+																									"{2D6888}(1). {FFFFFF}Sultan\n\
+																									{2D6888}(2). {FFFFFF}Huntley\n\
+																									{2D6888}(3). {FFFFFF}Sparrow\n\
+																									{2D6888}(4). {FFFFFF}Infernus\n\
+																									{2D6888}(5). {FFFFFF}Turismo\n\
+																									{2D6888}(6). {FFFFFF}NRG\n\
+																									{2D6888}(7). {FFFFFF}Bullet", "Potvrdi", "Zatvori");
+	}
+	return 1;
+}
+alias:promoterveh("pveh");
+
+CMD:ytveh( playerid, const params[] )
+{
+    if( ServerInfo[ BrojKreiranihVozila ] > MaxBrojKreiranih ) return SendClientMessage( playerid, ANTICHEAT, "[ANTICHEAT]: Nemoguce je trenutno kreirati vozilo, limit vozila na serveru je dosegnut.");
+	if( PI[ playerid ][ xYouTuber ] < 1) return SendErrorMessage( playerid, "Niste u mogucnosti koristiti ovu komandu." );
+	if( PosaoVozilo[playerid] != -1 ) return SendErrorMessage(playerid, "Imate spawnovano poslovno vozilo, ponistite posao pa spawnujte vozilo.");
+	if( RentVozilo[playerid] != -1 ) return SendErrorMessage(playerid, "Imate spawnovano rent vozilo, ponistite rent pa spawnujte vozilo.");
+	if( TrkaVozilo[playerid] != -1 ) return SendErrorMessage(playerid, "Imate spawnovano trkace vozilo, ponistite ili zavrsite utrku pa spawnujte vozilo.");
+	if( AdminVozilo[playerid] != -1 ) return SendErrorMessage(playerid, "Imate spawnovano A/GM vozilo, unistite ga pa spawnujte vozilo.");
+	if( PromoterVozilo[playerid] != -1 ) return SendErrorMessage(playerid, "Imate spawnovano Promoter vozilo, unistite ga pa spawnujte vozilo.");
+	if( Spectate[ playerid ] != -1) return SendErrorMessage(playerid, "Ne mozete u spectate modu.");
+
+	if( YTVozilo[ playerid ] != -1 ) 
+	{
+	    SendInfoMessage( playerid, "Vozilo ID {FFFFFF}(%d) {2D6888}je unisteno.", YTVozilo[ playerid ] );
+
+		VehicleInfo[ YTVozilo[ playerid ] ][ Validv3DText ] = false;
+        DestroyDynamic3DTextLabel(VehicleInfo[ YTVozilo[ playerid ] ][ v3DText ]);
+	    ResetVehicle( YTVozilo[ playerid ] );
+		SMG_DestroyVehicle( YTVozilo[ playerid ] );
+		YTVozilo[ playerid ] = -1;
+	}
+	else
+	{
+		if( !IsPlayerInRangeOfPoint(playerid, 3.0, 873.9756, -1663.4427, 13.5469) ) return SendErrorMessage( playerid, "Niste u bazi na mjestu spawnovanja vozila." );
+		if(gettime() < SpawnovaoVozilo[playerid]) return SendErrorMessage(playerid, "Mozete spawnovati vozilo za %d sec.", gettime()-SpawnovaoVozilo[playerid]);
+
+		ShowPlayerDialog(playerid, D_YTVEH, DIALOG_STYLE_LIST, "{FFFFFF}YouTuber Vozilo:",
+																									"{2D6888}(1). {FFFFFF}Sultan\n\
+																									{2D6888}(2). {FFFFFF}Huntley\n\
+																									{2D6888}(3). {FFFFFF}Sparrow\n\
+																									{2D6888}(4). {FFFFFF}Infernus\n\
+																									{2D6888}(5). {FFFFFF}Turismo\n\
+																									{2D6888}(6). {FFFFFF}NRG\n\
+																									{2D6888}(7). {FFFFFF}Bullet", "Potvrdi", "Zatvori");
+	}
+	return 1;
+}
 
 CMD:fixveh( playerid )
 {
-    if( PI[ playerid ][ xAdmin ] >= 1 || PI[ playerid ][ xSpecAdmin ] >= 1 || PI[ playerid ][ xGamemaster ] >= 1 || PI[ playerid ][ xVIPLevel ] >= 4 || PI[ playerid ][ xPromoter ] >= 1 )
+    if( PI[ playerid ][ xAdmin ] >= 1 || PI[ playerid ][ xSpecAdmin ] >= 1 || PI[ playerid ][ xGamemaster ] >= 1 || PI[ playerid ][ xVIPLevel ] >= 4 || PI[ playerid ][ xPromoter ] >= 1 || PI[ playerid ][ xYouTuber ] >= 1 )
 	{
 		if( PI[ playerid ][ xGamemaster ] >= 1 || PI[ playerid ][ xAdmin ] <= 4 || PI[ playerid ][ xSpecAdmin ] >= 1 )
 		{
 		    if( UzeoOpremu[ playerid ]) return SendErrorMessage( playerid, "Ne mozes koristi ovu komandu dok radis posao ili imas uniformu posla." );
 			if( (PI[ playerid ][ xAdmin ] > 0 && PI[ playerid ][ xAdmin ] <= 4) && !AdminDuty[ playerid ] ) return SendErrorMessage( playerid, "Da bi koristili ovu komandu morate biti Admin na duznosti." );
 		}
-		else if( PI[ playerid ][ xVIPLevel ] >= 4 || PI[ playerid ][ xPromoter ] >= 1 )
+		else if( PI[ playerid ][ xVIPLevel ] >= 4 || PI[ playerid ][ xPromoter ] >= 1 || PI[ playerid ][ xYouTuber ] >= 1 )
 		{
 			if( NaUtrci[ playerid ] ) return SendErrorMessage( playerid, "Ne mozes koristi ovu komandu dok si na trci." );
 			if( PlayerCP[ playerid ] > 0 ) return SendErrorMessage( playerid, "Ne mozes koristi ovu komandu dok si na eventu." );
@@ -46333,28 +47007,6 @@ CMD:enapusti( playerid )
 	if( PlayerCP[ playerid ] <= 0 && PlayerInvited[ playerid ] == 0 ) return SendErrorMessage( playerid, "Niste na eventu." );
 
 	if( PI[ playerid ][ xZatvor ] >= 1 ) return SendErrorMessage( playerid, "Ne mozete na event dok ste u jailu / prisonu.");
-
-/*	EventInfo[ Drivers ]--;
-	SMG_TogglePlayerControllable( playerid, true );
-	SetPlayerVirtualWorld( playerid, 0 );
-	PlayerCP[ playerid ] = 0;
-	PlayerInvited[ playerid ] = 0;
-	DisablePlayerRaceCheckpoint( playerid );
-	DisablePlayerCheckpoint( playerid );
-
-	if(EventInfo[ Vehicle ][ PlayerEventVehID[ playerid ] ] != -1)
-	{
-		VehicleObjectCheck( EventInfo[ Vehicle ][ PlayerEventVehID[ playerid ] ] );
-		ResetVehicle( EventInfo[ Vehicle ][ PlayerEventVehID[ playerid ] ] );
-		SMG_DestroyVehicle( EventInfo[ Vehicle ][ PlayerEventVehID[ playerid ] ] );
-		PlayerEventVehID[ playerid ] = -1;
-	}
-
-	SMG_SetPlayerPos( playerid, PlayerPos[ playerid ][ 0 ], PlayerPos[ playerid ][ 1 ],  PlayerPos[ playerid ][ 2 ] );
-	SetPlayerVirtualWorld( playerid, PlayerPosVW[ playerid ] );
-	SetPlayerInterior( playerid, PlayerPosInt[ playerid ] );
-
-*/
 
 	if( EventInfo[ Started ] == event_LIVE )
 	{
@@ -47050,7 +47702,7 @@ CMD:poklon( playerid )
 			{
 				new const cash = 10+random(10);
 				PI[playerid][xZlato] += cash;
-				sql_user_update_integer(playerid, "xZlato", PI[playerid][xZlato]); UpdateZlatoTD(playerid);
+				sql_user_update_integer(playerid, "gold", PI[playerid][xZlato]); UpdateZlatoTD(playerid);
 
 				SendClientMessageToAllEx( 0x2641FEFF, "(POKLON): {FFFFFF}%s {2641FE}je upravo otvori%s poklon i pronasa%s {FFFFFF}%dG {2641FE}zlata.", ImeIgraca( playerid ), PI[playerid][xPol] == 1 ? "o" : "la", PI[playerid][xPol] == 1 ? "o" : "la", cash );
 				SCMF(playerid, 0x241FEFF, "(POKLON): Otvorili ste poklon i pronasli {FFFFFF}%dG {2641FE}zlata.", cash);
@@ -47059,7 +47711,7 @@ CMD:poklon( playerid )
 			{
 				new const cash = 100+random(100);
 				PI[playerid][xTorba_Droga] += cash;
-				sql_user_update_integer(playerid, "xTorba_Droga", PI[playerid][xTorba_Droga]);
+				sql_user_update_integer(playerid, "backpack_drug", PI[playerid][xTorba_Droga]);
 
 				SendClientMessageToAllEx( 0x2641FEFF, "(POKLON): {FFFFFF}%s {2641FE}je upravo otvori%s poklon i pronasa%s {FFFFFF}%dG {2641FE}droge.", ImeIgraca( playerid ), PI[playerid][xPol] == 1 ? "o" : "la", PI[playerid][xPol] == 1 ? "o" : "la", cash );
 				SCMF(playerid, 0x241FEFF, "(POKLON): Otvorili ste poklon i pronasli {FFFFFF}%dG {2641FE}droge.", cash);
@@ -47425,7 +48077,7 @@ CMD:pm( playerid, const params[] )
     if( PI[ playerid ][ xAdmin ] < 5 && PI[ id ][ xAdmin ] >= 5 ) return SendErrorMessage( playerid, "Ne mozes pisati direktoru i vlasniku!");
 
 	PI[ playerid ][ xAGMStats ]++;
-	sql_user_update_integer( playerid, "xAGMStats", PI[ playerid ][ xAGMStats ] );
+	sql_user_update_integer( playerid, "agm_stats", PI[ playerid ][ xAGMStats ] );
 
 	SCMF( playerid, 0x2D6888FF, "#PM: Posla%s si PM {FFFFFF}'%s-u': {2D6888}%s", getPolForString(playerid, "o", "la"), ImeIgraca( id ), apmtext );
 	SCMF( id, ZELENA, "#PM: {FFFFFF}%s: {2D6888}%s", ImeIgraca(playerid), apmtext );
@@ -47556,7 +48208,7 @@ CMD:kick( playerid, const params[] )
 	    if(PI[id][xSpecAdmin]) return SendErrorMessage( playerid, "Ne mozes to svom kolegi.");
 
 	    PI[ playerid ][ xAGMStats ]++;
-		sql_user_update_integer( playerid, "xAGMStats", PI[ playerid ][ xAGMStats ] );
+		sql_user_update_integer( playerid, "agm_stats", PI[ playerid ][ xAGMStats ] );
 		ServerInfo[ KikovanihKorisnika ]++;
 
 		SCMF( id, 0xFF0000FF, "#KICK: {FFFFFF}Kickovani ste! {FF0000}| Admin: {FFFFFF}%s {FF0000}| Razlog: {FF0000}%s", ImeIgraca( playerid ), reason );
@@ -47683,7 +48335,7 @@ CMD:jail( playerid, const params[] )
 				mysql_tquery( mSQL, q );
 
 				PI[ playerid ][ xAGMStats ]++;
-	    		sql_user_update_integer( playerid, "xAGMStats", PI[ playerid ][ xAGMStats ] );
+	    		sql_user_update_integer( playerid, "agm_stats", PI[ playerid ][ xAGMStats ] );
 
 				SCMF( id, 0xFF6347FF, "#JAIL: {FFFFFF}Admin {FF6347}%s {FFFFFF}vas je stavi%s u zatvor na {FF6347}(%d) {FFFFFF}min, razlog: {FF6347}%s", ImeIgraca(playerid), getPolForString(playerid, "o", "la"), time, razlog );
 				SendClientMessage(id, 0xFF6347FF, "#JAIL: {FFFFFF}Iz zatvora se mozete vaditi putem kaucije - {FF6347}[ /bail ].");
@@ -47739,7 +48391,7 @@ CMD:prison( playerid, const params[] )
 				WriteLog("log-punishment", "Admin %s je prisonovao igraca %s | Vreme: %dh | Razlog: %s", ImeIgraca( playerid ), ImeIgraca( id ), vreme, razlog);
 
 				PI[ playerid ][ xAGMStats ]++;
-	    		sql_user_update_integer( playerid, "xAGMStats", PI[ playerid ][ xAGMStats ] );
+	    		sql_user_update_integer( playerid, "agm_stats", PI[ playerid ][ xAGMStats ] );
 
                 PlayerCP[ id ] = 0;
 
@@ -48083,7 +48735,7 @@ CMD:punishplayer( playerid, const params[] )
         sql_create_punishment( id, playerid, reason_s, jail_time, money_fine, warns );
 
         PI[ playerid ][ xAGMStats ]++;
-	    sql_user_update_integer( playerid, "xAGMStats", PI[ playerid ][ xAGMStats ] );
+	    sql_user_update_integer( playerid, "agm_stats", PI[ playerid ][ xAGMStats ] );
     }
 	else return SendErrorMessage( playerid, "Niste u mogucnosti koristiti ovu komandu." );
 	return 1;
@@ -48213,7 +48865,7 @@ CMD:unbanip( playerid, const params[] )
 			return 1;
 		}
 		PI[ playerid ][ xAGMStats ]++;
-	    sql_user_update_integer( playerid, "xAGMStats", PI[ playerid ][ xAGMStats ] );
+	    sql_user_update_integer( playerid, "agm_stats", PI[ playerid ][ xAGMStats ] );
 		ServerInfo[ BanovanihKorisnika ]--;
 
 		format( globalstring, 50, "unbanip %s", playersip );
@@ -48292,7 +48944,7 @@ CMD:banip( playerid, const params[] )
 		}
 
 		PI[ playerid ][ xAGMStats ]++;
-	    sql_user_update_integer( playerid, "xAGMStats", PI[ playerid ][ xAGMStats ] );
+	    sql_user_update_integer( playerid, "agm_stats", PI[ playerid ][ xAGMStats ] );
 		ServerInfo[ BanovanihKorisnika ]++;
 
 		format( globalstring, 44, "banip %s", playersip );
@@ -49001,7 +49653,7 @@ CMD:port(playerid)
 
 		ShowPlayerDialog(playerid, D_TELEPORTS, DIALOG_STYLE_LIST, "{FFFFFF}Izaberite teleport:", "{2D6888}(1). {FFFFFF}Lokacije\n{2D6888}(2). {FFFFFF}Poslovi\n{2D6888}(3). {FFFFFF}Organizacije", "Potvrdi", "Odustani");
 	}
-	else if( PI[ playerid ][ xVIPLevel ] >= 1 || PI[ playerid ] [ xPromoter ] >= 1 )
+	else if( PI[ playerid ][ xVIPLevel ] >= 1 || PI[ playerid ] [ xPromoter ] >= 1 || PI[ playerid ] [ xYouTuber ] >= 1 )
 	{
 		if( ProcesSvercanja[ playerid ] > 0 ) return SendErrorMessage( playerid, "Ne mozes se portati dok svercas." );
         if( NaUtrci[ playerid ] ) return SendErrorMessage( playerid, "Ne mozes dok si na trci." );
@@ -49024,7 +49676,7 @@ CMD:port(playerid)
 
 CMD:mark( playerid )
 {
-    if( PI[ playerid ][ xAdmin ] >= 3 || PI[ playerid ][ xVIPLevel ] >= 4)
+    if( PI[ playerid ][ xAdmin ] >= 3 || PI[ playerid ][ xVIPLevel ] >= 4 || PI[ playerid ][ xPromoter ] >= 3)
 	{
 		GetPlayerPos( playerid, PI[ playerid ][ xMarker ][ 0 ], PI[ playerid ][ xMarker ][ 1 ], PI[ playerid ][ xMarker ][ 2 ] );
 
@@ -49044,9 +49696,9 @@ CMD:mark( playerid )
 
 CMD:gotomark( playerid )
 {
-    if( PI[ playerid ][ xAdmin ] >= 3 || PI[ playerid ][ xVIPLevel ] >= 4)
+    if( PI[ playerid ][ xAdmin ] >= 3 || PI[ playerid ][ xVIPLevel ] >= 4 || PI[ playerid ][ xPromoter ] >= 3)
 	{
-        if( PI[ playerid ][ xVIPLevel ] >= 3)
+        if( PI[ playerid ][ xVIPLevel ] >= 3 || PI[ playerid ][ xPromoter ] >= 3)
 		{
 			if( ProcesSvercanja[ playerid ] > 0 ) return SendErrorMessage( playerid, "Ne mozes se portati dok svercas." );
             if( NaUtrci[ playerid ] ) return SendErrorMessage( playerid, "Ne mozes dok si na trci." );
@@ -49258,7 +49910,7 @@ CMD:aktivnostigraca( playerid, const params[] )
 
 		new query[ 700 ];
 		mysql_format( mSQL, query, sizeof(query),
-				"SELECT users.sex, users.level, users.xOnlineSati, users.exp, users.money, users.xBRacun, users.warn, users.job_id, users.age, \
+				"SELECT users.sex, users.level, users.online_hours, users.exp, users.money, users.bank_acc, users.warn, users.job_id, users.age, \
 				users.property_id_1, users.property_id_2, users.property_id_3, users.bussines_id, users.staff_min, users.last_login, users.admin_lvl, users.helper_level, \
 				users.email, users.reg_date, users.user_ip, IFNULL(org_members.org_id, 0) AS `org_id`, org_members.memb_rank, IFNULL(banned.ban_id, 0) AS `ban_id`, banned.ban_reason FROM users \
 			    LEFT JOIN org_members ON users.user_id = org_members.memb_sqlID \
@@ -49598,6 +50250,27 @@ CMD:smenipromotera( playerid, const params[] )
         new query[128];
 		mysql_format( mSQL, query, sizeof(query), "SELECT `user_id` FROM `users` WHERE `p_name` = '%e' LIMIT 1", imeigraca );
 		mysql_tquery( mSQL, query, "CheckPlayerOffRank", "iis", playerid, 5, imeigraca );
+	}
+	else return SendErrorMessage( playerid, "Niste u mogucnosti koristiti ovu komandu." );
+	return 1;
+}
+
+CMD:smeniytera( playerid, const params[] )
+{
+    if( PI[ playerid ][ xAdmin ] >= 7 || PI[playerid][xYouTuber] == 2 )
+	{
+		new imeigraca[ MAX_PLAYER_NAME ];
+	    if( sscanf( params, "s[24]", imeigraca ) ) return SendUsageMessage( playerid, "/smeniytera [Ime_Prezime]" );
+
+        if( IsPlayerConnected( GetPlayerIdFromName( imeigraca ) ) )
+		{
+			SendErrorMessage( playerid, "Taj igrac je online tako da smeni ga online.");
+			return 1;
+		}
+
+        new query[128];
+		mysql_format( mSQL, query, sizeof(query), "SELECT `user_id` FROM `users` WHERE `p_name` = '%e' LIMIT 1", imeigraca );
+		mysql_tquery( mSQL, query, "CheckPlayerOffRank", "iis", playerid, 6, imeigraca );
 	}
 	else return SendErrorMessage( playerid, "Niste u mogucnosti koristiti ovu komandu." );
 	return 1;
@@ -49945,7 +50618,7 @@ CMD:ubaciutorbu( playerid, const params[] )
 				SendInfoMessage( playerid, "Stavio si laptop u torbu." );
 				LaptopRuke[ playerid ] = false;
 				PI[playerid][xTorba_Laptop] = true;
-				sql_user_update_integer(playerid, "xTorba_Laptop", PI[playerid][xTorba_Laptop]);
+				sql_user_update_integer(playerid, "backpack_laptop", PI[playerid][xTorba_Laptop]);
 
 				if( IsPlayerAttachedObjectSlotUsed( playerid, OBJECT_SLOT_MAIN ) ) RemovePlayerAttachedObject( playerid, OBJECT_SLOT_MAIN );
 			}
@@ -49991,7 +50664,7 @@ CMD:ubaciutorbu( playerid, const params[] )
 			    PI[playerid][xTorba_OruzjeM][0] = GetPlayerAmmo( playerid );
 
 				static q[150];
-				mysql_format(mSQL, q, sizeof(q), "UPDATE `users` SET `xTorba_Oruzje_1` = '%d', `xTorba_OruzjeM_1` = '%d' WHERE `user_id` = '%d'", PI[playerid][xTorba_Oruzje][0], PI[playerid][xTorba_OruzjeM][0], PI[playerid][xID]);
+				mysql_format(mSQL, q, sizeof(q), "UPDATE `users` SET `backpack_gs_s1` = '%d', `backpack_am_s1` = '%d' WHERE `user_id` = '%d'", PI[playerid][xTorba_Oruzje][0], PI[playerid][xTorba_OruzjeM][0], PI[playerid][xID]);
 				mysql_tquery(mSQL, q);
 			}
 			else if(PI[playerid][xTorba_Oruzje][1] == 0)
@@ -50000,7 +50673,7 @@ CMD:ubaciutorbu( playerid, const params[] )
 			    PI[playerid][xTorba_OruzjeM][1] = GetPlayerAmmo( playerid );
 
 				static q[150];
-				mysql_format(mSQL, q, sizeof(q), "UPDATE `users` SET `xTorba_Oruzje_2` = '%d', `xTorba_OruzjeM_2` = '%d' WHERE `user_id` = '%d'", PI[playerid][xTorba_Oruzje][1], PI[playerid][xTorba_OruzjeM][1], PI[playerid][xID]);
+				mysql_format(mSQL, q, sizeof(q), "UPDATE `users` SET `backpack_gs_s2` = '%d', `backpack_am_s2` = '%d' WHERE `user_id` = '%d'", PI[playerid][xTorba_Oruzje][1], PI[playerid][xTorba_OruzjeM][1], PI[playerid][xID]);
 				mysql_tquery(mSQL, q);
 			}
 			else if(PI[playerid][xTorba_Oruzje][2] == 0)
@@ -50009,7 +50682,7 @@ CMD:ubaciutorbu( playerid, const params[] )
 			    PI[playerid][xTorba_OruzjeM][2] = GetPlayerAmmo( playerid );
 
 				static q[150];
-				mysql_format(mSQL, q, sizeof(q), "UPDATE `users` SET `xTorba_Oruzje_3` = '%d', `xTorba_OruzjeM_3` = '%d' WHERE `user_id` = '%d'", PI[playerid][xTorba_Oruzje][2], PI[playerid][xTorba_OruzjeM][2], PI[playerid][xID]);
+				mysql_format(mSQL, q, sizeof(q), "UPDATE `users` SET `backpack_gs_s3` = '%d', `backpack_am_s3` = '%d' WHERE `user_id` = '%d'", PI[playerid][xTorba_Oruzje][2], PI[playerid][xTorba_OruzjeM][2], PI[playerid][xID]);
 				mysql_tquery(mSQL, q);
 			}
 			else return SendErrorMessage(playerid, "Nemas mesta vise u torbi." );
@@ -50086,7 +50759,7 @@ CMD:aduty( playerid )
 		SMG_SetPlayerColor( playerid );
 
 		PI[ playerid ][ xAGMStats ]++;
-	    sql_user_update_integer( playerid, "xAGMStats", PI[ playerid ][ xAGMStats ] );
+	    sql_user_update_integer( playerid, "agm_stats", PI[ playerid ][ xAGMStats ] );
 
 		if(PI[ playerid ][ xAdmin ] < 5) 
 		{
@@ -50128,7 +50801,7 @@ CMD:specduty( playerid )
 		if(PI[playerid][xPol] == 1) SMG_SetPlayerSkin( playerid, 294 );
 
 		PI[ playerid ][ xAGMStats ]++;
-	    sql_user_update_integer( playerid, "xAGMStats", PI[ playerid ][ xAGMStats ] );
+	    sql_user_update_integer( playerid, "agm_stats", PI[ playerid ][ xAGMStats ] );
 
 		SendClientMessageToAllEx( 0x4A68C2FF, "PB: (( {FFFFFF}%s {4A68C2}%s {FFFFFF}je sada na duznosti. Imate pitanje kucajte {4A68C2}[ /askq ] ))", getAdminRankName(playerid), ImeIgraca( playerid ) );
 		SendInfoMessage(playerid, "Sada ste administrator na duznosti.");
@@ -50160,7 +50833,7 @@ CMD:gmduty( playerid )
 		SetPlayerArmour( playerid, 99 );
 
 		PI[ playerid ][ xAGMStats ]++;
-	    sql_user_update_integer( playerid, "xAGMStats", PI[ playerid ][ xAGMStats ] );
+	    sql_user_update_integer( playerid, "agm_stats", PI[ playerid ][ xAGMStats ] );
 
 		if( PI[ playerid ][ xPol ] == 1 ) SMG_SetPlayerSkin( playerid, 120 );
 
@@ -50246,7 +50919,7 @@ CMD:g( playerid, const params[] )
 	new text[ 128 ];
     if( sscanf( params, "s[128]", text ) ) return SendUsageMessage( playerid, "/g [tekst]" );
     if(IsTextUppercase(text) && PI[playerid][xAdmin] < 6) return SendClientMessage(playerid, ANTICHEAT, "(ANTI-CAPS): Zabranjeno je koristiti CapsLock!");
-	if( PI[ playerid ][ xPromoter ] >= 1 || PI[playerid][xGamemaster] >= 1 || PI[ playerid ][ xVIPLevel ] >= 1 || PI[ playerid ][ xAdmin ] >= 1 || PI[ playerid ][ xSpecAdmin ] >= 1 )
+	if( PI[ playerid ][ xPromoter ] >= 1 || PI[ playerid ][ xYouTuber ] >= 1 || PI[playerid][xGamemaster] >= 1 || PI[ playerid ][ xVIPLevel ] >= 1 || PI[ playerid ][ xAdmin ] >= 1 || PI[ playerid ][ xSpecAdmin ] >= 1 )
 	{
         if(PI[playerid][xSkriptaRank] == 1) GChat(0x48E86BFF, "[G] {FFFFFF}Skripter - {48E86B}%s[%d]: {FFFFFF}%s", ImeIgraca(playerid), playerid, text);
 		else if(PI[playerid][xSkriptaRank] == 2) GChat(0x48E86BFF, "[G] {FFFFFF}Suvlasnik - {48E86B}%s[%d]: {FFFFFF}%s", ImeIgraca(playerid), playerid, text);
@@ -50255,8 +50928,9 @@ CMD:g( playerid, const params[] )
 		else if(PI[playerid][xSpecAdmin] >= 1) GChat(0x48E86BFF, "[G] {FFFFFF}Spec Admin - {48E86B}%s[%d]: {FFFFFF}%s", ImeIgraca(playerid), playerid, text);
 		else if(PI[playerid][xGamemaster] >= 1) GChat(0x48E86BFF, "[G] {FFFFFF}GameMaster[%d] - {48E86B}%s[%d]: {FFFFFF}%s", PI[playerid][xGamemaster], ImeIgraca(playerid), playerid, text);
         else if(PI[playerid][xVIPLevel] >= 1) GChat(0x48E86BFF, "[G] {FFFFFF}VIP[%d] - {48E86B}%s[%d]: {FFFFFF}%s", PI[playerid][xVIPLevel], ImeIgraca(playerid), playerid, text);
-		else if(PI[playerid][xPromoter] >= 1 && PI[playerid][xPromoter] < 4) GChat(0x48E86BFF, "[G] {FFFFFF}Promoter[%d] - {48E86B}%s[%d]: {FFFFFF}%s", PI[playerid][xPromoter], ImeIgraca(playerid), playerid, text);
-		else if(PI[playerid][xPromoter] >= 1 && PI[playerid][xPromoter] >= 4) GChat(0x48E86BFF, "[G] {FFFFFF}Youtuber[%d] - {48E86B}%s[%d]: {FFFFFF}%s", PI[playerid][xPromoter], ImeIgraca(playerid), playerid, text);
+		else if(PI[playerid][xPromoter] >= 1) GChat(0x48E86BFF, "[G] {FFFFFF}Promoter[%d] - {48E86B}%s[%d]: {FFFFFF}%s", PI[playerid][xPromoter], ImeIgraca(playerid), playerid, text);
+		else if(PI[playerid][xYouTuber] >= 1) GChat(0x48E86BFF, "[G] {FFFFFF}%s - {48E86B}%s[%d]: {FFFFFF}%s", (PI[playerid][xYouTuber] == 2 ? "Head YouTuber" : "YouTuber"), ImeIgraca(playerid), playerid, text);
+
 		WriteLog("log-chat", "CMD: /g > %s: %s", ImeIgraca( playerid ), text);
 	}
 	else return SendErrorMessage( playerid, "Niste u mogucnosti koristiti ovu komandu." );
@@ -50347,18 +51021,18 @@ CMD:l( playerid, const params[] )
 CMD:admini( playerid )
 {
 	if(PI[playerid][xAdmin] < 1) return SendErrorMessage(playerid, "Niste u mogucnosti koristiti ovu komandu!");
-	mysql_tquery( mSQL, "SELECT `p_name`, `admin_lvl`, `isonline`, `last_login`, `xAGMStats` FROM `users` WHERE `admin_lvl` > '0' ORDER BY `admin_lvl` DESC", "selectQueryAdminList", "i", playerid );
+	mysql_tquery( mSQL, "SELECT `p_name`, `admin_lvl`, `isonline`, `last_login`, `agm_stats` FROM `users` WHERE `admin_lvl` > '0' ORDER BY `admin_lvl` DESC", "selectQueryAdminList", "i", playerid );
 	return 1;
 }
 
 CMD:specadmini( playerid )
 {
 	if(PI[playerid][xSpecAdmin] < 1 && PI[playerid][xAdmin] < 1) return SendErrorMessage(playerid, "Niste u mogucnosti koristiti ovu komandu!");
-	mysql_tquery( mSQL, "SELECT `p_name`, `xSpecAdmin`, `isonline`, `last_login`, `xAGMStats` FROM `users` WHERE `xSpecAdmin` > '0'", "selectQuerySpecAdminList", "i", playerid );
+	mysql_tquery( mSQL, "SELECT `p_name`, `spec_admin`, `isonline`, `last_login`, `agm_stats` FROM `users` WHERE `spec_admin` > '0'", "selectQuerySpecAdminList", "i", playerid );
 	return 1;
 }
 
-CMD:gamemasteri( playerid ) return mysql_tquery( mSQL, "SELECT `p_name`, `helper_level`, `isonline`, `last_login`, `xAGMStats` FROM `users` WHERE `helper_level` > '0' ORDER BY `helper_level` DESC", "selectQueryGamemasterList", "i", playerid);
+CMD:gamemasteri( playerid ) return mysql_tquery( mSQL, "SELECT `p_name`, `helper_level`, `isonline`, `last_login`, `agm_stats` FROM `users` WHERE `helper_level` > '0' ORDER BY `helper_level` DESC", "selectQueryGamemasterList", "i", playerid);
 CMD:vipovi( playerid )
 {
     if( PI[playerid][xAdmin] < 6 ) return SendErrorMessage( playerid, "Niste u mogucnosti koristiti ovu komandu." );
@@ -50368,6 +51042,11 @@ CMD:promoteri( playerid )
 {
 	if(PI[playerid][xAdmin] < 1 && PI[playerid][xSkriptaRank] != 5) return SendErrorMessage( playerid, "Niste u mogucnosti koristiti ovu komandu." );
 	return mysql_tquery( mSQL, "SELECT `p_name`, `promoter_level`, `isonline`, `last_login` FROM `users` WHERE `promoter_level` > '0' ORDER BY `promoter_level` DESC", "selectQueryPromoterList", "i", playerid );
+}
+CMD:youtuberi( playerid ) 
+{
+	if(PI[playerid][xAdmin] < 1 && PI[playerid][xYouTuber] != 2) return SendErrorMessage( playerid, "Niste u mogucnosti koristiti ovu komandu." );
+	return mysql_tquery( mSQL, "SELECT `p_name`, `youtuber`, `isonline`, `last_login` FROM `users` WHERE `youtuber` > '0' ORDER BY `youtuber` DESC", "selectQueryYouTuberList", "i", playerid );
 }
 CMD:novajlije( playerid )
 {
@@ -50446,12 +51125,12 @@ CMD:lideri( playerid ) return mysql_tquery( mSQL, "SELECT org_members.org_id, or
 													ON org_members.org_id = organizations.org_id \
 													WHERE org_members.memb_type > '0' ORDER BY org_members.org_id ASC", "selectQueryLeaderList", "i", playerid );
 
-CMD:x( playerid, const params[] )
+CMD:1( playerid, const params[] )
 {
     if( PI[ playerid ][ xAdmin ] < 7 ) return SendErrorMessage( playerid, "Niste u mogucnosti koristiti ovu komandu." );
 
 	new text[ 128 ];
-    if( sscanf( params, "s[128]", text ) ) return SendUsageMessage( playerid, "/x [tekst]" );
+    if( sscanf( params, "s[128]", text ) ) return SendUsageMessage( playerid, "/1 [tekst]" );
 
 	foreach( new i : Player)
 	{
@@ -50481,7 +51160,7 @@ CMD:vremenskiban( playerid, const params[] )
 		AdminMsg( ADM_WARN, "[ADMIN] %s je dobi%s ban od Admina %s, razlog: %s, ban istice za %d dana.", ImeIgraca( id ), getPolForString(id, "o", "la"), ImeIgraca( playerid ), razlog, ban_days );
 
 	    PI[ playerid ][ xAGMStats ]++;
-	    sql_user_update_integer( playerid, "xAGMStats", PI[ playerid ][ xAGMStats ] );
+	    sql_user_update_integer( playerid, "agm_stats", PI[ playerid ][ xAGMStats ] );
 	    ServerInfo[ BanovanihKorisnika ]++;
 
 		new datetime[ 6 ];
@@ -50517,7 +51196,7 @@ CMD:ban( playerid, const params[] )
 		AdminMsg( ADM_WARN, "[ADMIN] %s je dobi%s ban od Admina %s, razlog: %s", ImeIgraca( id ), getPolForString(id, "o", "la"), ImeIgraca( playerid ), razlog );
 
 	    PI[ playerid ][ xAGMStats ]++;
-        sql_user_update_integer( playerid, "xAGMStats", PI[ playerid ][ xAGMStats ] );
+        sql_user_update_integer( playerid, "agm_stats", PI[ playerid ][ xAGMStats ] );
 
         ServerInfo[ BanovanihKorisnika ]++;
 
@@ -50591,7 +51270,7 @@ CMD:warn( playerid, const params[] )
 		PI[ id ][ xWarn ] += 1;
 		sql_user_update_integer( id, "warn", PI[ id ][ xWarn ] );
 		PI[ playerid ][ xAGMStats ]++;
-	    sql_user_update_integer( playerid, "xAGMStats", PI[ playerid ][ xAGMStats ] );
+	    sql_user_update_integer( playerid, "agm_stats", PI[ playerid ][ xAGMStats ] );
 
 		SendInfoMessage( id, "Admin %s vam je da%s warn(%d/5). Razlog: %s", ImeIgraca( playerid ), getPolForString(playerid, "o", "la"), PI[ id ][ xWarn ], reason );
 		SendInfoMessage( playerid, "Dali ste warn igracu %s. Razlog: %s", ImeIgraca( id ), reason );
@@ -50632,7 +51311,7 @@ CMD:unwarn( playerid, const params[] )
 		AdminMsg( ADM_WARN, "[ADMIN] %s je skinu%s warn igracu %s!", ImeIgraca( playerid ), getPolForString(playerid, "o", "la"), ImeIgraca( id ) );
 
 		PI[ playerid ][ xAGMStats ]++;
-	    sql_user_update_integer( playerid, "xAGMStats", PI[ playerid ][ xAGMStats ] );
+	    sql_user_update_integer( playerid, "agm_stats", PI[ playerid ][ xAGMStats ] );
 		ServerInfo[ BrojWarnova ]--;
 
 		PI[ id ][ xWarn ] -= 1;
@@ -50941,13 +51620,13 @@ CMD:tog(playerid, const params[])
 		if( PI[playerid][xTogLabel] == true )
 		{
 			PI[playerid][xTogLabel] = false;
-			sql_user_update_integer(playerid, "xTogLabel", PI[playerid][xTogLabel]);
+			sql_user_update_integer(playerid, "toggle_label", PI[playerid][xTogLabel]);
 			SendClientMessage( playerid, 0xBFC0C2FF, "(TOG): Ukljucili ste prikazivanje labela iznad glave (ukoliko ga imate).");
 		}
 		else
 		{
 			PI[playerid][xTogLabel] = true;
-			sql_user_update_integer(playerid, "xTogLabel", PI[playerid][xTogLabel]);
+			sql_user_update_integer(playerid, "toggle_label", PI[playerid][xTogLabel]);
 			SendClientMessage( playerid, 0xBFC0C2FF, "(TOG): Iskljucili ste prikazivanje labela iznad glave (ukoliko ga imate).");
 		}
 	}
@@ -51136,7 +51815,7 @@ CMD:spec( playerid, const params[] )
 		if( Spectate[ playerid ] != id )
 		{
 			PI[ playerid ][ xAGMStats ]++;
-	    	sql_user_update_integer( playerid, "xAGMStats", PI[ playerid ][ xAGMStats ] );
+	    	sql_user_update_integer( playerid, "agm_stats", PI[ playerid ][ xAGMStats ] );
 
 			Spectate[ playerid ] = id;
 
@@ -52326,7 +53005,7 @@ CMD:take( playerid, const params[])
 
 				        ResetPlayerWeapons( igrac );
         				PI[ playerid ][ xTakenWeps ] += oruzje;
-						sql_user_update_integer( playerid, "xTakenWeps", PI[ playerid ][ xTakenWeps ] );
+						sql_user_update_integer( playerid, "taken_weapons", PI[ playerid ][ xTakenWeps ] );
 			        }
 					else SendErrorMessage( playerid, "Taj igrac nije blizu vas.");
 			    }
@@ -52345,10 +53024,10 @@ CMD:take( playerid, const params[])
 				        SCMF( igrac, 0x33CCFFFF, "#TAKE: {FFFFFF}Policajac {33CCFF}%s {FFFFFF}vam je oduzeo svu drogu.", ImeIgraca( playerid ) );
 
 						PI[ playerid ][ xTakenDrugs ] += PI[ igrac ][ xTorba_Droga ];
-						sql_user_update_integer( playerid, "xTakenDrugs", PI[ playerid ][ xTakenDrugs ] );
+						sql_user_update_integer( playerid, "taken_drugs", PI[ playerid ][ xTakenDrugs ] );
 
 						PI[ igrac ][ xTorba_Droga ] = 0;
-						sql_user_update_integer( igrac, "xTorba_Droga", PI[ igrac ][ xTorba_Droga ] );
+						sql_user_update_integer( igrac, "backpack_drug", PI[ igrac ][ xTorba_Droga ] );
 					}
 					else SendErrorMessage( playerid, "Taj igrac nije blizu vas!");
 			    }
@@ -52716,7 +53395,7 @@ CMD:arrest( playerid, const params[] )
 				Draged[ id ] = -1;
 				PI[ id ][ xUhapsen ] += 1;
 				PI[ playerid ][ xPDUhapsio ] += 1;
-				sql_user_update_integer( playerid, "xPDUhapsio", PI[ playerid ][ xPDUhapsio ] );
+				sql_user_update_integer( playerid, "pd_arrest", PI[ playerid ][ xPDUhapsio ] );
 				ClearAnimations( id );
 				PlayerCuffed[ id ] = 0;
 
@@ -52943,7 +53622,7 @@ CMD:diler( playerid, const params[] )
 	{
 		DajIgracuNovac(playerid, -kol*org_info[bb][oDilerCena]);
 		PI[playerid][xTorba_Droga] += kol;
-		sql_user_update_integer(playerid, "xTorba_Droga", PI[playerid][xTorba_Droga]);
+		sql_user_update_integer(playerid, "backpack_drug", PI[playerid][xTorba_Droga]);
 		SendInfoMessage(playerid, "Kupili ste %dg droge od dilera.", kol);
 
 		org_info[bb][oSafeDrugAmmount] -= kol;
@@ -54396,11 +55075,11 @@ CMD:give( playerid, const params[] )
 
 
 			         	new q[ 144 ];
-						mysql_format( mSQL, q, sizeof(q), "UPDATE `users` SET `xTelefon` = '%d', `phone_number` = '%d' WHERE `user_id` = '%d' LIMIT 1",
+						mysql_format( mSQL, q, sizeof(q), "UPDATE `users` SET `phone` = '%d', `phone_number` = '%d' WHERE `user_id` = '%d' LIMIT 1",
 															PI[ playerid ][ xTelefon ], PI[ playerid ][ xBrojTelefona ], PI[ playerid ][ xID ] );
 						mysql_tquery( mSQL, q );
 
-			         	mysql_format( mSQL, q, sizeof(q), "UPDATE `users` SET `xTelefon` = '%d', `phone_number` = '%d' WHERE `user_id` = '%d' LIMIT 1",
+			         	mysql_format( mSQL, q, sizeof(q), "UPDATE `users` SET `phone` = '%d', `phone_number` = '%d' WHERE `user_id` = '%d' LIMIT 1",
 															PI[ giveplayerid ][ xTelefon ], PI[ giveplayerid ][ xBrojTelefona ], PI[ giveplayerid ][ xID ] );
 						mysql_tquery( mSQL, q );
             		}
@@ -54935,7 +55614,7 @@ CMD:buymobile( playerid )
 				BussinesMoney( uFirmi[ playerid ], 10000, true );
 
 				PI[ playerid ][ xTelefon ] = true;
-               	sql_user_update_integer( playerid, "xTelefon", PI[ playerid ][ xTelefon ] );
+               	sql_user_update_integer( playerid, "phone", PI[ playerid ][ xTelefon ] );
 
                	new randphone = 100000 + random(899999);
 				PI[ playerid ][ xBrojTelefona ] = randphone;
@@ -55006,7 +55685,7 @@ CMD:buyelectric( playerid, const params[] )
 				DajIgracuNovac( playerid, -10000 );
 				BussinesMoney( uFirmi[ playerid ], 10000, true );
 				PI[playerid][xBoombox] = true;
-				sql_user_update_integer(playerid, "xBoombox", PI[playerid][xBoombox]);
+				sql_user_update_integer(playerid, "boombox", PI[playerid][xBoombox]);
 
 				SendInfoMessage( playerid, "Kupili ste Boombox(radio), koristite ga putem komande [ /boombox ]." );
 				return 1;
@@ -55021,7 +55700,7 @@ CMD:buyelectric( playerid, const params[] )
 					DajIgracuNovac( playerid, -35000 );
 					BussinesMoney( uFirmi[ playerid ], 35000, true );
 					PI[playerid][xTorba_Laptop] = true;
-					sql_user_update_integer(playerid, "xTorba_Laptop", PI[playerid][xTorba_Laptop]);
+					sql_user_update_integer(playerid, "backpack_laptop", PI[playerid][xTorba_Laptop]);
 
 					SendInfoMessage( playerid, "Kupio si laptop za {FFFFFF}(35000$)." );
 				}
@@ -55256,7 +55935,7 @@ CMD:robatm( playerid )
 	    if( GetNearestAtm( playerid ) == -1 ) return SendErrorMessage( playerid, "Moras biti blizu bankomata." );
     	if( PI[ playerid ][ xPljackaVreme ] != 0 ) return SendErrorMessage( playerid, "Vec si pljackao, do sledece pljacke sacekaj %d minuta.", PI[ playerid ][ xPljackaVreme ] );
     	new atmid = GetNearestAtm( playerid );
-	    if( atmInfo[ atmid ][ atmVremeDoRoba ] != 0 ) return SendErrorMessage( playerid, "Ovaj bankomat je vec opljackan." );
+	    if( AtmInfo[ atmid ][ atmVremeDoRoba ] != 0 ) return SendErrorMessage( playerid, "Ovaj bankomat je vec opljackan." );
 
 		ATMTDControl( playerid, true );
 		SelectTextDraw( playerid, 0x2D6888FF );
@@ -55301,7 +55980,7 @@ CMD:atm( playerid, const params[] )
 		DajIgracuNovac( playerid, cashdeposit );
 		PI[ playerid ][ xBRacun ] -= cashdeposit;
 		UpdateBankTD( playerid );
-		sql_user_update_integer( playerid, "xBRacun", PI[ playerid ][ xBRacun ] );
+		sql_user_update_integer( playerid, "bank_acc", PI[ playerid ][ xBRacun ] );
 
 		SCMF( playerid, ZUTA, "(ATM): Podigli ste {FFFFFF}($%d) {FFFF00}s vaseg racuna. Na racunu ima: {FFFFFF}($%d)", cashdeposit, PI[ playerid ][ xBRacun ] );
 		return 1;
@@ -56023,65 +56702,64 @@ CMD:pljackajzlataru( playerid )
 	if( PljackaZlato[ playerid ] > 0 ) return SendErrorMessage( playerid, "Moras bezati 5 minuta od policije da bi dobio zlato." );
     if( PljackaUToku ) return SendErrorMessage( playerid, "Ne mozete ovo dok je pljacka banke u toku." );
 	if( gettime() < GlobalnoPetnaestMinuta ) return SendErrorMessage( playerid, "Mora proci jos %d sekundi od proslog roba.", GlobalnoPetnaestMinuta - gettime() );
+	if( PI[playerid][xToolkit] == 0 ) return SendErrorMessage(playerid, "Nemate toolkit/alat, kupite ga na crnom trzistu.");
 
-	switch(SERVER_IZRADA)
+	new policajci = 0, igraci = 0, hour, minute, seconds;
+	gettimeEx( hour, minute, seconds );
+	FixHour( hour );
+	hour = shifthour;
+
+	foreach( new i : Player)
 	{
-		case 0: {
-			new policajci = 0, igraci = 0, hour, minute, seconds;
-			gettimeEx( hour, minute, seconds );
-			FixHour( hour );
-			hour = shifthour;
+	    if( GetFactionType( i ) == ORG_TIP_VLADINA && PoliceDuty[ i ] ) policajci++;
 
-			foreach( new i : Player)
-			{
-				if( GetFactionType( i ) == ORG_TIP_VLADINA && PoliceDuty[ i ] ) policajci++;
-
-				if( PI[ i ][ xClan ] == PI[ playerid ][ xClan ] )
-				{
-					igraci++;
-				}
-			}
-
-			if( policajci < 2 ) return SendErrorMessage( playerid, "Ne mozete pljackati zlataru ako nema 2 policajaca online na duty." );
-			if( igraci < 3 )  return SendErrorMessage( playerid, "Moras imati bar 3 ljudi iz organizacije online." );
-			if( ( hour < 09 ) && ( hour > 23 ) ) return SendErrorMessage( playerid, "Mozete pljackati samo od 9h do 23h." );
-
+ 	    if( PI[ i ][ xClan ] == PI[ playerid ][ xClan ] )
+		{
+			igraci++;
 		}
 	}
+	if( ( hour >= 23 ) && ( hour <= 09 ) ) return SendErrorMessage( playerid, "Ne moze koristit ovu komandu od 02 do 19h.");
+	//if( policajci < 2 ) return SendErrorMessage( playerid, "Ne mozete pljackati zlataru ako nema 2 policajaca online na duty." );
+	if( igraci < 3 )  return SendErrorMessage( playerid, "Moras imati bar 3 ljudi iz organizacije online." );
+
 	if( GetWeapon( playerid ) >= 22 && GetWeapon( playerid ) <= 40 )
 	{
-		PI[playerid][xToolkit] = 0;
-		sql_user_update_integer(playerid, "toolkit", PI[playerid][xToolkit]);
-		switch(SERVER_IZRADA)
-		{
-			case 0: ZlatoVreme[playerid] = 600;
-			case 1: ZlatoVreme[playerid] = 10;
+        if( ( hour >= 09 ) && ( hour <= 23 ) )
+        {
+        	PI[playerid][xToolkit] = 0;
+        	sql_user_update_integer(playerid, "toolkit", PI[playerid][xToolkit]);
+			switch(SERVER_IZRADA)
+        	{
+        	    case 0: ZlatoVreme[playerid] = 600;
+        	    case 1: ZlatoVreme[playerid] = 10;
+            }
+		    PljackaZlato[ playerid ] = 0;
+		    ZlataraOpljackana = gettime()+(60*60);
+		    ZlataraUToku = true;
+		    NestoPljackano = gettime()+(15*60);
+			PljackanjeZlatareTimer[ playerid ] = SetPlayerTimerEx(playerid, "PljackanjeZlatarice", 1000, true, "i", playerid);
+
+			SendClientMessage( playerid, 0xFF4500FF, "(PLJACKA ZLATARE): Zapoceli ste pljacku zlatare." );
+			SendClientMessage( playerid, 0xFF4500FF, "(PLJACKA ZLATARE): Pljacka zlatare traje {FFFFFF}(600) {FF4500}sekundi." );
+			SendClientMessage( playerid, 0xFF4500FF, "(PLJACKA ZLATARE): Svake sekunde koju pljackate dobijate {FFFFFF}(1g) {FF4500}zlata." );
+
+			PostaviWanted( playerid, "Pljacka Zlatare", "Nepoznati", 6 );
+			GlobalnoPetnaestMinuta = gettime()+(15*60);
+
+			ZlataraActorsHandsup();
+			SetTimer_("ResetZlataraActors", 15*60, 15*60, 1);
+
+			OOCNews( 0xFFA500FF, "_____________________________ {FFFFFF}(OBAVESTENJE) {FFA500}_____________________________" );
+            OOCNews( -1, " ");
+			OOCNews( 0xFFA500FF, "(PLJACKA ZLATARE): Neko pokusava da opljacka zlataru." );
+			OOCNews( 0xFFA500FF, "(PLJACKA ZLATARE): Molimo sve jedinice da intervenisu." );
+ 
+			AdminMsg( 0xFFA500AA, "([A]PLJACKA ZLATARE): {FFFFFF}%s[/spec %d] {FFA500}je poceo da pljacka zlataru.", ImeIgraca( playerid ), playerid );
+
+            OOCNews( -1, " ");
+            OOCNews( 0xFFA500FF, "___________________________ {FFFFFF}("SERVER_WEB") {FFA500}___________________________" );
 		}
-		PljackaZlato[ playerid ] = 0;
-		ZlataraOpljackana = gettime()+(60*60);
-		ZlataraUToku = true;
-		NestoPljackano = gettime()+(15*60);
-		PljackanjeZlatareTimer[ playerid ] = SetPlayerTimerEx(playerid, "PljackanjeZlatarice", 1000, true, "i", playerid);
-
-		SendClientMessage( playerid, 0xFF4500FF, "(PLJACKA ZLATARE): Zapoceli ste pljacku zlatare." );
-		SendClientMessage( playerid, 0xFF4500FF, "(PLJACKA ZLATARE): Pljacka zlatare traje {FFFFFF}(600) {FF4500}sekundi." );
-		SendClientMessage( playerid, 0xFF4500FF, "(PLJACKA ZLATARE): Svake sekunde koju pljackate dobijate {FFFFFF}(1g) {FF4500}zlata." );
-
-		PostaviWanted( playerid, "Pljacka Zlatare", "Nepoznati", 6 );
-		GlobalnoPetnaestMinuta = gettime()+(15*60);
-
-		ZlataraActorsHandsup();
-		SetTimer_("ResetZlataraActors", 15*60, 15*60, 1);
-
-		OOCNews( 0xFFA500FF, "_____________________________ {FFFFFF}(OBAVESTENJE) {FFA500}_____________________________" );
-		OOCNews( -1, " ");
-		OOCNews( 0xFFA500FF, "(PLJACKA ZLATARE): Neko pokusava da opljacka zlataru." );
-		OOCNews( 0xFFA500FF, "(PLJACKA ZLATARE): Molimo sve jedinice da intervenisu." );
-
-		AdminMsg( 0xFFA500AA, "([A]PLJACKA ZLATARE): {FFFFFF}%s[/spec %d] {FFA500}je poceo da pljacka zlataru.", ImeIgraca( playerid ), playerid );
-
-		OOCNews( -1, " ");
-		OOCNews( 0xFFA500FF, "___________________________ {FFFFFF}("SERVER_WEB") {FFA500}___________________________" );
+		else return SendErrorMessage( playerid, "Mozete pljackati samo od 9h do 23h." );
 	}
 	else return SendErrorMessage( playerid, "Nemate oruzje za pljackanje zlatare!" );
 	return 1;
@@ -56090,7 +56768,7 @@ CMD:pljackajzlataru( playerid )
 CMD:pljackajbanku( playerid )
 {
 	if( !IsPlayerInDynamicArea( playerid, bankSafe ) ) return SendErrorMessage( playerid, "Morate biti kod sefa banke." );
-	if( ServerInfo[BankaNovac] == 0 ) return SendErrorMessage( playerid, "U sefu banke trenutno nema novca." );
+	//if( ServerInfo[BankaNovac] == 0 ) return SendErrorMessage( playerid, "Banka nema polozenog novca." );
 
     if( GetFactionType( playerid ) == ORG_TIP_VLADINA || GetFactionType( playerid ) == ORG_TIP_HITMAN ) return SendErrorMessage( playerid, "Vrsta vase orge nema razloga pljackati banku.");
 	if( gettime() < BankaOpljackana ) return SendErrorMessage( playerid, "Banka je vec opljackana, probajte za %d minuta.", (BankaOpljackana - gettime()) / 60 );
@@ -56098,64 +56776,60 @@ CMD:pljackajbanku( playerid )
     if( ZlataraUToku ) return SendErrorMessage( playerid, "Ne mozete ovo dok je pljacka zlatare u toku." );
 	if( PljackaNovac[ playerid ] > 0 ) return SendErrorMessage( playerid, "Moras bezati 5 minuta od policije da bi dobio novac." );
 	if( gettime() < GlobalnoPetnaestMinuta ) return SendErrorMessage( playerid, "Mora proci jos %d sekundi od proslog roba.", GlobalnoPetnaestMinuta - gettime() );
+	//if( PI[playerid][xToolkit] == 0 ) return SendErrorMessage(playerid, "Nemate toolkit/alat, kupite ga na crnom trzistu.");
 
-	switch(SERVER_IZRADA)
+	new policajci = 0, igraci = 0, hour, minute, seconds;
+	gettimeEx( hour, minute, seconds );
+	FixHour( hour );
+	hour = shifthour;
+
+	foreach( new i : Player)
 	{
-		case 0:
+	    if( GetFactionType( i ) == ORG_TIP_VLADINA && PoliceDuty[ i ] ) policajci++;
+
+ 	    if( PI[ i ][ xClan ] == PI[ playerid ][ xClan ] )
 		{
-			new policajci = 0, igraci = 0, hour, minute, seconds;
-			gettimeEx( hour, minute, seconds );
-			FixHour( hour );
-			hour = shifthour;
-
-			foreach( new i : Player)
-			{
-				if( GetFactionType( i ) == ORG_TIP_VLADINA && PoliceDuty[ i ] ) policajci++;
-
-				if( PI[ i ][ xClan ] == PI[ playerid ][ xClan ] )
-				{
-					igraci++;
-				}
-			}
-
-			if( policajci < 2 ) return SendErrorMessage( playerid, "Ne mozete pljackati banku ako nema 2 policajaca online na duty." );
-			if( igraci < 3 )  return SendErrorMessage( playerid, "Moras imati bar 3 ljudi iz organizacije online." );
-			if( ( hour < 09 ) && ( hour > 23 ) ) return SendErrorMessage( playerid, "Mozete pljackati samo od 9h do 23h." );
+			igraci++;
 		}
 	}
-	
+	//if( policajci < 2 ) return SendErrorMessage( playerid, "Ne mozete pljackati banku ako nema 2 policajaca online na duty." );
+	//if( igraci < 3 )  return SendErrorMessage( playerid, "Moras imati bar 3 ljudi iz organizacije online." );
 
 	if( GetWeapon( playerid ) >= 22 && GetWeapon( playerid ) <= 40 )
 	{
-		PI[playerid][xToolkit] = 0;
-		sql_user_update_integer(playerid, "toolkit", PI[playerid][xToolkit]);
-		switch(SERVER_IZRADA)
-		{
-			case 0: PljackaVreme[playerid] = 600;
-			case 1: PljackaVreme[playerid] = 10;
-		}
-		PljackaNovac[ playerid ] = 0;
-		BankaOpljackana = gettime()+(60*60);
-		PljackaUToku = true;
-		NestoPljackano = gettime()+(15*60);
-		PljackanjeBankeTimer[ playerid ] = SetPlayerTimerEx(playerid, "PljackanjeBankice", 1000, true, "i", playerid);
+        //if( ( hour >= 09 ) && ( hour <= 23 ) )
+		//{
+			PI[playerid][xToolkit] = 0;
+        	sql_user_update_integer(playerid, "toolkit", PI[playerid][xToolkit]);
+        	switch(SERVER_IZRADA)
+        	{
+        	    case 0: PljackaVreme[playerid] = 600;
+        	    case 1: PljackaVreme[playerid] = 10;
+            }
+		    PljackaNovac[ playerid ] = 0;
+		    BankaOpljackana = gettime()+(60*60);
+		    PljackaUToku = true;
+		    NestoPljackano = gettime()+(15*60);
+			PljackanjeBankeTimer[ playerid ] = SetPlayerTimerEx(playerid, "PljackanjeBankice", 1000, true, "i", playerid);
 
-		SendClientMessage( playerid, 0xFF4500FF, "(PLJACKA BANKE): Zapoceli ste pljacku banke." );
-		SendClientMessage( playerid, 0xFF4500FF, "(PLJACKA BANKE): Pljacka banke traje {FFFFFF}(600) {FF4500}sekundi." );
-		SendClientMessage( playerid, 0xFF4500FF, "(PLJACKA BANKE): Svake sekunde koju pljackate dobijate {FFFFFF}(220-250) {FF4500}dolara." );
+			SendClientMessage( playerid, 0xFF4500FF, "(PLJACKA BANKE): Zapoceli ste pljacku banke." );
+			SendClientMessage( playerid, 0xFF4500FF, "(PLJACKA BANKE): Pljacka banke traje {FFFFFF}(600) {FF4500}sekundi." );
+			SendClientMessage( playerid, 0xFF4500FF, "(PLJACKA BANKE): Svake sekunde koju pljackate dobijate {FFFFFF}(220-250) {FF4500}dolara." );
 
-		PostaviWanted( playerid, "Pljacka Banke", "Nepoznati", 6 );
-		GlobalnoPetnaestMinuta = gettime()+(15*60);
+			PostaviWanted( playerid, "Pljacka Banke", "Nepoznati", 6 );
+			GlobalnoPetnaestMinuta = gettime()+(15*60);
 
-		OOCNews( 0xFFA500FF, "_____________________________ {FFFFFF}(OBAVESTENJE) {FFA500}_____________________________" );
-		OOCNews( -1, " ");
-		OOCNews( 0xFFA500FF, "(PLJACKA BANKE): Neko pokusava da opljacka banku." );
-		OOCNews( 0xFFA500FF, "(PLJACKA BANKE): Molimo sve jedinice da intervenisu." );
+            OOCNews( 0xFFA500FF, "_____________________________ {FFFFFF}(OBAVESTENJE) {FFA500}_____________________________" );
+            OOCNews( -1, " ");
+			OOCNews( 0xFFA500FF, "(PLJACKA BANKE): Neko pokusava da opljacka banku." );
+			OOCNews( 0xFFA500FF, "(PLJACKA BANKE): Molimo sve jedinice da intervenisu." );
+ 
+			AdminMsg( 0xFFA500FF, "([A]PLJACKA BANKE): {FFFFFF}%s[/spec %d] {FFA500}je poceo da pljacka banku.", ImeIgraca( playerid ), playerid );
 
-		AdminMsg( 0xFFA500FF, "([A]PLJACKA BANKE): {FFFFFF}%s[/spec %d] {FFA500}je poceo da pljacka banku.", ImeIgraca( playerid ), playerid );
-
-		OOCNews( -1, " ");
-		OOCNews( 0xFFA500FF, "___________________________ {FFFFFF}("SERVER_WEB") {FFA500}___________________________" );
+            OOCNews( -1, " ");
+			OOCNews( 0xFFA500FF, "___________________________ {FFFFFF}("SERVER_WEB") {FFA500}___________________________" );
+		//}
+		//else return SendErrorMessage( playerid, "Mozete pljackati samo od 9h do 23h." );
 	}
 	else return SendErrorMessage( playerid, "Nemate oruzje za pljackanje banke!" );
 	return 1;
@@ -56718,9 +57392,9 @@ CMD:accept( playerid, const params[] )
 						DajIgracuNovac( pandur, TicketMoney[playerid] );
 
 						PI[ pandur ][ xPDStatsTicket ] += 1;
-						sql_user_update_integer( pandur, "xPDStatsTicket", PI[ pandur ][ xPDStatsTicket ] );
+						sql_user_update_integer( pandur, "pd_statsticket", PI[ pandur ][ xPDStatsTicket ] );
 						PI[ pandur ][ xPDStatsTicketMoney ] += TicketMoney[playerid];
-						sql_user_update_integer( pandur, "xPDStatsTicketMoney", PI[ pandur ][ xPDStatsTicketMoney ] );
+						sql_user_update_integer( pandur, "pd_statsticket_money", PI[ pandur ][ xPDStatsTicketMoney ] );
 						TicketOffer[playerid] = -1;
 						TicketMoney[playerid] = 0;
 					}
@@ -56815,8 +57489,8 @@ CMD:accept( playerid, const params[] )
 				DajIgracuNovac(GiveItemID[playerid], ItemPrice[ playerid ]);
 		   		PlayerPlaySound( playerid, 1052, 0.0, 0.0, 0.0 );
 
-				sql_user_update_integer( GiveItemID[playerid], "xTorba_Droga", PI[ GiveItemID[playerid] ][ xTorba_Droga ] );
-				sql_user_update_integer( playerid, "xTorba_Droga", PI[ playerid ][ xTorba_Droga ] );
+				sql_user_update_integer( GiveItemID[playerid], "backpack_drug", PI[ GiveItemID[playerid] ][ xTorba_Droga ] );
+				sql_user_update_integer( playerid, "backpack_drug", PI[ playerid ][ xTorba_Droga ] );
 
 				SendNearbyMessage(playerid, 5.0, 0xC2A2DAFF, "* %s vadi drogu i daje ih %s.", ImeIgraca( GiveItemID[playerid] ), ImeIgraca( playerid ) );
 
@@ -56903,8 +57577,8 @@ CMD:accept( playerid, const params[] )
 				DajIgracuNovac(GiveItemID[playerid], ItemPrice[ playerid ]);
 		   		PlayerPlaySound( playerid, 1052, 0.0, 0.0, 0.0 );
 
-				sql_user_update_integer( GiveItemID[playerid], "xZlato", PI[ GiveItemID[playerid] ][ xZlato ] );
-				sql_user_update_integer( playerid, "xZlato", PI[ playerid ][ xZlato ] );
+				sql_user_update_integer( GiveItemID[playerid], "gold", PI[ GiveItemID[playerid] ][ xZlato ] );
+				sql_user_update_integer( playerid, "gold", PI[ playerid ][ xZlato ] );
 
 				UpdateZlatoTD(playerid);
 				UpdateZlatoTD(GiveItemID[playerid]);
@@ -58279,7 +58953,7 @@ CMD:uzmidrogu( playerid )
 			if( PI[playerid][xTorba_Droga] < 100000 )
 			{
 			    PI[playerid][xTorba_Droga] += ServerInfo[ SkladisteDroga ];
-				sql_user_update_integer(playerid, "xTorba_Droga", PI[playerid][xTorba_Droga]);
+				sql_user_update_integer(playerid, "backpack_drug", PI[playerid][xTorba_Droga]);
 
 				SCMF( playerid, 0x2D6888FF, "(DROGA): Uzeli ste {FFFFFF}(%dg) droge iz skladista.", ServerInfo[ SkladisteDroga ] );
 				ServerInfo[ SkladisteDroga ] = 0;
@@ -59442,7 +60116,7 @@ CMD:radio( playerid, const params[] )
 		if( IsPlayerInAnyVehicle( playerid ) ) return SendErrorMessage( playerid, "Morate napustiti vozilo prvo." );
 
         PI[playerid][xBoombox] = false;
-        sql_user_update_integer(playerid, "xBoombox", PI[playerid][xBoombox]);
+        sql_user_update_integer(playerid, "boombox", PI[playerid][xBoombox]);
 
 		Boombox_Place( playerid );
 
@@ -59455,7 +60129,7 @@ CMD:radio( playerid, const params[] )
 		if( !IsPlayerInRangeOfPoint( playerid, 3.0, BoomboxInfo[ playerid ][ boomboxPos ][ 0 ], BoomboxInfo[ playerid ][ boomboxPos ][ 1 ], BoomboxInfo[ playerid ][ boomboxPos ][ 2 ] ) ) return SendErrorMessage( playerid, "Niste u blizini vaseg radia." );
 
 		PI[playerid][xBoombox] = true;
-        sql_user_update_integer(playerid, "xBoombox", PI[playerid][xBoombox]);
+        sql_user_update_integer(playerid, "boombox", PI[playerid][xBoombox]);
 		Boombox_Destroy( playerid );
 
   		SendNearbyMessage(playerid, 20.0, 0xC2A2DAFF, "* %s je podiga%s svoj radio s poda.", ImeIgraca( playerid ), getPolForString(playerid, "o", "la"));
@@ -59592,7 +60266,7 @@ CMD:smsbingo( playerid, const params[] )
 	if( broj < 1 || broj > 100 ) return SendErrorMessage( playerid, "Brojevi ne mogu da idu ispod 1 ili iznad 100." );
 
 	PI[ playerid ][ xBingoNumber ] = broj;
-	sql_user_update_integer( playerid, "xBingoNumber", PI[ playerid ][ xBingoNumber ] );
+	sql_user_update_integer( playerid, "bingo_number", PI[ playerid ][ xBingoNumber ] );
 
     SCMF( playerid, 0x2D6888FF, "(SMS BINGO): Uplatili ste tiket sa brojem {FFFFFF}(%d).", broj );
 	SendClientMessage( playerid, 0x2D6888FF, "(SMS BINGO): Da vidite sve komande za bingo kucajte {FFFFFF}[ /help > Bingo ]." );
@@ -59617,7 +60291,7 @@ CMD:vbingo( playerid, const params[] )
 	if( broj < 1 || broj > 100 ) return SendErrorMessage( playerid, "Brojevi ne mogu da idu ispod 1 ili iznad 100." );
 
 	PI[ playerid ][ xBingoNumber ] = broj;
-	sql_user_update_integer( playerid, "xBingoNumber", PI[ playerid ][ xBingoNumber ] );
+	sql_user_update_integer( playerid, "bingo_number", PI[ playerid ][ xBingoNumber ] );
 
     SCMF( playerid, 0x2D6888FF, "(VIP BINGO): Uplatili ste tiket sa brojem {FFFFFF}(%d).", broj );
 	SendClientMessage( playerid, 0x2D6888FF, "(VIP BINGO): Da vidite sve komande za bingo kucajte {FFFFFF}[ /help > Bingo ]." );
@@ -59641,7 +60315,7 @@ CMD:uplatibingo( playerid, const params[] )
 	if( broj < 1 || broj > 100 ) return SendErrorMessage( playerid, "Brojevi ne mogu da idu ispod 1 ili iznad 100." );
 
 	PI[ playerid ][ xBingoNumber ] = broj;
-	sql_user_update_integer( playerid, "xBingoNumber", PI[ playerid ][ xBingoNumber ] );
+	sql_user_update_integer( playerid, "bingo_number", PI[ playerid ][ xBingoNumber ] );
 
     SCMF( playerid, 0x2D6888FF, "(BINGO): Uplatili ste tiket sa brojem {FFFFFF}(%d).", broj );
 	SendClientMessage( playerid, 0x2D6888FF, "(BINGO): Da vidite sve komande za bingo kucajte {FFFFFF}[ /help > Bingo ]." );
@@ -59664,13 +60338,13 @@ CMD:mojtiket( playerid )
 
 CMD:podignidobitak( playerid )
 {
-	if( !IsPlayerInRangeOfPoint( playerid, 3,.0 1283.1450, -1544.1130, 13.5306 ) ) return SendErrorMessage( playerid, "Niste na salteru drzavne lutrije." );
+	if( !IsPlayerInRangeOfPoint( playerid, 3, 1283.1450, -1544.1130, 13.5306 ) ) return SendErrorMessage( playerid, "Niste na salteru drzavne lutrije." );
 	if( PI[ playerid ][ xBingoMoney ] < 1 ) return SendErrorMessage( playerid, "Trenutno nemate novca na bingo racunu." );
 
 	DajIgracuNovac( playerid, PI[ playerid ][ xBingoMoney ] );
 	SendInfoMessage( playerid, "Preuzeli ste vasu nagradu od {FFFFFF}($%d).", PI[ playerid ][ xBingoMoney ] );
 	PI[ playerid ][ xBingoMoney ] = 0;
-	sql_user_update_integer( playerid, "xBingoMoney", PI[ playerid ][ xBingoMoney ] );
+	sql_user_update_integer( playerid, "bingo_money", PI[ playerid ][ xBingoMoney ] );
 	return 1;
 }
 
@@ -59775,7 +60449,8 @@ CMD:pickupgun( playerid )
 }
 
 CMD:music( playerid )
-	return ShowPlayerDialog( playerid, D_RADIOPLAY, DIALOG_STYLE_LIST, D_NASLOV,
+{
+	ShowPlayerDialog( playerid, D_RADIOPLAY, DIALOG_STYLE_LIST, D_NASLOV,
 																				"{2D6888}(1). {FFFFFF}BUM Radio\n\
 																				{2D6888}(2). {FFFFFF}B92 Radio\n\
 																				{2D6888}(3). {FFFFFF}Antena Radio\n\
@@ -59786,6 +60461,8 @@ CMD:music( playerid )
 																				{2D6888}(8). {FFFFFF}Balkan DJ\n\
 																				{2D6888}(9). {FFFFFF}Radio - PROJECT BASSIVITY\n\
 																				{FF0000}- Off Radio", "Potvrdi", "Odustani" );
+	return 1;
+}
 alias:music("mp3");
 
 CMD:statistika( playerid )
@@ -59918,7 +60595,7 @@ CMD:prodajzlato( playerid, const params[] )
 
 	DajIgracuNovac( playerid, kolicina*200 );
 	PI[ playerid ][ xZlato ] -= kolicina;
-   	sql_user_update_integer( playerid, "xZlato", PI[ playerid ][ xZlato ] ); UpdateZlatoTD(playerid);
+   	sql_user_update_integer( playerid, "gold", PI[ playerid ][ xZlato ] ); UpdateZlatoTD(playerid);
 
 	SendInfoMessage( playerid, "Uspesno ste prodali {FFFFFF}(%d) {2D6888}grama zlata te dobili {FFFFFF}($%d) {2D6888}novca.", kolicina, kolicina*200 );
 	return 1;
@@ -59947,7 +60624,7 @@ CMD:prodajdijamante(playerid, const params[])
 
 	DajIgracuNovac( playerid, kolicina*100000 );
 	PI[ playerid ][ xDiamond ] -= kolicina;
-   	sql_user_update_integer( playerid, "xDiamond", PI[ playerid ][ xDiamond ] );
+   	sql_user_update_integer( playerid, "diamond", PI[ playerid ][ xDiamond ] );
 
 	SendInfoMessage( playerid, "Uspesno ste prodali {FFFFFF}(%d) {2D6888}grama dijamanata te dobili {FFFFFF}($%d) {2D6888}novca.", kolicina, kolicina*100000 );
 	return 1;
@@ -60509,7 +61186,8 @@ CMD:help(playerid)
 																				{2D6888}(18). {FFFFFF}Banka\n\
 																				{2D6888}(19). {FFFFFF}Bingo\n\
 																				{2D6888}(20). {FFFFFF}Pljacka\n\
-																				{2D6888}(21). {FFFFFF}Promoter", "Potvrdi", "Zatvori");
+																				{2D6888}(21). {FFFFFF}Promoter\n\
+																				{2D6888}(22). {FFFFFF}YouTuber", "Potvrdi", "Zatvori");
 	return 1;
 }
 
@@ -60688,7 +61366,7 @@ CMD:withdraw( playerid, const params[] )
 
 		QuestTimer[playerid] = SetPlayerTimerEx(playerid, "questDone", 10000, 10000, "ii", playerid, 1);
 	}
-	sql_user_update_integer( playerid, "xBRacun", PI[ playerid ][ xBRacun ] );
+	sql_user_update_integer( playerid, "bank_acc", PI[ playerid ][ xBRacun ] );
 	return 1;
 }
 
@@ -60732,7 +61410,7 @@ CMD:deposit( playerid, const params[] )
 
 	UpdateBankTD( playerid );
 
-	sql_user_update_integer( playerid, "xBRacun", PI[ playerid ][ xBRacun ] );
+	sql_user_update_integer( playerid, "bank_acc", PI[ playerid ][ xBRacun ] );
 	return 1;
 }
 
@@ -60753,8 +61431,8 @@ CMD:transfer( playerid, const params[] )
     PI[ id ][ xBRacun ] += cashdeposit;
 	PlayerPlaySound( playerid, 1052, 0.0, 0.0, 0.0);
 
-	sql_user_update_integer( playerid, "xBRacun", PI[ playerid ][ xBRacun ] );
-	sql_user_update_integer( id, "xBRacun", PI[ id ][ xBRacun ] );
+	sql_user_update_integer( playerid, "bank_acc", PI[ playerid ][ xBRacun ] );
+	sql_user_update_integer( id, "bank_acc", PI[ id ][ xBRacun ] );
 	UpdateBankTD( playerid );
 	UpdateBankTD( id );
 
